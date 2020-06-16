@@ -4,6 +4,7 @@
 ### ROS Eloquent
 ```python
 sudo apt install ros-eloquent-desktop
+sudo apt install python3-colcon-common-extensions
 ```
 **Source the setup file**
 ```bash
@@ -33,7 +34,7 @@ printenv | grep -i ROS
         * type <service_name>
         * find <type_name>
         * call <service_name> <service_type> '<args>'
-    * param
+    * param - values set at the time of launch
         * list
         * get <node_name> <parameter_name>
         * set <node_name> <parameter_name> <value>
@@ -42,9 +43,56 @@ printenv | grep -i ROS
         * list
         * info <action_name>
         * send_goal <action_name> <action_type> <values>
+    * launch
+        * *Directory Structure*
+            1. launch / <file_name>_launch.py
+        * <package_name> <launch_file_name>
+    * bag
+        * record <topic_name>
+        * info <bag_file_name>
+        * play
+    * doctor --report
 
+* Check dependencies: 
+```rosdep install -i --from-path src --rosdistro <distro> -y```
+* Build workspace with colcon
+    * ```colcon build```
+    * creates the following directories *build* *install* *log*
+    * 'install' is the new name for 'devel'. ROS 2 & 1 difference.
+
+## Package
+**Package can be created using CMake (C++) or Python**
+### CMake
+1. **package.xml** file containing meta information about the package
+2. **CMakeLists.txt** file that describes how to build the code within the package
+### Python
+1. **package.xml** file containing meta information about the package
+2. **setup.py** containing instructions for how to install the package
+3. **setup.cfg** is required when a package has executables, so *ros2 run* can find them
+4. **/<package_name>** - a directory with the same name as your package, used by ROS 2 tools to find your package, contains *__init__.py*
+### Tasks
+1. CMake
+    1. Create package ```ros2 pkg create --build-type ament_cmake <package_name>```
+    2. Create package with node ```ros2 pkg create --build-type ament_cmake --node-name my_node <package_name>```
+2. Python
+    1. Create package ```ros2 pkg create --build-type ament_python <package_name>```
+    2. Create package with node ```ros2 pkg create --build-type ament_python --node-name my_node <package_name>```
+### Custom Msg and Srv
+Refer [link](https://index.ros.org/doc/ros2/Tutorials/Custom-ROS2-Interfaces/#custominterfaces)
+
+## Steps to build
+### Build changes
+1. Build Packages
+    1. All ```colcon build```
+    2. Specific ```colcon build --packages-select my_package```
+2. Source the setup file ```. install/local_setup.bash```
 
 
 ## Tips
 ### RQT
 1. Use rqt service to pass values using GUI to the ROS services.
+### Structure
+1. Directory structure : {project_name}/dev_ws/src/
+### Design
+1. The ROS msgs are used by publisher and subscribers to continuously monitor data
+2. The ROS srv are used to send requested data by client node
