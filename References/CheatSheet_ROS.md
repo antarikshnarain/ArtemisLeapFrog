@@ -54,9 +54,10 @@ printenv | grep -i ROS
     * doctor --report
 
 * Check dependencies: 
-```rosdep install -i --from-path src --rosdistro <distro> -y```
+```bash
+rosdep install -i --from-path src --rosdistro <distro> -y
+```
 * Build workspace with colcon
-    * ```colcon build```
     * creates the following directories *build* *install* *log*
     * 'install' is the new name for 'devel'. ROS 2 & 1 difference.
 
@@ -72,21 +73,41 @@ printenv | grep -i ROS
 4. **/<package_name>** - a directory with the same name as your package, used by ROS 2 tools to find your package, contains *__init__.py*
 ### Tasks
 1. CMake
-    1. Create package ```ros2 pkg create --build-type ament_cmake <package_name>```
-    2. Create package with node ```ros2 pkg create --build-type ament_cmake --node-name my_node <package_name>```
+    1. Create package 
+    ```bash
+    ros2 pkg create --build-type ament_cmake <package_name>
+    ```
+    2. Create package with node 
+    ```bash
+    ros2 pkg create --build-type ament_cmake --node-name my_node <package_name>
+    ```
 2. Python
-    1. Create package ```ros2 pkg create --build-type ament_python <package_name>```
-    2. Create package with node ```ros2 pkg create --build-type ament_python --node-name my_node <package_name>```
+    1. Create package 
+    ```bash
+    ros2 pkg create --build-type ament_python <package_name>
+    ```
+    2. Create package with node 
+    ```bash
+    ros2 pkg create --build-type ament_python --node-name my_node <package_name>
+    ```
 ### Custom Msg and Srv
 Refer [link](https://index.ros.org/doc/ros2/Tutorials/Custom-ROS2-Interfaces/#custominterfaces)
 
 ## Steps to build
 ### Build changes
 1. Build Packages
-    1. All ```colcon build```
-    2. Specific ```colcon build --packages-select my_package```
-2. Source the setup file ```. install/local_setup.bash```
-
+    1. All 
+    ```bash 
+    colcon build
+    ```
+    2. Specific 
+    ```bash
+    colcon build --packages-select my_package
+    ```
+2. Source the setup file 
+```bash
+. install/local_setup.bash
+```
 
 ## Tips
 ### RQT
