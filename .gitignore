@@ -1,0 +1,4 @@
+POC/gazebo_ws/build/*
+POC/gazebo_ws/install/*
+POC/gazebo_ws/log/*
+.vscode/*
