@@ -4,6 +4,7 @@
 ### ROS Eloquent
 ```python
 sudo apt install ros-eloquent-desktop
+sudo apt install ros-eloquent-gazebo-ros-pkgs
 sudo apt install python3-colcon-common-extensions
 ```
 **Source the setup file**
