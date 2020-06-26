@@ -1,18 +1,12 @@
 #include<stdio.h>
 /*
 Config KP, KI, KD, h, Tf, Tt
-1. 1.5, 0.003, 0.3, 0.1, 1, 10
-1. 2.0, 0.003, 0.5, 0.1, 1, 10
-1. 3.0, 0.0003, 0.5, 0.1, 1, 10 - slow ocillation rise
-1. 4.0, 0.0003, 0.8, 0.1, 1, 10 - slow ocillation rise
-1. 5.0, 0.0003, 0.8, 9.5, 11.0, 0.1, 1, 10 - lower hovering
-1. 4.0, 0.0003, 10.0, 9.5, 11.0, 0.1, 1, 10 - slow rising
-1. 10.0, 0.003, 10.0, 9.5, 11.0, 0.1, 1, 10 - better rising
+Working Value: Kp=30.0, KI=0.005, KD=10.0, h=1, Tf=10, Tt=10, Thr=(9.6, 12.0)
 */
 class PIDController
 {
 private:
-    const double KP = 20.0, KI = 0.01, KD = 10.0;
+    const double KP = 30.0, KI = 0.005, KD = 10.0;
     double bi, ad, bd, br;
     double exp_val_old;
     double P, I, D;

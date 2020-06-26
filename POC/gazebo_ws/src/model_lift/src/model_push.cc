@@ -16,7 +16,8 @@ namespace gazebo
 			this->model = _parent;
 
 			// Configure Block constants
-			this->MAX_FORCE = 9.85; // Max force 12.0 N
+			//this->MAX_FORCE = 9.85; // Max force 12.0 N
+			this->MAX_FORCE = 11.0; // Max force 12.0 N
 			this->force_z = 0.0;
 			this->increment = 0.01; // Precision of 0.01 N
 		
@@ -39,14 +40,26 @@ namespace gazebo
 			// Apply a small linear velocity to the model.
 			//this->model->SetLinearVel(ignition::math::Vector3d(.3, 0, 0));
 			//this->model->GetLink("link")->SetForce(ignition::math::Vector3d(0.0, 0.0, this->force_z));
-			this->model->GetLink("link")->SetForce(ignition::math::Vector3d(0.0, 0.0, this->Thrust2(this->model->WorldPose().Pos(), 5.0)));
+			this->model->GetLink("link")->SetForce(ignition::math::Vector3d(0.0, 0.0, this->Thrust2(this->model->WorldPose().Pos(), this->expected_altitude)));
 			// roll at 4.5
-			if(this->model->WorldPose().Pos().Z() > 4.5 && rot_flag)
+			// if(this->model->WorldPose().Pos().Z() > 4.5 && rot_flag)
+			// {
+			// 	this->model->SetWorldTwist(ignition::math::v4::Vector3d(0.0, 0.0, 0.0),
+			// 		ignition::math::v4::Vector3d(0.0, 0.17453, 0.0));
+			// 	printf("Rotating Model\n");
+			// 	rot_flag = false;
+			// 	// this->model->SetWorldTwist(ignition::math::v4::Vector3d(0.0, 0.0, 0.0),
+			// 	// 	ignition::math::v4::Vector3d(0.0, 0.0, 0.0));
+			// }
+			//if(this->model->WorldPose().Pos().Z() >= (this->expected_altitude - 2))
+			if(this->model->WorldPose().Pos().Z() >= (this->expected_altitude - 0))
 			{
-				this->model->SetWorldTwist(ignition::math::v4::Vector3d(0.0, 0.0, 0.0),
-					ignition::math::v4::Vector3d(0.0, 0.17453, 0.0));
-				printf("Rotating Model\n");
-				rot_flag = false;
+				this->expected_altitude = 0;
+				printf("Coming Down!!!");
+				// this->model->SetWorldTwist(ignition::math::v4::Vector3d(0.0, 0.0, 0.0),
+				// 	ignition::math::v4::Vector3d(0.0, 0.17453, 0.0));
+				// printf("Rotating Model\n");
+				// rot_flag = false;
 				// this->model->SetWorldTwist(ignition::math::v4::Vector3d(0.0, 0.0, 0.0),
 				// 	ignition::math::v4::Vector3d(0.0, 0.0, 0.0));
 			}
@@ -101,8 +114,9 @@ namespace gazebo
 		double increment;
 	
 	private:
-		PIDController controller = PIDController(9.5, 11.0, 0.1, 1, 10);
+		PIDController controller = PIDController(9.6, 12.0, 1, 10, 10);
 		bool rot_flag = true;
+		double expected_altitude = 5.0;
 	};
 
 	// Register this plugin with the simulator
