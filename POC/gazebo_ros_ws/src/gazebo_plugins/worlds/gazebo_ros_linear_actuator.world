@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+  Gazebo ROS model lift plugin
+
+  Try sending commands:
+
+    ros2 topic pub /modelift/cmd_force geometry_msgs/msg/T
+    ros2 topic pub /demo/cmd_demo geometry_msgs/msg/Twist '{linear: {x: 1.0}, angular: {z: 0.1}}' -1
+
+  Try listening to odometry:
+
+    ros2 topic echo /modelift/odom_data
+    ros2 topic echo /demo/odom_demo
+
+  Try listening to odometer reading(linear distance convered):
+
+    ros2 topic echo /demo/distance_demo
+
+-->
+<sdf version="1.6">
+    <world name="default">
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+
+        <include>
+          <uri>model://models/double_cylinder_actuator</uri>
+        </include>
+    </world>
+</sdf>
