@@ -201,7 +201,7 @@
         </surface>
       </collision>
     </link>
-    <joint name='linear_sliding' type='prismatic'>
+    <joint name='linear_actuator_joint' type='prismatic'>
       <parent>outer_cylinder</parent>
       <child>inner_cylinder</child>
       <pose>0 0 0 0 -0 0</pose>
@@ -235,7 +235,5 @@
     </joint>
     <static>0</static>
     <allow_auto_disable>1</allow_auto_disable>
-    // NOTE: not sure where this executable is being built, so path may change
-    <plugin name="actuator_move" filename="libactuator_move.so"/>
   </model>
 </sdf>
