@@ -51,6 +51,9 @@ public:
   /// Protect variables accessed on callbacks.
   std::mutex lock_;
 
+  // Max steering angle
+  double max_speed_ = 0;
+
   /// Linear velocity in X received on command (m/s).
   double target_linear_{0.0};
 
@@ -87,6 +90,7 @@ void GazeboRosActuatorMove::Load(gazebo::physics::ModelPtr _model, sdf::ElementP
   impl_->joints_[GazeboRosActuatorMovePrivate::X_ACC] = _model->GetJoint(actuator_joint);
   // TODO: do error check for joint existence; return and reset if failed
 
+  impl_->max_speed_ = _sdf->Get<double>("max_speed", 0.1).first;
 
   impl_->cmd_vel_sub_ = impl_->ros_node_->create_subscription<geometry_msgs::msg::Twist>(
     "cmd_vel", qos.get_subscription_qos("cmd_vel", rclcpp::QoS(1)),
@@ -97,14 +101,19 @@ void GazeboRosActuatorMove::Load(gazebo::physics::ModelPtr _model, sdf::ElementP
 
   // Listen to the update event (broadcast every simulation iteration)
   impl_->update_connection_ = gazebo::event::Events::ConnectWorldUpdateBegin(
-    std::bind(&GazeboRosAckermannDrivePrivate::OnUpdate, impl_.get(), std::placeholders::_1));
+    std::bind(&GazeboRosActuatorMovePrivate::OnUpdate, impl_.get(), std::placeholders::_1));
 }
 
 void GazeboRosActuatorMovePrivate::OnUpdate(const gazebo::common::UpdateInfo & _info)
 {
   std::lock_guard<std::mutex> lock(lock_);
 
-  joints_[X_ACC]->SetForce(0, ...)  // TODO
+  // Set velocity of actuator
+  auto target_linear = ignition::math::clamp(target_linear_, -max_speed_, max_speed_);
+
+  // TODO: Set bounds for hitting maxmimum extension
+
+  joints_[X_ACC]->SetVelocity(0, target_linear);
 }
 
 void GazeboRosActuatorMovePrivate::OnCmdVel(const geometry_msgs::msg::Twist::SharedPtr _msg)
@@ -112,6 +121,8 @@ void GazeboRosActuatorMovePrivate::OnCmdVel(const geometry_msgs::msg::Twist::Sha
   std::lock_guard<std::mutex> scoped_lock(lock_);
   target_linear_ = _msg->linear.x;
   target_rot_ = _msg->angular.z;
+  RCLCPP_INFO(
+    ros_node_->get_logger(), "Received new linear value [%f]", target_linear_);
 }
 
 // Register this plugin with the simulator
