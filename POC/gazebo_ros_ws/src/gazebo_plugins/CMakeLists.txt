@@ -54,7 +54,41 @@ ament_target_dependencies(gazebo_ros_model_lift
   "geometry_msgs"
   "rclcpp"
 )
+ament_export_libraries(gazebo_ros_model_lift)
 
+# gazebo_ros_linear_actuator
+add_library(gazebo_ros_actuator_move SHARED
+  src/gazebo_ros_actuator_move.cpp
+)
+target_include_directories(gazebo_ros_actuator_move PUBLIC include)
+ament_target_dependencies(gazebo_ros_actuator_move
+  "gazebo_dev"
+  "gazebo_ros"
+  "geometry_msgs"
+  "nav_msgs"
+  "rclcpp"
+  "tf2"
+  "tf2_geometry_msgs"
+  "tf2_ros"
+)
+ament_export_libraries(gazebo_ros_actuator_move)
+
+# gazebo_ros_ackermann_drive
+add_library(gazebo_ros_ackermann_drive SHARED
+  src/gazebo_ros_ackermann_drive.cpp
+)
+target_include_directories(gazebo_ros_ackermann_drive PUBLIC include)
+ament_target_dependencies(gazebo_ros_ackermann_drive
+  "gazebo_dev"
+  "gazebo_ros"
+  "geometry_msgs"
+  "nav_msgs"
+  "rclcpp"
+  "tf2"
+  "tf2_geometry_msgs"
+  "tf2_ros"
+)
+ament_export_libraries(gazebo_ros_ackermann_drive)
 
 ament_export_include_directories(include)
 ament_export_dependencies(rclcpp)
@@ -62,11 +96,13 @@ ament_export_dependencies(gazebo_dev)
 ament_export_dependencies(gazebo_msgs)
 ament_export_dependencies(gazebo_ros)
 
-# if(BUILD_TESTING)
-#   add_subdirectory(test)
-#   find_package(ament_lint_auto REQUIRED)
-#   ament_lint_auto_find_test_dependencies()
-# endif()
+
+# TODO: Add testing direct with tests for each plugin
+ #if(BUILD_TESTING)
+ #  add_subdirectory(test)
+ #  find_package(ament_lint_auto REQUIRED)
+ #  ament_lint_auto_find_test_dependencies()
+ #endif()
 
 if(NOT WIN32)
   if(NOT APPLE)
@@ -88,6 +124,8 @@ install(DIRECTORY include/
 
 install(TARGETS
     gazebo_ros_model_lift
+    gazebo_ros_actuator_move
+    gazebo_ros_ackermann_drive
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
