@@ -4,7 +4,12 @@
 
   Try sending commands:
 
-    ros2 topic pub /actuator/cmd_direction geometry_msgs/msg/Twist '{linear: {x: 1.0}}' -1
+    ros2 topic pub /actuator/cmd_direction geometry_msgs/msg/Twist '{linear: {x: 0.01}}' -1
+
+  - This will move the inner cylinder at 0.01 m/s, the maximum travel speed.
+  - NOTE: The plugin for the actuator is set up to subsribe to the topic:
+    geometry_msgs/msg/Twist. The topic should be changed to whatever input is
+    desired
 -->
 <sdf version="1.6">
   <world name="default">
@@ -25,32 +30,27 @@
     </include>
 
     <include>
-      <!--<name>x-actuator</name>-->
+      <name>x-actuator</name>
       <uri>model://linear_actuator</uri>
 
-      <!--initial actuator orientation-->
-      <!--<pose>0 0 1 0 -1.5707 0</pose>-->
-
-      <!--<plugin name="actuator_move" filename="libgazebo_ros_actuator_move.so">-->
-
-        <!--<ros>-->
-        <!--  <namespace>actuator</namespace>-->
-        <!--  <remapping>cmd_vel:=cmd_direction</remapping>-->
-          <!--<remapping>odom:=odom_demo</remapping>-->
-          <!--<remapping>distance:=distance_demo</remapping>-->
-        <!--</ros>-->
-
-        <!--actuators-->
-      <!--  <actuator_joint>linear_actuator_joint</actuator_joint>-->
-
-      <!--</plugin>-->
+      <!--
+        initial actuator position and orientation
+        Actuator has outer radius of 0.02m, so it is place at z=0.02 to ensure
+        that it rests on top of the ground.
+      -->
+      <pose>-0.2 0 0.02 0 0 0</pose>
     </include>
 
-    <!--<include>-->
-    <!--  <name>y-actuator</name>-->
-    <!--  <uri>model://models/double_cylinder_actuator</uri>-->
-    <!--  <pose>0 1 1 1.5707 0 0</pose>-->
-    <!--  <plugin name="model_push" filename="plugins/model_push/build/libmodel_push.so"/>-->
-    <!--</include>-->
+    <include>
+      <name>y-actuator</name>
+      <uri>model://linear_actuator</uri>
+
+      <!--
+        initial actuator position and orientation
+        Actuator has outer radius of 0.02m, so it is place at z=0.02 to ensure
+        that it rests on top of the ground.
+      -->
+      <pose>0 0.2 0.02 0 0 -1.5707</pose>
+    </include>
   </world>
 </sdf>
