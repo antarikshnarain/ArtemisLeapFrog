@@ -1,0 +1,219 @@
+<?xml version='1.0'?>
+<!--
+  Linear actuator specifications:
+  Outer Cylinder diameter: 1.57" = 0.04m
+  Inner Cylinder diameter: TODO
+  Mounting Cylinder diameter: 0.79" = 0.02m
+  Actuator Stroke length: 4" = 0.1016m
+  Actuator Extended length: Stroke Length (4") + 4.13"
+  Max Travel Speed: 0.39 in/sec = 0.010m/sec
+-->
+<sdf version='1.7'>
+  <model name='linear_actuator'>
+    <link name='outer_cylinder'>
+      <inertial>
+        <mass>1.00028</mass>
+        <inertia>
+          <ixx>0.00123369</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00123369</iyy>
+          <iyz>0</iyz>
+          <izz>0.00080023</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0 0 0 -0.000397 1.5707 -0.000397</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.02</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <link name='inner_cylinder'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.145833</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.145833</iyy>
+          <iyz>0</iyz>
+          <izz>0.125</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.000476 6e-06 0 -0.000186 1.5707 -0.000186</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.018</radius>
+            <length>0.101</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.018</radius>
+            <length>0.101</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <link name='gimbal_mount_point'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.145833</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.145833</iyy>
+          <iyz>0</iyz>
+          <izz>0.125</izz>
+        </inertia>
+        <pose>0 0 0 0 1.5707 0</pose>
+      </inertial>
+      <pose>0.061402 0.000702 4.3e-05 -0.001678 1.5707 -0.001678</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <link name='actuator_mount_point'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.145833</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.145833</iyy>
+          <iyz>0</iyz>
+          <izz>0.125</izz>
+        </inertia>
+        <pose>0 0 0 0 1.5707 0</pose>
+      </inertial>
+      <pose>-0.057803 -0.000572 -0.000327 1.55905 1.05921 1.57041</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.015</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.3 0.3 0.3 1</ambient>
+          <diffuse>0.7 0.7 0.7 1</diffuse>
+          <specular>0.01 0.01 0.01 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.015</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <joint name='inner_cylinder_gimbal_joint' type='fixed'>
+      <parent>inner_cylinder</parent>
+      <child>gimbal_mount_point</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='outer_cylinder_mount_joint' type='fixed'>
+      <parent>outer_cylinder</parent>
+      <child>actuator_mount_point</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='linear_actuator_joint' type='prismatic'>
+      <parent>outer_cylinder</parent>
+      <child>inner_cylinder</child>
+      <pose>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0.102</upper> // 4" = 0.1016m
+          <effort>-1</effort>
+          <velocity>0.01</velocity> // 0.39 in/sec = 0.010m/sec
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+          <damping>0</damping>
+          <friction>0</friction>
+        </dynamics>
+      </axis>
+      <physics>
+        <ode>
+          <limit>
+            <cfm>0</cfm>
+            <erp>0.2</erp>
+          </limit>
+          <suspension>
+            <cfm>0</cfm>
+            <erp>0.2</erp>
+          </suspension>
+        </ode>
+      </physics>
+    </joint>
+    <plugin name='actuator_move' filename='libgazebo_ros_actuator_move.so'>
+      <ros>
+        <namespace>actuator</namespace>
+        <remapping>cmd_vel:=cmd_direction</remapping>
+      </ros>
+      <actuator_joint>linear_actuator_joint</actuator_joint>
+    </plugin>
+  </model>
+</sdf>

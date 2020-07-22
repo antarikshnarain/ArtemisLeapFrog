@@ -26,24 +26,24 @@
 
     <include>
       <!--<name>x-actuator</name>-->
-      <uri>model://double_cylinder_actuator</uri>
+      <uri>model://linear_actuator</uri>
 
       <!--initial actuator orientation-->
-      <pose>1 0 1 0 -1.5707 0</pose>
+      <!--<pose>0 0 1 0 -1.5707 0</pose>-->
 
-      <plugin name="actuator_move" filename="libgazebo_ros_actuator_move.so">
+      <!--<plugin name="actuator_move" filename="libgazebo_ros_actuator_move.so">-->
 
-        <ros>
-          <namespace>actuator</namespace>
-          <remapping>cmd_vel:=cmd_direction</remapping>
+        <!--<ros>-->
+        <!--  <namespace>actuator</namespace>-->
+        <!--  <remapping>cmd_vel:=cmd_direction</remapping>-->
           <!--<remapping>odom:=odom_demo</remapping>-->
           <!--<remapping>distance:=distance_demo</remapping>-->
-        </ros>
+        <!--</ros>-->
 
         <!--actuators-->
-        <actuator_joint>linear_actuator_joint</actuator_joint>
+      <!--  <actuator_joint>linear_actuator_joint</actuator_joint>-->
 
-      </plugin>
+      <!--</plugin>-->
     </include>
 
     <!--<include>-->
