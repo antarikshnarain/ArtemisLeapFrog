@@ -69,27 +69,27 @@
       </collision>
     </link>
 
-    <!--Ring 2 Engine Cylinder-->
-    <link name='rings_2_engine_rotate'>
+    <!--Ring 2 Engine Cylinder Links-->
+    <link name='rings_2_1_engine_rotate'>
       <inertial>
-        <mass>1</mass>
+        <mass>0.212376</mass>
         <inertia>
-          <ixx>0.145833</ixx>
+          <ixx>4.57072e-05</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.145833</iyy>
+          <iyy>4.57072e-05</iyy>
           <iyz>0</iyz>
-          <izz>0.125</izz>
+          <izz>1.06188e-05</izz>
         </inertia>
         <pose>0 0 0 0 -0 0</pose>
       </inertial>
-      <pose>0 -1e-06 -0 0.013499 1.5707 1.58391</pose>
+      <pose>2e-06 0.0871 0 0.012567 1.5707 1.58298</pose>
       <visual name='visual'>
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
           <cylinder>
             <radius>0.01</radius>
-            <length>0.225</length>
+            <length>0.0477767</length>
           </cylinder>
         </geometry>
       </visual>
@@ -98,7 +98,40 @@
         <geometry>
           <cylinder>
             <radius>0.01</radius>
-            <length>0.225</length>
+            <length>0.047777</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <link name='rings_2_5_engine_rotate'>
+      <inertial>
+        <mass>0.212376</mass>
+        <inertia>
+          <ixx>4.57072e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.57072e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1.06188e-05</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-3.4e-05 -0.087257 -8e-06 0.012566 1.5707 1.58298</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.0477767</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.047777</length>
           </cylinder>
         </geometry>
       </collision>
@@ -119,6 +152,7 @@
         <pose>0 0 0 0 -0 0</pose>
       </inertial>
       <pose>0 -1e-06 -0 0 -0 0</pose>
+      <self_collide>1</self_collide>
       <visual name='visual'>
         <pose>0 0 0 0 -0 0</pose>
         <geometry>
@@ -138,6 +172,7 @@
         </geometry>
       </collision>
     </link>
+
     <!--Ring 2 Links-->
     <link name='ring_2_side_1'>
       <inertial>
@@ -800,26 +835,28 @@
    <!--Cylinder Joints between ring 2 and engine-->
     <joint name='ring_2_side_1_rotate_fixed' type='fixed'>
       <parent>ring_2_side_1</parent>
-      <child>rings_2_engine_rotate</child>
+      <child>rings_2_1_engine_rotate</child>
       <pose>0 0 0 0 -0 0</pose>
     </joint>
     <joint name='ring_2_side_5_rotate_fixed' type='fixed'>
       <parent>ring_2_side_5</parent>
-      <child>rings_2_engine_rotate</child>
+      <child>rings_2_5_engine_rotate</child>
       <pose>0 0 0 0 -0 0</pose>
     </joint>
-    <joint name='engine_rotate' type='revolute'>
-      <parent>rings_2_engine_rotate</parent>
+    <joint name='engine_rotate_1' type='revolute'>
+      <parent>rings_2_1_engine_rotate</parent>
       <child>engine</child>
       <pose>0 0 0 0 -0 0</pose>
       <axis>
         <xyz>-0 -1 -0</xyz>
-        <limit>
-          <lower>-1.79769e+308</lower>
-          <upper>1.79769e+308</upper>
-          <effort>-1</effort>
-          <velocity>-1</velocity>
-        </limit>
+      </axis>
+    </joint>
+    <joint name='engine_rotate_5' type='revolute'>
+      <parent>rings_2_5_engine_rotate</parent>
+      <child>engine</child>
+      <pose>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>-0 -1 -0</xyz>
       </axis>
     </joint>
 
