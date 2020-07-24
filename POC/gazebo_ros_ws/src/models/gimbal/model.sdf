@@ -1,0 +1,827 @@
+<?xml version='1.0'?>
+<sdf version='1.7'>
+  <model name='gimbal'>
+    <!--Rings 3 and 2 cylinder links -->
+    <link name='rings_3_2_rotate_3'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.145833</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.145833</iyy>
+          <iyz>0</iyz>
+          <izz>0.125</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.134723 0.001268 1.6e-05 0.013562 1.5707 0.013273</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <link name='rings_3_2_rotate_7'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.145833</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.145833</iyy>
+          <iyz>0</iyz>
+          <izz>0.125</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0.136457 -2e-06 2e-06 -0.037735 1.5707 -0.038025</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+
+    <!--Ring 2 Engine Cylinder-->
+    <link name='rings_2_engine_rotate'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.145833</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.145833</iyy>
+          <iyz>0</iyz>
+          <izz>0.125</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0 -1e-06 -0 0.013499 1.5707 1.58391</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.225</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.01</radius>
+            <length>0.225</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+
+    <!--Engine-->
+    <link name='engine'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.145833</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.145833</iyy>
+          <iyz>0</iyz>
+          <izz>0.125</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0 -1e-06 -0 0 -0 0</pose>
+      <visual name='visual'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.066</radius>
+            <length>0.3805</length>
+          </cylinder>
+        </geometry>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.066</radius>
+            <length>0.3805</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+    <!--Ring 2 Links-->
+    <link name='ring_2_side_1'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0 0.105398 -1e-06 1.5707 -0 0</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.12 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.12 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_2_side_2'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.087224 0.072175 6.5e-05 1.5707 0 -0.87</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_2_side_3'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.115194 0 0 1.5707 0 1.5707</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.08 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.08 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_2_side_4'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.087329 -0.072496 0 1.5707 -0 0.87</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_2_side_5'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0 -0.105398 0 1.5707 -0 0</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.12 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.12 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_2_side_6'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0.087288 -0.072437 6.5e-05 1.5707 0 -0.87</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_2_side_7'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0.115194 0 0 1.5707 0 1.5707</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.08 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.08 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_2_side_8'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0.087379 0.072581 0.000102 1.5707 -0 0.87</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.0877 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <!--Ring 3 Links-->
+    <link name='ring_3_side_1'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0 0.155903 -0 1.5707 -0 0</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_3_side_2'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.102655 0.102372 6.2e-05 1.5707 -0 -0.78535</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_3_side_3'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.155907 -0 -1e-06 1.5707 0 1.5707</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_3_side_4'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>0.102713 -0.102474 3e-06 1.5707 -0 0.78535</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_3_side_5'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0 -0.155903 0 1.5707 -0 0</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_3_side_6'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0.102735 -0.102664 6.8e-05 1.5707 -0 -0.78535</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_3_side_7'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0.155907 0 1e-06 1.5707 0 1.5707</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+    <link name='ring_3_side_8'>
+      <inertial>
+        <mass>1</mass>
+        <inertia>
+          <ixx>0.166667</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.166667</iyy>
+          <iyz>0</iyz>
+          <izz>0.166667</izz>
+        </inertia>
+        <pose>0 0 0 0 -0 0</pose>
+      </inertial>
+      <pose>-0.102979 0.102601 9.9e-05 1.5707 -0 0.78535</pose>
+      <visual name='visual'>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.7 0.7 0.7 1</ambient>
+        </material>
+        <pose>0 0 0 0 -0 0</pose>
+      </visual>
+      <collision name='collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.15189 0.049 0.003</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+
+    <!--Ring 2 Joints-->
+    <joint name='ring_2_joint_1_2' type='fixed'>
+      <parent>ring_2_side_1</parent>
+      <child>ring_2_side_2</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_joint_2_3' type='fixed'>
+      <parent>ring_2_side_2</parent>
+      <child>ring_2_side_3</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_joint_3_4' type='fixed'>
+      <parent>ring_2_side_3</parent>
+      <child>ring_2_side_4</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_joint_4_5' type='fixed'>
+      <parent>ring_2_side_4</parent>
+      <child>ring_2_side_5</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_joint_5_6' type='fixed'>
+      <parent>ring_2_side_5</parent>
+      <child>ring_2_side_6</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_joint_6_7' type='fixed'>
+      <parent>ring_2_side_6</parent>
+      <child>ring_2_side_7</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_joint_7_8' type='fixed'>
+      <parent>ring_2_side_7</parent>
+      <child>ring_2_side_8</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_joint_8_1' type='fixed'>
+      <parent>ring_2_side_8</parent>
+      <child>ring_2_side_1</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+
+    <!--Ring 3 Joints-->
+    <joint name='ring_3_joint_1_2' type='fixed'>
+      <parent>ring_3_side_1</parent>
+      <child>ring_3_side_2</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_joint_2_3' type='fixed'>
+      <parent>ring_3_side_2</parent>
+      <child>ring_3_side_3</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_joint_3_4' type='fixed'>
+      <parent>ring_3_side_3</parent>
+      <child>ring_3_side_4</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_joint_4_5' type='fixed'>
+      <parent>ring_3_side_4</parent>
+      <child>ring_3_side_5</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_joint_5_6' type='fixed'>
+      <parent>ring_3_side_5</parent>
+      <child>ring_3_side_6</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_joint_6_7' type='fixed'>
+      <parent>ring_3_side_6</parent>
+      <child>ring_3_side_7</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_joint_7_8' type='fixed'>
+      <parent>ring_3_side_7</parent>
+      <child>ring_3_side_8</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_joint_8_1' type='fixed'>
+      <parent>ring_3_side_8</parent>
+      <child>ring_3_side_1</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+
+    <!--Cylinder rotational joints between ring 2 and 3-->
+    <joint name='ring_3_side_3_rotate_fixed' type='fixed'>
+      <parent>ring_3_side_3</parent>
+      <child>rings_3_2_rotate_3</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_3_side_7_rotate_fixed' type='fixed'>
+      <parent>ring_3_side_7</parent>
+      <child>rings_3_2_rotate_7</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='rotate_ring_2_7' type='revolute'>
+      <parent>rings_3_2_rotate_7</parent>
+      <child>ring_2_side_7</child>
+      <pose>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+    <joint name='rotate_ring_2_3' type='revolute'>
+      <parent>rings_3_2_rotate_3</parent>
+      <child>ring_2_side_3</child>
+      <pose>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>0 0 1</xyz>
+      </axis>
+    </joint>
+
+   <!--Cylinder Joints between ring 2 and engine-->
+    <joint name='ring_2_side_1_rotate_fixed' type='fixed'>
+      <parent>ring_2_side_1</parent>
+      <child>rings_2_engine_rotate</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='ring_2_side_5_rotate_fixed' type='fixed'>
+      <parent>ring_2_side_5</parent>
+      <child>rings_2_engine_rotate</child>
+      <pose>0 0 0 0 -0 0</pose>
+    </joint>
+    <joint name='engine_rotate' type='revolute'>
+      <parent>rings_2_engine_rotate</parent>
+      <child>engine</child>
+      <pose>0 0 0 0 -0 0</pose>
+      <axis>
+        <xyz>-0 -1 -0</xyz>
+        <limit>
+          <lower>-1.79769e+308</lower>
+          <upper>1.79769e+308</upper>
+          <effort>-1</effort>
+          <velocity>-1</velocity>
+        </limit>
+      </axis>
+    </joint>
+
+  </model>
+</sdf>
