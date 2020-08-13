@@ -4,3 +4,4 @@ log
 .vscode
 *.tar.gz
 ArtemisLeapFrog.wiki
+__pycache__

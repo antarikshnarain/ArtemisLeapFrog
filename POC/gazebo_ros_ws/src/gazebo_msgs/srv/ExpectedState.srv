@@ -1,0 +1,7 @@
+# Service to set Expected 3-D position of the system
+string model_name
+geometry_msgs/Pose pose
+geometry_msgs/Twist twist
+---
+bool success                      # return true if spawn successful
+string status_message             # comments if available
