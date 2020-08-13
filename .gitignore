@@ -1,5 +1,7 @@
 build
 install
 log
+.vscode
+*.tar.gz
+ArtemisLeapFrog.wiki
 __pycache__
-.vscode/*
