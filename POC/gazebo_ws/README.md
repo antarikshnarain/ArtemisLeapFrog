@@ -6,6 +6,7 @@ Directory structure
     * <project_name>
 
 ## Build instruction
+
 ```bash
 # cd build/<project_name>
 cmake ../../src/<project_name>

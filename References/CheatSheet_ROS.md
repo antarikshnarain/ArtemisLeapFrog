@@ -1,16 +1,21 @@
 # ROS2 Cheat Sheet
 
 ## Installation step
+*ROS Distro: ROS2-Foxy*
+### Add repository
+```bash
+sudo sh -c 'echo "deb [arch=amd64] http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros-latest.list'
+```
 ### ROS Eloquent
 ```python
-sudo apt install ros-eloquent-desktop
-sudo apt install ros-eloquent-gazebo-ros-pkgs
+sudo apt install ros-foxy-desktop
+sudo apt install ros-foxy-gazebo-ros-pkgs
 sudo apt install python3-colcon-common-extensions
 ```
 **Source the setup file**
 ```bash
-source /opt/ros/eloquent/setup.bash
-echo "source /opt/ros/eloquent/setup.bash" >> ~/.bashrc
+source /opt/ros/foxy/setup.bash
+echo "source /opt/ros/foxy/setup.bash" >> ~/.bashrc
 printenv | grep -i ROS
 ```
 

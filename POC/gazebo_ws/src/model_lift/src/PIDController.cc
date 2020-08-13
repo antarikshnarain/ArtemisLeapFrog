@@ -6,7 +6,7 @@ Working Value: Kp=30.0, KI=0.005, KD=10.0, h=1, Tf=10, Tt=10, Thr=(9.6, 12.0)
 class PIDController
 {
 private:
-    const double KP = 30.0, KI = 0.005, KD = 10.0;
+    double KP = 30.0, KI = 0.005, KD = 10.0;
     double bi, ad, bd, br;
     double exp_val_old;
     double P, I, D;
@@ -23,6 +23,19 @@ private:
 public:
     PIDController(double min_val, double max_val, double h, double Tf, double Tt)
     {
+        ulow = min_val;
+        uhigh = max_val;
+        bi = KI * h;
+        ad = Tf / (Tf + h);
+        bd = KD / (Tf + h);
+        br = h / Tt;
+        exp_val_old = 0;
+    }
+    PIDController(double min_val, double max_val, double K_P, double K_I, double K_D, double h, double Tf, double Tt)
+    {
+        KP = K_P;
+        KD = K_D;
+        KI = K_I;
         ulow = min_val;
         uhigh = max_val;
         bi = KI * h;
