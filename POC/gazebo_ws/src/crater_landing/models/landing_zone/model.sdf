@@ -1,0 +1,94 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="landing_zone">
+  	<static>true</static>
+  	
+  		<link name='outer_ring'>
+  			<pose>0 0 0 0 0 0</pose>
+  			
+  			<collision name='collision'>
+  				<geometry>
+  					<cylinder>
+  						<radius>5</radius>
+  						<length>0.2</length>
+  					</cylinder>
+  				</geometry>
+  			</collision>
+  			
+  			<visual name='visual'>
+  				<geometry>
+  					<cylinder>
+  						<radius>5</radius>
+  						<length>0.2</length>
+  					</cylinder>
+  				</geometry>
+  				<material>
+          			<lighting>1</lighting>
+          			<script>
+            			<uri>file://media/materials/scripts/gazebo.material</uri>
+            			<name>Gazebo/Red</name>
+          			</script>
+        		</material>
+  			</visual>
+  		</link>
+  		
+  		<link name='middle_ring'>
+  			<pose>0 0 0.2 0 0 0</pose>
+  			
+  			<collision name='collision'>
+  				<geometry>
+  					<cylinder>
+  						<radius>3</radius>
+  						<length>0.2</length>
+  					</cylinder>
+  				</geometry>
+  			</collision>
+  			
+  			<visual name='visual'>
+  				<geometry>
+  					<cylinder>
+  						<radius>3</radius>
+  						<length>0.2</length>
+  					</cylinder>
+  				</geometry>
+  				<material>
+          			<lighting>1</lighting>
+          			<script>
+            			<uri>file://media/materials/scripts/gazebo.material</uri>
+            			<name>Gazebo/Blue</name>
+          			</script>
+        		</material>
+  			</visual>
+  		</link>
+  		
+  		<link name='inner_ring'>
+  			<pose>0 0 0.4 0 0 0</pose>
+  			
+  			<collision name='collision'>
+  				<geometry>
+  					<cylinder>
+  						<radius>1</radius>
+  						<length>0.2</length>
+  					</cylinder>
+  				</geometry>
+  			</collision>
+  			
+  			<visual name='visual'>
+  				<geometry>
+  					<cylinder>
+  						<radius>1</radius>
+  						<length>0.2</length>
+  					</cylinder>
+  				</geometry>
+  				<material>
+          			<lighting>1</lighting>
+          			<script>
+            			<uri>file://media/materials/scripts/gazebo.material</uri>
+            			<name>Gazebo/Green</name>
+          			</script>
+        		</material>
+  			</visual>
+  		</link>
+  		
+  </model>
+</sdf>

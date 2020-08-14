@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+	<world name="default">
+	
+	<include>
+		<uri>model://ground_plane</uri>
+	</include>
+	
+	<include>
+		<uri>model://landing_zone</uri>
+	</include>
+
+	<model name='unit_box'>
+      <pose frame=''>4 0 5 0 0 0</pose>
+      <link name='only_link'>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1 1 1</size>	
+            </box>
+          </geometry>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+	
+	<!-- Launch Red Zone: ContainPlugin -->
+    <plugin name='ContainPlugin' filename='libContainPlugin.so'>
+      <enabled>true</enabled>
+      <entity>unit_box::only_link</entity>
+      <namespace>red_zone_contain</namespace>
+      <pose>0 0 0.2 0 0 0</pose>
+      <geometry>
+        <box>
+  			<size>10 10 1</size>
+  		</box>
+      </geometry>
+    </plugin>
+    
+    <!-- Launch Blue Zone: ContainPlugin -->
+    <plugin name='ContainPlugin' filename='libContainPlugin.so'>
+      <enabled>true</enabled>
+      <entity>unit_box::only_link</entity>
+      <namespace>blue_zone_contain</namespace>
+      <pose>0 0 0.4 0 0 0</pose>
+      <geometry>
+        <box>
+  			<size>5 5 1</size>
+  		</box>
+      </geometry>
+    </plugin>
+    
+    <!-- Launch Green Zone: ContainPlugin -->
+    <plugin name='ContainPlugin' filename='libContainPlugin.so'>
+      <enabled>true</enabled>
+      <entity>unit_box::only_link</entity>
+      <namespace>green_zone_contain</namespace>
+      <pose>0 0 0.6 0 0 0</pose>
+      <geometry>
+        <box>
+  			<size>1 1 1</size>
+  		</box>
+      </geometry>
+    </plugin>
+    
+    <!-- Launch example plugin -->
+    <plugin name='UpdateRedZoneScore' 
+    	filename='libUpdateRedZoneScore.so'/>
+    <plugin name='UpdateBlueZoneScore'
+     	filename='libUpdateBlueZoneScore.so'/>
+     <plugin name='UpdateGreenZoneScore'
+     	filename='libUpdateGreenZoneScore.so'/>
+	
+	</world>
+</sdf>
