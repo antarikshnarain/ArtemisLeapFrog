@@ -20,6 +20,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 set(msg_files
+  "msg/ColdGasThrusterState.msg"
   "msg/ContactState.msg"
   "msg/ContactsState.msg"
   "msg/EntityState.msg"
