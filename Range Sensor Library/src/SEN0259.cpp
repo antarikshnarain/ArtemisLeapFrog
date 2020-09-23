@@ -13,8 +13,8 @@ void SEN0259::begin(char * port)
 {
     char openStatus;
     
-    try { openStatus = TFSerial->openDevice(port, 115200); }
-    catch(const char * e) { fprintf(stderr, "\s\n", e); }
+    try { openStatus = TFSerial.openDevice(port, 115200); }
+    catch(const char * e) { fprintf(stderr, "\c\n", e); }
 
     if(openStatus != 1)
         fprintf(stderr, "DEVICE FAILED TO OPEN!\n");
@@ -32,7 +32,7 @@ void SEN0259::begin(char * port)
 char DFRobot_TFmini::read(void)
 {
     char c;
-    TFSerial->readChar(&c, 0);
+    TFSerial.readChar(&c, 0);
     return c;
 }
 
@@ -52,7 +52,7 @@ bool SEN0259::measure(void)
     uint8_t TFbuff[9] = {0};
     long checksum = 0;
     //loops runs while sensor data is available from serial port
-    while (TFSerial->available())
+    while (TFSerial.available())
     {
         //read in one byte
         TFbuff[0] = read();
@@ -116,7 +116,7 @@ bool SEN0259::measure(void)
 */
 void SEN0259::close(void)
 {
-    TFSerial->close();
+    TFSerial.close();
 }
 
 /*
