@@ -3,7 +3,7 @@
 
 
 #include <stdint.h>
-#include <cstdio.h>
+#include <cstdio>
 #include "../serialib/serialib.h"
 
 class SEN0259
