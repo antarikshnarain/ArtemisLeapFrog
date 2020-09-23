@@ -116,7 +116,7 @@ bool SEN0259::measure(void)
 */
 void SEN0259::close(void)
 {
-    ~TFSerial;
+    ~TFSerial();
 }
 
 /*
