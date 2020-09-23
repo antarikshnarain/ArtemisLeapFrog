@@ -4,13 +4,12 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 #include "../serialib/serialib.h"
 
 class SEN0259
 {
 public:
-    void        begin(string port);
+    void        begin(char * port);
     void        close(void);
     bool        measure(void);
     uint16_t    getDistance(void);

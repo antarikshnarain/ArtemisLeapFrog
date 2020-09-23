@@ -9,7 +9,7 @@
 * Error Conditions: None
 * Return Value: None
 */
-void SEN0259::begin(string port)
+void SEN0259::begin(char * port)
 {
     char openStatus;
     
