@@ -29,7 +29,7 @@ void SEN0259::begin(char * port)
 * Error Conditions: None
 * Return Value: returns the byte that was read from serial port
 */
-char DFRobot_TFmini::read(void)
+char SEN0259::read(void)
 {
     char c;
     TFSerial.readChar(&c, 0);
