@@ -14,7 +14,7 @@ void SEN0259::begin(char * port)
     char openStatus;
     
     try { openStatus = TFSerial.openDevice(port, 115200); }
-    catch(const char * e) { fprintf(stderr, "\c\n", e); }
+    catch(const char * e) { fprintf(stderr, "%s\n", e); }
 
     if(openStatus != 1)
         fprintf(stderr, "DEVICE FAILED TO OPEN!\n");
@@ -116,7 +116,7 @@ bool SEN0259::measure(void)
 */
 void SEN0259::close(void)
 {
-    TFSerial.close();
+    ~TFSerial;
 }
 
 /*
