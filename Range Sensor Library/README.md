@@ -3,6 +3,17 @@ This is a driver for the SEN0259 sensor used to measure range (distance).
 The `src` folder contains 1 file: `SEN0259.cpp`
 The `include` folder contains 2 folders: `SEN0259` and `serialib`
 
+## Compilation and Running
+You can run the included `compile.sh` file like this:
+`./compile.sh` 
+(make sure to give this file execution permission by running `./chmod +x compile.sh`)
+
+If you do not want to run the bash file, you can run the following command:
+
+`g++ -o MainProgram src/main.cpp include/serialib/serialib.cpp include/SEN0259/SEN0259.cpp`
+
+The output file will be `MainProgram` which you can run using the command `./MainProgram`
+
 ## SEN0259.cpp
 This contains the methods to use the sensor. You must run `begin(port)` in order to start using the sensor. This tries to establish a connection with the sensor. After that in your function you can call `measure()` and `getDistance()` and/or `getStrength()`. 
 You must call `measure()` before calling `getDistance()` or `getStrength()`.
