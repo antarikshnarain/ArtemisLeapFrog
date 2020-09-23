@@ -18,5 +18,3 @@ private:
     uint16_t    distance = 0;
     uint16_t    strength = 0;
 };
-
-#endif
