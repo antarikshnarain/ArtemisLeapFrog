@@ -7,7 +7,7 @@
 class SEN0259
 {
 public:
-    void        begin(char * port);
+    char        begin(char * port);
     void        close(void);
     bool        measure(void);
     uint16_t    getDistance(void);

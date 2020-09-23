@@ -7,9 +7,9 @@
 * Parameters:   string port - the port in which the device is connected
 * Side Effects: Prints error if device fails to open or if an exception occurs
 * Error Conditions: None
-* Return Value: None
+* Return Value: return 1 if successful, return otherwise failed
 */
-void SEN0259::begin(char * port)
+char SEN0259::begin(char * port)
 {
     char openStatus;
     
@@ -18,6 +18,7 @@ void SEN0259::begin(char * port)
 
     if(openStatus != 1)
         fprintf(stderr, "DEVICE FAILED TO OPEN!\n");
+    return openStatus;
 }
 
 /*

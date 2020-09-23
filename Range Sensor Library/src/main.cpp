@@ -6,7 +6,10 @@ int main(int argc, char **argv)
 {
     SEN0259 RangeSensor1;
     std::cout << "BEGINNING TO OPEN DEVICE" << std::endl;
-    RangeSensor1.begin(PORT);
+    char status = RangeSensor1.begin(PORT);
+
+    if(status != 1)
+        return 0;
 
     int iterations = 100;
 
