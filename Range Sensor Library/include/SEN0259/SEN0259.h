@@ -1,6 +1,4 @@
-#ifndef __DFRobot_TFmini_H__
-#define __DFRobot_TFmini_H__
-
+#define BAUD 115200
 
 #include <stdint.h>
 #include <cstdio>

@@ -1,4 +1,4 @@
-#include "../include/SEN0259/SEN0259.h"
+#include "SEN0259.h"
 
 /*
 * Name: begin()
@@ -13,7 +13,7 @@ void SEN0259::begin(char * port)
 {
     char openStatus;
     
-    try { openStatus = TFSerial.openDevice(port, 115200); }
+    try { openStatus = TFSerial.openDevice(port, BAUD); }
     catch(const char * e) { fprintf(stderr, "%s\n", e); }
 
     if(openStatus != 1)
