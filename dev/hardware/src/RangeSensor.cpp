@@ -1,4 +1,12 @@
-#include "../include/RangeSensor.h"
+/*---------------------------------------------------------------
+ * Copyright (c) 2020 Space Engineering Research Center (SERC)
+ * Project    : LEAPFROG 
+ * Author     : Kunal Singla, Antariksh Narain
+ * Description: 
+ * 
+----------------------------------------------------------------- */
+
+#include "RangeSensor.h"
 
 #define PORT "/dev/ttyUSB0"
 

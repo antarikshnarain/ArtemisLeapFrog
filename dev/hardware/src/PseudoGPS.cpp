@@ -1,9 +1,11 @@
-/* 
- * Filename: PseudoGPS.cpp
- * Author: Kunal Singla
+/*---------------------------------------------------------------
+ * Copyright (c) 2020 Space Engineering Research Center (SERC)
+ * Project    : LEAPFROG 
+ * Author     : Kunal Singla, Antariksh Narain
  * Original Source: https://www.nxp.com/docs/en/application-note/AN3397.pdf
  * Description: Class for getting position data from an accelerometer of an IMU.
- */
+ * 
+----------------------------------------------------------------- */
 
 #include "PseudoGPS.h"
 

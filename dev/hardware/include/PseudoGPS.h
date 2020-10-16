@@ -1,3 +1,11 @@
+/*---------------------------------------------------------------
+ * Copyright (c) 2020 Space Engineering Research Center (SERC)
+ * Project    : LEAPFROG 
+ * Author     : Kunal Singla, Antariksh Narain
+ * Description: 
+ * 
+----------------------------------------------------------------- */
+
 #include "IMU.h"
 #include "RangeSensor.h"
 #include <stdlib.h>

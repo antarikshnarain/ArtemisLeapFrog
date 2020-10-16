@@ -1,3 +1,11 @@
+/*---------------------------------------------------------------
+ * Copyright (c) 2020 Space Engineering Research Center (SERC)
+ * Project    : LEAPFROG 
+ * Author     : Kunal Singla, Antariksh Narain
+ * Description: 
+ * 
+----------------------------------------------------------------- */
+
 #define BAUD 115200
 
 #include <stdint.h>
