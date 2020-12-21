@@ -5,32 +5,26 @@
  * Description: Library to control JetCat P300 Engine
 ----------------------------------------------------------------- */
 
-//#include "Serialib.h"
-#include <stdio.h>
-#include <iostream>
-#include <string>
-#include <string.h>
-#include <vector>
-#include <unistd.h>
+#include "Connections.hpp"
+
+#ifdef TEST
+#include "TestActuators.hpp"
+#else
 #include "wiringPi.h"
+#endif
+
 #include "Serial.hpp"
 
 using namespace std;
 using namespace Utilities;
 
-// Pin 8 on JetCat
-#define JETCAT_SAFE 9
-// Pin 9 on JetCat
-#define JETCAT_POWER 10
-#define JETCAT_TX 11
-#define JETCAT_RX 12
 
 /* \brief Class to control JetCat P300 Engine using serial communication
      * This class acts as an interface between Controller and Engine.
      */
 namespace Actuators
 {
-    class JetCatP300
+    class JetCatP300: public Serial
     {
     private:
         bool CTRL_SIG = false;
@@ -46,6 +40,21 @@ namespace Actuators
         char buffer[100];
 
         Serial serial;
+        string _firmware_version;
+        string _version_num;
+        string _last_time_run;
+        string _total_operation_time;
+        string _serial_no;
+        string _turbine_type;
+
+        int prop_actual_fuel;
+        int prop_rest_fuel ;
+        int prop_rpm;
+        float prop_batt_volt;
+        int prop_last_run;
+        int prop_fuel_actual_run;
+              
+
         enum
         {
             MAX_THROTTLE = 50000,
@@ -61,6 +70,8 @@ namespace Actuators
             int len;
             string params[7];
         };
+    
+    protected:
 
         vector<string> split(string value, string delim)
         {
@@ -118,8 +129,6 @@ namespace Actuators
         }
 
     public:
-        // Default Constructor
-        JetCatP300() {}
         // Default Destructor
         ~JetCatP300(){}
         /* \brief Initialize engine class object
@@ -156,5 +165,8 @@ namespace Actuators
         // \brief Estimate fuel consumption
         // \return Amount of fuel remaining in percentage
         float FuelConsumption();
+
+        // \brief Get Engine information
+        void EngineInformation();
     };
 } // namespace Actuators

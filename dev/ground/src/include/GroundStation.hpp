@@ -19,4 +19,4 @@ public:
     void GimbalControl();
     void ThrustControl();
     void SetWaypoints();
-}
+};

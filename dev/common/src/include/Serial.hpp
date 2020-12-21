@@ -4,18 +4,16 @@
  * Author     : Antariksh Narain
  * Description: Library to communicate using Serial Port
 ----------------------------------------------------------------- */
-// C library headers
-#include <stdio.h>
-#include <string.h>
 
+#include "Connections.hpp"
+
+#pragma region Linux Headers
 // Linux headers
 #include <fcntl.h>   // Contains file controls like O_RDWR
 #include <errno.h>   // Error integer and strerror() function
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h>  // write(), read(), close()
-
-#include <string>
-using namespace std;
+#pragma endregion
 
 namespace Utilities
 {
@@ -28,13 +26,18 @@ namespace Utilities
         termios tty;
 
     public:
+        Serial(){}
         // \brief Destructor to close port
         ~Serial();
         // \brief Create a serial connection
-        Serial(string portname, int baudrate);
+        // \param portname name of the port to connect
+        // \param baudrate rate at which to communicate
+        Serial(string, int);
         // \brief Send data on the port
-        bool Send(string data);
+        // \param data to be send
+        bool Send(string);
         // \brief Read data on the port
+        // \return data string
         string Recv();
         // \brief Release port
         bool Close();

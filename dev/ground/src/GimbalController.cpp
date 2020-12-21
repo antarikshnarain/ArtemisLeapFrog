@@ -1,10 +1,6 @@
 /*---------------------------------------------------------------
  * Copyright (c) 2020 Space Engineering Research Center (SERC)
- * Project    : LEAPFROG 
- * Author     : Kunal Singla, Antariksh Narain
- * Description: 
- * 
+ * Project    : LEAPFROG
+ * Author     : Antariksh Narain
+ * Description: Class definition for manual gimbal control module
 ----------------------------------------------------------------- */
-
-#include "SEN0259/SEN0259.h"
-#include "serialib/serialib.h"

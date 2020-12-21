@@ -20,4 +20,4 @@ class Properties
     float VehiclePosition[3];
     float VehicleVelocity[3];
     float VehicleAcceleration[3];
-}
+};

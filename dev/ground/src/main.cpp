@@ -4,3 +4,10 @@
  * Author     : Antariksh Narain
  * Description: Main program for Ground station
 ----------------------------------------------------------------- */
+
+#include "GroundStation.hpp"
+
+int main()
+{
+    return 0;
+}

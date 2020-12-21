@@ -5,15 +5,18 @@
  * Description: Engine Control command for Ground Station
 ----------------------------------------------------------------- */
 
-class EngineController
+namespace GroundStation
 {
+    class EngineController
+    {
     private:
-    bool control_state;
-    bool power_state;
-    float engine_thrust;
+        bool control_state;
+        bool power_state;
+        float engine_thrust;
 
     public:
-    bool EnableEnginePin();
-    bool EnablePower();
-    void ChangeThrust(float value);
-};
+        bool EnableEnginePin();
+        bool EnablePower();
+        void ChangeThrust(float value);
+    };
+} // namespace GroundStation

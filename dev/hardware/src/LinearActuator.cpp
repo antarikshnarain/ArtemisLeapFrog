@@ -6,45 +6,98 @@
  * Version1   : Simple actuator without feedback
 ----------------------------------------------------------------- */
 
-#include "LinearActuator.h"
+#include "LinearActuator.hpp"
 
-using namespace Actuators;
-
-LinearActuator::LinearActuator(int servo_pin)
+namespace Actuators
 {
-    this->mov_p = Servo(servo_pin);
-}
+    LinearActuator::LinearActuator(int pin=-1)
+    {
+        this->signal_pin = pin;
+        #if MOVE_LA == 0
+        this->mov_p = Servo(this->signal_pin);
+        #else
+        this->mov_f = Relay(FORWARD_PIN);
+        this->mov_b = Relay(BACKWARD_PIN);
+        #endif
+    }
 
-LinearActuator::LinearActuator(int forward_pin, int backward_pin)
-{
-    this->mov_f = Relay(forward_pin);
-    this->mov_b = Relay(backward_pin);
-}
+    void LinearActuator::forward()
+    {
+#if MODE_LA == 0
+        this->mov_p.update(this->current_position);
+#elif MODE_LA == 1
+        this->mov_f.update(true);
+        this->mov_b.update(false);
+#else
+        this->mov_f.update(true);
+        this->mov_b.update(false);
+#endif
+    }
 
-void LinearActuator::forward()
-{
-    this->mov_f.update(true);
-    this->mov_b.update(false);
-}
+    void LinearActuator::backward()
+    {
+#if MODE_LA == 0
+        this->mov_p.update(this->current_position);
+#elif MODE_LA == 1
+        this->mov_f.update(false);
+        this->mov_b.update(true);
+#else
+        this->mov_f.update(false);
+        this->mov_b.update(true);
+#endif
+    }
 
-void LinearActuator::backward()
-{
-    this->mov_f.update(false);
-    this->mov_b.update(true);
-}
+    void LinearActuator::halt()
+    {
+#if MOVE_LA == 1 || MOVE_LA == 2
+        this->mov_f.update(false);
+        this->mov_b.update(false);
+#endif
+    }
 
-void LinearActuator::halt()
-{
-    this->mov_f.update(false);
-    this->mov_b.update(false);
-}
+    double LinearActuator::position()
+    {
+        return this->current_position;
+    }
 
-double LinearActuator::position()
-{
-    return 0;
-}
+    bool LinearActuator::move(double position)
+    {
+        #if MOVE_LA == 0
+        this->mov_p.update(position);
+        #elif MOVE_LA == 1
+        if(this->current_position < position)
+        {
+            this->forward();
+            while(this->current_position < position)
+            {
+                this->current_position = analogRead(this->signal_pin);
+            }
+            this->halt();
+        }
+        else if (this->current_position > position)
+        {
+            this->backward();
+            while(this->current_position > position)
+            {
+                this->current_position = analogRead(this->signal_pin);
+            }
+            this->halt();
+        }
+        #else
+        if(position > 0)
+        {
+            this->forward();
+        }
+        else if(position < 0)
+        {
+            this->backward();
+        }
+        else
+        {
+            this->halt();
+        }
+        #endif
+        this->current_position = position;
 
-void LinearActuator::move(double position)
-{
-    this->mov_p.update(position);
-}
+    }
+} // namespace Acutuators

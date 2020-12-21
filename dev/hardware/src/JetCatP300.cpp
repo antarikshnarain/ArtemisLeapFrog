@@ -5,26 +5,19 @@
  * Description: Library to control JetCat P300 engine
 ----------------------------------------------------------------- */
 
-#include "../include/JetCatP300.hpp"
+#include "JetCatP300.hpp"
 
 using namespace std;
 using namespace Utilities;
 
-//using Actuators::JetCatP300;
-
-//class JetCatP300
-//{
-
-	void digitalWrite(int pin,bool value)
-	{
-
-	}
-	Actuators::JetCatP300::JetCatP300(string communication_port, int baudrate)
+namespace Actuators
+{
+	JetCatP300::JetCatP300(string communication_port, int baudrate):Serial(communication_port, baudrate)
 	{
 		this->comm_port = communication_port;
 		this->BAUD = baudrate;
 	}
-	void Actuators::JetCatP300::Initialize()
+	void JetCatP300::Initialize()
 	{
 		// Enable Control Pin
 		this->CTRL_SIG = false;
@@ -32,14 +25,13 @@ using namespace Utilities;
 		this->PWR_SIG = true;
 		this->SetEngineMode();
 
-		
 		// Initialize Communication
 		this->serial = Serial(this->comm_port, this->BAUD);
 
 		fprintf(stdout, "Engine is setup and ready to roll!");
 	}
 
-	void Actuators::JetCatP300::Start()
+	void JetCatP300::Start()
 	{
 		if (!this->send_command(RS232{1, "TCO", 1, "1"}))
 		{
@@ -48,7 +40,7 @@ using namespace Utilities;
 		this->ENGINE_STATE = true;
 	}
 
-	void Actuators::JetCatP300::Stop()
+	void JetCatP300::Stop()
 	{
 		if (!this->send_command(RS232{1, "TCO", 1, "0"}))
 		{
@@ -58,7 +50,7 @@ using namespace Utilities;
 		this->ENGINE_STATE = false;
 	}
 
-	bool Actuators::JetCatP300::SetEngineThrust(float percentage)
+	bool JetCatP300::SetEngineThrust(float percentage)
 	{
 		this->THRUST_PER = percentage;
 		// Send Command
@@ -70,7 +62,7 @@ using namespace Utilities;
 		return true;
 	}
 
-	bool Actuators::JetCatP300::CheckHealth()
+	bool JetCatP300::CheckHealth()
 	{
 		printf("Initializing Check Health!\n");
 		if (!this->send_command(RS232{1, "DHC", 0}))
@@ -120,14 +112,47 @@ using namespace Utilities;
 		return true;
 	}
 
-	void Actuators::JetCatP300::GetTelemetry()
+	void JetCatP300::GetTelemetry()
 	{
+		printf("Getting Engine Telemetry!\n");
+		if(!this->send_command(RS232{1,"RFI",1,"1"}))
+		{
+			fprintf(stderr, "GetTelemetry(): falied!\n");
+		}
+		RS232 response = this->receive_response();
+		this->prop_actual_fuel = atoi(response.params[0].c_str());
+		this->prop_rest_fuel = atoi(response.params[1].c_str());
+		this->prop_rpm = atoi(response.params[2].c_str());
+		this->prop_batt_volt = atof(response.params[3].c_str());
+		this->prop_last_run = atoi(response.params[4].c_str());
+		this->prop_fuel_actual_run = atoi(response.params[5].c_str());
+
 	}
 
-	void Actuators::JetCatP300::SetEngineMode()
+	void JetCatP300::EngineInformation()
+	{
+		printf("Fetching Jet Engine information!\n");
+		if(!this->send_command(RS232{1,"RTY",1,"1"}))
+		{
+			fprintf(stderr, "EngineInformation(): failed!\n");
+		}
+		RS232 response = this->receive_response();
+		if(response.len < 6)
+		{
+			return;
+		}
+		this->_firmware_version = response.params[0];
+		this->_version_num = response.params[1];
+		this->_last_time_run = response.params[2];
+		this->_total_operation_time = response.params[3];
+		this->_serial_no = response.params[4];
+		this->_turbine_type = response.params[5];
+	}
+
+	void JetCatP300::SetEngineMode()
 	{
 		digitalWrite(JETCAT_SAFE, this->CTRL_SIG);
 		digitalWrite(JETCAT_POWER, this->PWR_SIG);
 	}
-//};
-//} // namespace Actuators
+
+} // namespace Actuators

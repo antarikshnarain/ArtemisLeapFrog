@@ -2,19 +2,15 @@
  * Copyright (c) 2020 Space Engineering Research Center (SERC)
  * Project    : LEAPFROG
  * Author     : Antariksh Narain
- * Description: Cold gas thruster commands for Ground Station
+ * Description: Class definition for Manual engine control
 ----------------------------------------------------------------- */
 
-#include <map>
+#include "EngineController.hpp"
 
-using namespace std;
-
-class ThrusterController
+namespace GroundStation
 {
-  private:
-  int count;
-    map<int,int> thruster_index_map;
-    public:
-    void FireThruster(int index, float duration);
-
-};
+    bool EngineController::EnableEnginePin()
+    {
+        
+    }
+}

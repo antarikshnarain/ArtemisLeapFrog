@@ -37,5 +37,6 @@ namespace Utilities
     string Communication::RecvSerial()
     {
         return this->decoder(this->Recv());
+        //return this->decoder(this->Recv());
     }
 }
