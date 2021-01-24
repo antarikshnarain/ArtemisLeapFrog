@@ -5,7 +5,11 @@
  * Description: Library to communicate using Serial Port
 ----------------------------------------------------------------- */
 
-#include "Connections.hpp"
+//#include "Connections.hpp"
+
+#include <string.h>
+#include <string>
+using namespace std;
 
 #pragma region Linux Headers
 // Linux headers

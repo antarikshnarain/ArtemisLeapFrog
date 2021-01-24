@@ -7,6 +7,7 @@
 
 #include "Serial.hpp"
 #include <string>
+#include <sstream>
 using namespace std;
 
 namespace Utilities
@@ -30,6 +31,7 @@ namespace Utilities
         string decoder(string);
 
     public:
+        Communication(){}
         // \brief Initialize communication channel
         // \param channel the channel name e.g. /dev/pts/1
         // \param baud_rate the channel baud rate
