@@ -2,15 +2,15 @@
  * Copyright (c) 2020 Space Engineering Research Center (SERC)
  * Project    : LEAPFROG
  * Author     : Antariksh Narain
- * Description: Engine Telemetry
- * Compilation: -lboost_system -lboost_serialization
+ * Description: Cold Gas thrusters properties
 ----------------------------------------------------------------- */
 
-#include "Properties.hpp"
+#include "BaseProperties.hpp"
 
 namespace Properties
 {
-    class ColdGas
+#define NUM_THRUSTERS 6
+    class ColdGas : public Base
     {
         friend class boost::serialization::access;
 
@@ -22,5 +22,16 @@ namespace Properties
 
     public:
         float durations[NUM_THRUSTERS];
-    };
+
+        void print()
+        {
+            printf("Thruster Activity\n");
+            for (int i = 0; i < NUM_THRUSTERS; i++)
+            {
+                printf("%f, ", durations[i]);
+            }
+            printf("\n");
+        }
+    }
+};
 } // namespace Properties

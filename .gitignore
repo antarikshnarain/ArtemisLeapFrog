@@ -5,3 +5,6 @@ log
 *.tar.gz
 ArtemisLeapFrog.wiki
 __pycache__
+# Dynamic build files
+*.so
+*.o

@@ -3,14 +3,13 @@
  * Project    : LEAPFROG
  * Author     : Antariksh Narain
  * Description: Sensor Data collection
- * Compilation: -lboost_system -lboost_serialization
 ----------------------------------------------------------------- */
 
-#include "Properties.hpp"
+#include "BaseProperties.hpp"
 
 namespace Properties
 {
-    class SensorDataProperties : public Properties
+    class SensorData: public Base
     {
         friend class boost::serialization::access;
 

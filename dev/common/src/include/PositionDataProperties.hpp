@@ -3,14 +3,13 @@
  * Project    : LEAPFROG
  * Author     : Antariksh Narain
  * Description: Vehicle Position Data
- * Compilation: -lboost_system -lboost_serialization
 ----------------------------------------------------------------- */
 
-#include "Properties.hpp"
+#include "BaseProperties.hpp"
 
 namespace Properties
 {
-    class PositionData : public Properties
+    class PositionData: public Base
     {
         friend class boost::serialization::access;
 

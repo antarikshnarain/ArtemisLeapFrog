@@ -3,14 +3,13 @@
  * Project    : LEAPFROG
  * Author     : Antariksh Narain
  * Description: Onboard vehicle resource status
- * Compilation: -lboost_system -lboost_serialization
 ----------------------------------------------------------------- */
 
-#include "Properties.hpp"
+#include "BaseProperties.hpp"
 
 namespace Properties
 {
-    class ResourceData: public Properties
+    class ResourceData: public Base
     {
         friend class boost::serialization::access;
 

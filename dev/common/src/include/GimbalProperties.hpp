@@ -3,14 +3,13 @@
  * Project    : LEAPFROG
  * Author     : Antariksh Narain
  * Description: Gimbal Telemetry
- * Compilation: -lboost_system -lboost_serialization
 ----------------------------------------------------------------- */
 
-#include "Properties.hpp"
+#include "BaseProperties.hpp"
 
 namespace Properties
 {
-    class Gimbal
+    class Gimbal: public Base
     {
         friend class boost::serialization::access;
 
@@ -26,5 +25,14 @@ namespace Properties
         bool GimbalEnabled;
         float Angle[DIMS_GIMBAL];
         float Linear[DIMS_GIMBAL];
+
+        void print()
+        {
+            printf("Gimbal Position\n");
+            for (int i = 0; i < DIMS_GIMBAL; i++)
+            {
+                printf("%f angle \t %fm position\n", Angle[i], Linear[i]);
+            }
+        }
     };
 } // namespace Properties
