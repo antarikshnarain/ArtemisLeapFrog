@@ -24,3 +24,12 @@ utilities:
 	@tput setaf 2
 	@echo "Building dynamic library for Utilities namespace"
 	@tput setaf 0
+
+test-serial:
+	@echo "Create new terminals and run ./test-serial <port-name>"
+	@tput setaf 4
+	@echo "./test-serial /dev/pts/3"
+	@echo "./test-serial /dev/pts/4"
+	@tput setaf 15
+	g++ src/Serial.cpp -Isrc/include/ -DTEST_SERIAL -o test-serial
+	make pseudo-port

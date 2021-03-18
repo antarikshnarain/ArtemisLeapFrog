@@ -9,7 +9,9 @@
 
 namespace Properties
 {
-    class SensorData: public Base
+#ifndef _PROPERTIES_SENSORDATA_HPP
+#define _PROPERTIES_SENSORDATA_HPP
+    class SensorData : public Base
     {
         friend class boost::serialization::access;
 
@@ -30,4 +32,5 @@ namespace Properties
             printf("Altitude    : %f\n", Altitude);
         }
     };
+#endif
 } // namespace Properties

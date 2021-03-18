@@ -9,7 +9,9 @@
 
 namespace Properties
 {
-    class PositionData: public Base
+#ifndef _PROPERTIES_POSITIONDATA_HPP
+#define _PROPERTIES_POSITIONDATA_HPP
+    class PositionData : public Base
     {
         friend class boost::serialization::access;
 
@@ -38,4 +40,5 @@ namespace Properties
             }
         }
     };
+#endif
 } // namespace Properties

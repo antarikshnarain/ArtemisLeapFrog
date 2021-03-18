@@ -9,7 +9,8 @@
 
 namespace Properties
 {
-#define NUM_THRUSTERS 6
+#ifndef _PROPERTIES_COLDGAS_HPP
+#define _PROPERTIES_COLDGAS_HPP
     class ColdGas : public Base
     {
         friend class boost::serialization::access;
@@ -17,10 +18,12 @@ namespace Properties
         template <class Archive>
         void serialize(Archive &ar, const unsigned int version)
         {
+            ar &ColdGasEnabled;
             ar &durations;
         }
 
     public:
+        bool ColdGasEnabled = false;
         float durations[NUM_THRUSTERS];
 
         void print()
@@ -32,6 +35,6 @@ namespace Properties
             }
             printf("\n");
         }
-    }
-};
+    };
+#endif
 } // namespace Properties

@@ -6,17 +6,19 @@
 ----------------------------------------------------------------- */
 
 #include "Properties.hpp"
-#include "EngineController.hpp"
-#include "GimbalController.hpp"
-#include "ThrusterController.hpp"
+#include <string>
 
-class GroundStation : public Properties, public EngineController, public GimbalController, public ThrusterController
+namespace GroundStation
+{
+class Base : public Properties::Properties
 {
 private:
 public:
-    void GetVehicleTelemetry();
-    void EngineControl();
-    void GimbalControl();
-    void ThrustControl();
-    void SetWaypoints();
+    //virtual string SendCommand(){};
+    // void GetVehicleTelemetry();
+    // void EngineControl();
+    // void GimbalControl();
+    // void ThrustControl();
+    // void SetWaypoints();
 };
+}

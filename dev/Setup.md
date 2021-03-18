@@ -1,5 +1,33 @@
 # Setup Instructions
 
+## Setting up System
+
+### Install ROS | Noetic
+```bash
+# Setup APT
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+# Install ROS Noetic
+sudo apt update
+sudo apt install ros-noetic-desktop
+# Mavros package to communicate with 
+sudo apt install ros-noetic-mavros ros-noetic-mavros-extras
+```
+
+
+### Install ROS2
+```bash
+# Setup APT
+sudo apt update && sudo apt install curl gnupg2 lsb-release
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu focal main" > /etc/apt/sources.list.d/ros2-latest.list'
+# Install ROS2 Foxy
+sudo apt install ros-foxy-ros-base
+## Desktop version
+# sudo apt install ros-foxy-desktop
+
+```
+
 ## Setting up Raspberry Pi
 
 ### Installation media
@@ -7,7 +35,8 @@
 1. Install Raspberry Imager.
 2. Download Navio Image.
 3. Flash Raspbian OS Lite.
-4. Flash Navio Image.
+<!-- 4. Flash Navio Image. -->
+4. Flash Ubuntu Server 20.04.2
 5. Mount SD card on your desktop and create an empty file named ssh in boot partition.
 
 ```bash
@@ -40,6 +69,42 @@ touch ssh
     ssh-keygen
     ssh-copy-id <username>@<hostip>
     ```
+
+4. Install ROS on Raspberry Pi [link](https://wiki.ros.org/ROSberryPi/Installing%20ROS%20Melodic%20on%20the%20Raspberry%20Pi)
+
+## Setting up coding environment
+
+### Pseudo Environment
+
+1. To mimic serial port
+    - Package
+
+        ```bash
+        sudo apt install socat
+        socat -d -d pty,raw,echo=0 pty,raw,echo=0
+        ```
+
+    - Sample test
+
+        ```bash
+        # Terminal 1
+        socat -d -d pty,raw,echo=0 pty,raw,echo=0
+        # Terminal 2
+        cat < /dev/pts/2
+        # Terminal 3
+        echo "Test2" > /dev/pts/2
+        ```
+
+## Setup Ground Station
+
+1. Install QGroundControl Environment
+
+    ```bash
+    git clone https://github.com/mavlink/qgroundcontrol.git --recursive
+    git submodule update
+    ```
+
+2. Install [Qt5](https://www.qt.io/download-open-source#section-2)
 
 ## Tips
 

@@ -9,10 +9,11 @@
 // Standard Libs
 
 #include <vector>
+#include <sstream>
 
 // Boost Libs
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
 
 // Custom Libs
@@ -32,20 +33,17 @@
 
 namespace Properties
 {
+#ifndef _PROPERTIES_PROPERTIES_HPP
+#define _PROPERTIES_PROPERTIES_HPP
     class Properties
     {
-        protected:
+    public:
         ColdGas coldGas;
         Engine engine;
         Gimbal gimbal;
         PositionData positionData;
         ResourceData resourceData;
         SensorData sensorData;
-    public:
-        // \brief Pretty Print format for class
-        // \param prop: Property Class object
-        //virtual void print() = 0;
-
-        // TODO: Add Logging functionality
     };
+#endif
 } // namespace Properties

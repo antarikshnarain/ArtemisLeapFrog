@@ -30,12 +30,13 @@ namespace severity = boost::log::trivial;
 #define DIMS 3
 #define NUM_BATTERY 2
 #define NUM_COLDGAS 4
+#define NUM_THRUSTERS 6
 #define DIMS_GIMBAL 2
 
 namespace Properties
 {
-#ifndef _CLASS_PROPERTIES_BASE_HPP
-#define _CLASS_PROPERTIES_BASE_HPP
+#ifndef _PROPERTIES_BASE_HPP
+#define _PROPERTIES_BASE_HPP
     class Base
     {
     public:
@@ -55,7 +56,7 @@ namespace Properties
 
             // logging::core::get()->set_filter(
             //     logging::trivial::severity >= logging::trivial::info);
-            
+
             // this->Logger();
         }
         // TODO: Add Logging functionality

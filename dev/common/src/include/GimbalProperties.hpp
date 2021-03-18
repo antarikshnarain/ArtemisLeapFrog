@@ -9,7 +9,9 @@
 
 namespace Properties
 {
-    class Gimbal: public Base
+#ifndef _PROPERTIES_GIMBAL_HPP
+#define _PROPERTIES_GIMBAL_HPP
+    class Gimbal : public Base
     {
         friend class boost::serialization::access;
 
@@ -35,4 +37,5 @@ namespace Properties
             }
         }
     };
+#endif
 } // namespace Properties

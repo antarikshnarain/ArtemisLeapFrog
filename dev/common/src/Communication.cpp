@@ -9,6 +9,8 @@
 
 using namespace std;
 
+//#define TEST_COMMUNICATION
+
 namespace Utilities
 {
     Communication::Communication(string channel, int baud_rate):Serial(channel,baud_rate)
@@ -40,3 +42,29 @@ namespace Utilities
         //return this->decoder(this->Recv());
     }
 }
+
+#ifdef TEST_COMMUNICATION
+#include <iostream>
+#include <unistd.h>
+
+int main(int argv, char *argc[])
+{
+    if(argv != 2)
+    {
+        cout<< "Pass port name";
+        return 1;
+    }
+    Utilities::Communication comm(argc[1], B9600);
+    comm.SendSerial("Test1 Send String from " + string(argc[1]));
+    comm.SendSerial("\4Test2 Sending String from " + string(argc[1]));
+    sleep(2);
+    string recv = comm.RecvSerial();
+    while(recv.length() == 0)
+    {
+        printf("Waiting %s\n", recv.c_str());
+        recv = comm.RecvSerial();
+    }
+    cout << argc[1] << " Received: " << recv << endl;
+    return 0;
+}
+#endif

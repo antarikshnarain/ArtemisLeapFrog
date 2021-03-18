@@ -9,7 +9,9 @@
 
 namespace Properties
 {
-    class ResourceData: public Base
+#ifndef _PROPERTIES_RESOURCEDATA_HPP
+#define _PROPERTIES_RESOURCEDATA_HPP
+    class ResourceData : public Base
     {
         friend class boost::serialization::access;
 
@@ -46,4 +48,5 @@ namespace Properties
             printf("\n");
         }
     };
+#endif
 } // namespace Properties

@@ -4,9 +4,14 @@
  * Author     : Antariksh Narain
  * Description: Library to communicate using Serial Port
  * Reference  : https://blog.mbedded.ninja/programming/operating-systems/linux/linux-serial-ports-using-c-cpp/
+ * Note:
+ * tty.c_cflag &= ~PARENB; // Clear parity bit, disabling parity (most common)
+ * tty.c_cflag |= PARENB;  // Set parity bit, enabling parity
 ----------------------------------------------------------------- */
 
 #include "Serial.hpp"
+
+//#define TEST_SERIAL
 
 using namespace std;
 
@@ -20,7 +25,7 @@ namespace Utilities
     {
         this->port_name = portname;
         this->baud_rate = baudrate;
-        printf("Initializing %s at %d\n", this->port_name.c_str(), this->baud_rate);
+        // printf("Initializing %s at %d\n", this->port_name.c_str(), this->baud_rate);
         this->serial_port = open(this->port_name.c_str(), O_RDWR);
         if (tcgetattr(this->serial_port, &this->tty) != 0)
         {
@@ -28,7 +33,7 @@ namespace Utilities
             return;
         }
         this->tty.c_cflag &= ~PARENB;        // Clear parity bit, disabling parity (most common)
-        this->tty.c_cflag &= ~CSTOPB;        // Clear stop field, only one stop bit used in communication (most common)
+        this->tty.c_cflag |= CSTOPB;        // Clear stop field, only one stop bit used in communication (most common)
         this->tty.c_cflag &= ~CSIZE;         // Clear all bits that set the data size
         this->tty.c_cflag |= CS8;            // 8 bits per byte (most common)
         this->tty.c_cflag &= ~CRTSCTS;       // Disable RTS/CTS hardware flow control (most common)
@@ -64,6 +69,8 @@ namespace Utilities
 
     bool Serial::Send(string data)
     {
+        data += '\0';
+        printf("Writing: %s\n", data.c_str());
         if(write(this->serial_port, data.c_str(), data.size()) < 0)
         {
             return false;
@@ -73,15 +80,30 @@ namespace Utilities
 
     string Serial::Recv()
     {
-        char buffer[256];
+        string data = "";
+        int n;
+        char buffer[BUFFER_SIZE];
         memset(&buffer, '\0', sizeof(buffer));
-        if (read(this->serial_port, &buffer, sizeof(buffer)) <= 0)
+        if ((n = read(this->serial_port, &buffer, sizeof(buffer))) <= 0)
         {
-            return "";
+            return data;
         }
-        printf("Returning Good data %s\n",buffer);
-        return string(buffer);
+        data = string(buffer);
+        printf("--%d %s\n",n, buffer);
+        if (n == BUFFER_SIZE)
+        {
+            do
+            {
+                memset(&buffer, '\0', sizeof(buffer));
+                n = read(this->serial_port, &buffer, sizeof(buffer));
+                printf("--%d %s\n",n, buffer);
+                data += string(buffer);
+            } while (n == BUFFER_SIZE);
+        }
+        //printf("Returning Good data %s\n",buffer);
+        return data;
     }
+
     bool Serial::Close()
     {
         if (close(this->serial_port) < 0)
@@ -91,3 +113,29 @@ namespace Utilities
         return true;
     }
 } // namespace Utilities
+
+#ifdef TEST_SERIAL
+#include <iostream>
+#include <unistd.h>
+
+int main(int argv, char *argc[])
+{
+    if(argv != 2)
+    {
+        cout<< "Pass port name";
+        return 1;
+    }
+    Utilities::Serial serial(argc[1], B9600);
+    serial.Send("Test1 Send String from " + string(argc[1]));
+    serial.Send("\4Test2 Sending String from " + string(argc[1]));
+    sleep(2);
+    string recv = serial.Recv();
+    while(recv.length() == 0)
+    {
+        printf("Waiting %s\n", recv.c_str());
+        recv = serial.Recv();
+    }
+    cout << argc[1] << " Received: " << recv << endl;
+    return 0;
+}
+#endif

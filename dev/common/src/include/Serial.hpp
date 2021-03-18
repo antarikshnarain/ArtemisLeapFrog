@@ -9,18 +9,18 @@
 
 #include <string.h>
 #include <string>
+#include <iostream>
 using namespace std;
 
-#pragma region Linux Headers
 // Linux headers
 #include <fcntl.h>   // Contains file controls like O_RDWR
 #include <errno.h>   // Error integer and strerror() function
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h>  // write(), read(), close()
-#pragma endregion
 
 namespace Utilities
 {
+    #define BUFFER_SIZE 8
     class Serial
     {
     private:
