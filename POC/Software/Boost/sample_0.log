@@ -1,0 +1,6 @@
+1: <trace> A trace severity message
+2: <debug> A debug severity message
+3: <info> An informational severity message
+4: <warning> A warning severity message
+5: <error> An error severity message
+6: <fatal> A fatal severity message
