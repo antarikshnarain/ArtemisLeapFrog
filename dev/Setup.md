@@ -2,6 +2,29 @@
 
 ## Setting up System
 
+**System Requirements**
+1. Ubuntu 20.04 (Focal) / Mint 20.1 (Ulyssa) 
+
+```bash
+sudo locale-gen en_US en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
+sudo apt update && sudo apt install curl gnupg2 lsb-release
+sudo apt-get install synaptics python3-lark
+```
+
+### Install Gazebo 11
+```bash
+# Setup APT
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable focal main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+# Install Gazebo
+sudo apt-get update
+sudo apt-get install gazebo11
+# For developers that work on top of Gazebo, one extra package
+sudo apt-get install libgazebo11-dev
+```
+
 ### Install ROS | Noetic
 ```bash
 # Setup APT
@@ -10,6 +33,8 @@ sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31
 # Install ROS Noetic
 sudo apt update
 sudo apt install ros-noetic-desktop
+
+sudo apt install ros-noetic-gazebo-ros-pkgs
 # Mavros package to communicate with 
 sudo apt install ros-noetic-mavros ros-noetic-mavros-extras
 ```
@@ -26,6 +51,9 @@ sudo apt install ros-foxy-ros-base
 ## Desktop version
 # sudo apt install ros-foxy-desktop
 
+sudo apt install python3-argcomplete
+sudo apt install ros-foxy-gazebo-ros-pkgs
+sudo apt install python3-colcon-common-extensions
 ```
 
 ## Setting up Raspberry Pi
