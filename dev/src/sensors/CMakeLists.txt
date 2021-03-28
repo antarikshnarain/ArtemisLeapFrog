@@ -17,17 +17,58 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(rclcpp REQUIRED)
+
+# Messages and Services
+set(msg_files
+  "msg/SensorImu.msg"
+  "msg/SensorLaser.msg"
+)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${msg_files}
+)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+# Export message runtime dependencies
+ament_export_dependencies(rosidl_default_runtime)
+
+# Executables
+
+## Executable IMU
 add_executable(imu src/imu.cpp)
+ament_target_dependencies(imu
+  "rclcpp"
+)
 target_include_directories(imu PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
 install(TARGETS imu
-  DESTINATION lib/${PROJECT_NAME})
+  DESTINATION lib/${PROJECT_NAME}
+)
+rosidl_target_interfaces(imu
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+## Executable Laser
+add_executable(laser src/laser.cpp)
+ament_target_dependencies(laser
+  "rclcpp"
+)
+target_include_directories(laser PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+
+install(TARGETS laser
+  DESTINATION lib/${PROJECT_NAME}
+)
+rosidl_target_interfaces(laser
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
