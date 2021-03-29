@@ -3,17 +3,18 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensors/msg/sensor_imu.hpp"
+#include "sensors/MPU6050.hpp"
 
 using namespace std::chrono_literals;
 
-class IMUPublisher : public rclcpp::Node
+class IMUPublisher : public rclcpp::Node, public MPU6050
 {
 private:
 	rclcpp::Publisher<sensors::msg::SensorImu>::SharedPtr imu_publisher_;
 	rclcpp::TimerBase::SharedPtr timer_;
 
 public:
-	IMUPublisher() : Node("MPU6050")
+	IMUPublisher(int device_id) : Node("MPU6050"), MPU6050(device_id)
 	{
 		// Create Publisher
 		imu_publisher_ = this->create_publisher<sensors::msg::SensorImu>("imu_data", 10);
@@ -40,7 +41,12 @@ public:
 int main(int argc, char *argv[])
 {
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<IMUPublisher>());
+	if(argc != 2)
+	{
+		printf("Pass device id");
+		return -1;
+	}
+	rclcpp::spin(std::make_shared<IMUPublisher>(atoi(argv[1])));
 	rclcpp::shutdown();
 	return 0;
 }

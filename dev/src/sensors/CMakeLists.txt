@@ -12,6 +12,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  #add_compile_options(-Wall -Wextra -Wpedantic -lwiringPi -lm -lpthread -lcrypt -lrt)
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
@@ -20,7 +21,16 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rclcpp REQUIRED)
+#find_package(wiringPi REQUIRED)
 
+# set(custom_directories
+#   hardware
+# )
+
+# include_directories(
+#   include ${custom_directories}
+#   include ../hardware/include/
+# )
 # Messages and Services
 set(msg_files
   "msg/SensorImu.msg"
@@ -40,13 +50,31 @@ ament_export_dependencies(rosidl_default_runtime)
 # Executables
 
 ## Executable IMU
-add_executable(imu src/imu.cpp)
+add_executable(imu 
+  src/imu.cpp
+  src/MPU6050.cpp
+  src/Kalman.cpp
+)
 ament_target_dependencies(imu
   "rclcpp"
 )
+find_library(wpi wiringPi)
+find_library(shm rt)
+find_library(cpt crypt)
+
+# add_library(
+#   ${wpi}
+# )
 target_include_directories(imu PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(imu "${wpi}" "${shm}" "${cpt}")
+
+
+# target_link_libraries(
+  # /usr/lib/libwiringPi.so
+# )
 
 install(TARGETS imu
   DESTINATION lib/${PROJECT_NAME}
@@ -61,7 +89,8 @@ ament_target_dependencies(laser
 )
 target_include_directories(laser PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include>
+)
 
 install(TARGETS laser
   DESTINATION lib/${PROJECT_NAME}
