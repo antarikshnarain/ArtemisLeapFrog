@@ -2,40 +2,44 @@
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
-#include "sensors/msg/comm_rf.hpp"
+#include "communication/srv/comm_rf_send.hpp"
+#include "communication/srv/comm_rf_recv.hpp"
+#include "communication/Serial.hpp"
 
 using namespace std::chrono_literals;
 
-class RFD900xManager : public rclcpp::Node
-{
-private:
-	rclcpp::Publisher<communication::msg::CommRF>::SharedPtr comm_publisher_;
-	rclcpp::TimerBase::SharedPtr timer_;
+std::unique_ptr<Serial> serial;
 
-public:
-	RFD900xManager() : Node("RFD900X")
-	{
-		// Create Publisher
-		this->comm_publisher_ = this->create_publisher<communication::msg::CommRF>("laser", 10);
-		// Create lambda function to publish data
-		auto publish_msg = [this]() -> void
-		{
-			auto message = sensors::msg::CommRF();
-			message.distance = 1;
-			// process data and update message
-			// LOG Message
-			// Publish
-			this->comm_publisher_->publish(message);
-		};
-		// register publisher with timer
-		this->timer_ = this->create_wall_timer(100ms, publish_msg);
-	}
-};
+void RFDSend(const std::shared_ptr<communication::srv::CommRFSend::Request> request, 
+	std::shared_ptr<communication::srv::CommRFSend::Response> response)
+{
+	response->status = serial->Send(request->data);
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sending data");
+}
+void RFDRecv(const std::shared_ptr<communication::srv::CommRFRecv::Request> request, 
+	std::shared_ptr<communication::srv::CommRFRecv::Response> response)
+{
+	response->data = serial->Recv();
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Receiving data");
+}
 
 int main(int argc, char *argv[])
 {
 	rclcpp::init(argc, argv);
-	rclcpp::spin(std::make_shared<RFD900xManager>());
+	if(argc != 3)
+	{
+		printf("Pass port and baud rate as parameters.\n");
+		return -1;
+	}
+	serial = std::make_unique<Serial>(string(argv[1]), atoi(argv[2]));
+	std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("rfd900x");
+	rclcpp::Service<communication::srv::CommRFSend>::SharedPtr serviceSend = 
+		node->create_service<communication::srv::CommRFSend>("SendData", &RFDSend);
+	rclcpp::Service<communication::srv::CommRFRecv>::SharedPtr serviceRecv = 
+		node->create_service<communication::srv::CommRFRecv>("RecvData", &RFDRecv);
+
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "RFD900x Send and Receive Server ready.");
+	rclcpp::spin(node);
 	rclcpp::shutdown();
 	return 0;
 }

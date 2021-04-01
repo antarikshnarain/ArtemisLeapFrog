@@ -46,3 +46,24 @@ int SEN0259::GetStrength()
 }
 
 
+#ifdef TEST
+#include <unistd.h>
+int main(int argc, char *argv[])
+{
+    if(argc != 3)
+    {
+        printf("Pass port and baudrate as parameters"\n);
+        return -1;
+    }
+    SEN0259 sen(string(argv[1]),atoi(argv[2]));
+    int dist, sig;
+    while(1)
+    {
+        dist = sen.GetDistance();
+        sig = sens.GetStrength();
+        printf("%dm --%d\n",dist,sig);
+        std::usleep(10000);
+    }
+    return 0;
+}
+#endif

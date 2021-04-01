@@ -94,3 +94,27 @@ vector<float> MPU6050::GetValues()
 //         this->filters[0].getAngle(this->Gx, this->Gx / 131.0, this->dt),
 //         this->filters[1].getAngle(this->Gy, this->Gy / 131.0, this->dt)};
 // }
+
+#ifdef TEST
+#include <unistd.h>
+int main(int argc, char *argv[])
+{
+    if(argc != 2)
+    {
+        printf("Pass port as parameters"\n);
+        return -1;
+    }
+    MPU6050 mpu(string(argv[1]));
+    printf("Ax,Ay,Az,Gx,Gy,Gz,R,P,Temp\n");
+    while(1)
+    {
+        for(const float v:mpu.GetValues())
+        {
+            printf("%.4f, ",v);
+        }
+        printf("\n");
+        std::usleep(10000);
+    }
+    return 0;
+}
+#endif

@@ -17,17 +17,51 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(rclcpp REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(rfd900x src/rfd900x.cpp)
+# Messages and Services
+set(srv_files
+  "srv/CommRFSend.srv"
+  "srv/CommRFRecv.srv"
+)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${srv_files}
+)
+
+# Export message runtime dependencies
+ament_export_dependencies(rosidl_default_runtime)
+
+# Executable RFD900x
+add_executable(rfd900x
+ src/rfd900x.cpp
+ src/Serial.cpp
+)
+ament_target_dependencies(rfd900x
+  "rclcpp"
+)
+
+# find libraries -> if any dependencies
+## find_library(name lib_name)
+
 target_include_directories(rfd900x PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+# Link target libraries
+## target_link_libraries(rfd900x names...)
+
 install(TARGETS rfd900x
-  DESTINATION lib/${PROJECT_NAME})
+  DESTINATION lib/${PROJECT_NAME}
+)
+rosidl_target_interfaces(rfd900x
+  ${PROJECT_NAME} "rosidl_typesupport_cpp"
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
