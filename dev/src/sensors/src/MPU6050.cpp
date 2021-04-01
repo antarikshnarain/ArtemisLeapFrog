@@ -15,6 +15,7 @@ MPU6050::MPU6050(int device_address)
     this->id = wiringPiI2CSetup(device_address);
     wiringPiI2CWriteReg8(this->id, SMPLRT_DIV, 0x07); /* Write to sample rate register */
     wiringPiI2CWriteReg8(this->id, PWR_MGMT_1, 0x01); /* Write to power management register */
+    
     wiringPiI2CWriteReg8(this->id, CONFIG, 0);        /* Write to Configuration register */
     wiringPiI2CWriteReg8(this->id, GYRO_CONFIG, 24);  /* Write to Gyro Configuration register */
     wiringPiI2CWriteReg8(this->id, INT_ENABLE, 0x01); /*Write to interrupt enable register */
@@ -27,11 +28,11 @@ vector<float> MPU6050::RawValues()
     return vector<float>{this->Ax, this->Ay, this->Az, this->Gx, this->Gy, this->Gz, this->TempC};
 }
 
-vector<double> MPU6050::PrincipalAxisValues()
+vector<float> MPU6050::PrincipalAxisValues()
 {
     this->pitch = Ax / (Ax*Ax + Az*Az);
     this->roll = Ay / (Ay*Ay + Az*Az);
-    return vector<double>{this->pitch, this->roll};
+    return vector<float>{this->pitch, this->roll};
 }
 
 short MPU6050::registerValue(int addr)
@@ -78,6 +79,15 @@ void MPU6050::Calibrate(int duration)
         this->offsetG[i] /= ctr;
     }
 }
+
+vector<float> MPU6050::GetValues()
+{
+    this->readValues();
+    this->pitch = Ax / (Ax*Ax + Az*Az);
+    this->roll = Ay / (Ay*Ay + Az*Az);
+    return vector<float>{this->Ax, this->Ay, this->Az, this->Gx, this->Gy, this->Gz, this->roll, this->pitch, this->TempC};
+}
+
 // vector<double> MPU6050::PrincipalAxisValues()
 // {
 //     return vector<double>{

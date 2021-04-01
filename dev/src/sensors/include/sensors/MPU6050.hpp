@@ -36,8 +36,6 @@ using namespace std;
 
 #define PWR_MGMT_1 0x6B
 
-
-
 class MPU6050
 {
 private:
@@ -58,7 +56,7 @@ private:
     void readValues();
 
 protected:
-    double roll, pitch;
+    float roll, pitch;
 
 public:
     // Function to Initialize with the selected device address
@@ -68,7 +66,11 @@ public:
     vector<float> RawValues();
 
     // Function to calculate Pitch and Roll
-    vector<double> PrincipalAxisValues();
+    vector<float> PrincipalAxisValues();
+
+    // \brief Read values from sensor and return values
+    // \return vector of values : linear_acc, angular_acc, roll, pitch and temperature.
+    vector<float> GetValues();
 
     void Calibrate(int duration);
 };

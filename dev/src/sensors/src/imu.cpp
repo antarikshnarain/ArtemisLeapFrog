@@ -21,15 +21,18 @@ public:
 		// Create lambda function to publish data
 		auto publish_msg = [this]() -> void
 		{
+			vector<float> raw_values = this->GetValues();
 			auto message = sensors::msg::SensorImu();
-			message.raw_linear_acc[0] = 1;
-			message.raw_linear_acc[1] = 2;
-			message.raw_linear_acc[2] = 3;
-			message.raw_angular_acc[0] = 4;
-			message.raw_angular_acc[1] = 5;
-			message.raw_angular_acc[2] = 6;
+			message.raw_linear_acc[0] = raw_values[0];
+			message.raw_linear_acc[1] = raw_values[1];
+			message.raw_linear_acc[2] = raw_values[2];
+			message.raw_angular_acc[0] = raw_values[3];
+			message.raw_angular_acc[1] = raw_values[4];
+			message.raw_angular_acc[2] = raw_values[5];
+			message.roll = raw_values[6];
+			message.pitch = raw_values[7];
+			message.temp = raw_values[8];
 			// process data and update message
-			// LOG Message
 			// Publish
 			this->imu_publisher_->publish(message);
 		};

@@ -83,7 +83,11 @@ rosidl_target_interfaces(imu
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 ## Executable Laser
-add_executable(laser src/laser.cpp)
+add_executable(laser 
+  src/laser.cpp
+  src/Serial.cpp
+  src/SEN0259.cpp
+)
 ament_target_dependencies(laser
   "rclcpp"
 )
@@ -98,6 +102,11 @@ install(TARGETS laser
 rosidl_target_interfaces(laser
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
+# install the launch directory
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
