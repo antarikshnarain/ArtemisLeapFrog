@@ -34,12 +34,17 @@ set(srv_files
   "srv/ActuatorJCP300Params.srv"
   "srv/ActuatorJCP300Status.srv"
   "srv/ActuatorJCP300Thrust.srv"
+  "srv/ActuatorColdGasFireThruster.srv"
 )
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${srv_files}
   ${msg_files}
 )
 ament_export_dependencies(rosidl_default_runtime)
+
+find_library(wpi wiringPi)
+find_library(shm rt)
+find_library(cpt crypt)
 
 # Executable Engine
 add_executable(engine
@@ -50,9 +55,6 @@ add_executable(engine
 ament_target_dependencies(engine
   "rclcpp"
 )
-find_library(wpi wiringPi)
-find_library(shm rt)
-find_library(cpt crypt)
 
 target_include_directories(engine PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -65,6 +67,22 @@ rosidl_target_interfaces(engine
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # Executable ACS
+add_executable(acs
+ src/acs.cpp
+)
+ament_target_dependencies(acs
+  "rclcpp"
+)
+
+target_include_directories(acs PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(acs "${wpi}" "${shm}" "${cpt}")
+
+install(TARGETS acs
+  DESTINATION lib/${PROJECT_NAME})
+rosidl_target_interfaces(acs
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
