@@ -102,12 +102,12 @@ string Serial::Recv()
     return data;
 }
 
-char * Serial::Recv(int num_bytes)
+string Serial::Recv(int num_bytes)
 {
-    char buffer[num_bytes];
+    char buffer[BUFFER_SIZE];
     memset(&buffer, '\0', sizeof(buffer));
-    int ct = read(this->serial_port, &buffer, sizeof(buffer));
-    return buffer;
+    read(this->serial_port, &buffer, sizeof(char)*num_bytes);
+    return string(buffer);
 }
 
 bool Serial::Close()

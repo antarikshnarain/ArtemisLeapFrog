@@ -1,0 +1,3 @@
+bool check_health
+---
+string status_message

@@ -1,0 +1,4 @@
+bool ctrl_sig
+bool pwr_sig
+---
+int8 status

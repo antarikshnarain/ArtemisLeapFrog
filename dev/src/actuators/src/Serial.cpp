@@ -9,7 +9,7 @@
  * tty.c_cflag |= PARENB;  // Set parity bit, enabling parity
 ----------------------------------------------------------------- */
 
-#include "sensors/Serial.hpp"
+#include "actuators/Serial.hpp"
 
 //#define TEST_SERIAL
 

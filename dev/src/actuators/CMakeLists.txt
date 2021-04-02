@@ -17,17 +17,54 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(rclcpp REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(engine src/engine.cpp)
+# Messages and Services
+set(msg_files
+  "msg/ActuatorJCP300Info.msg"
+  "msg/ActuatorJCP300Telemetry.msg"
+)
+set(srv_files
+  "srv/ActuatorJCP300HealthCheck.srv"
+  "srv/ActuatorJCP300Params.srv"
+  "srv/ActuatorJCP300Status.srv"
+  "srv/ActuatorJCP300Thrust.srv"
+)
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${srv_files}
+  ${msg_files}
+)
+ament_export_dependencies(rosidl_default_runtime)
+
+# Executable Engine
+add_executable(engine
+ src/engine.cpp
+ src/JetCatP300.cpp
+ src/Serial.cpp
+)
+ament_target_dependencies(engine
+  "rclcpp"
+)
+find_library(wpi wiringPi)
+find_library(shm rt)
+find_library(cpt crypt)
+
 target_include_directories(engine PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+target_link_libraries(engine "${wpi}" "${shm}" "${cpt}")
 
 install(TARGETS engine
   DESTINATION lib/${PROJECT_NAME})
+rosidl_target_interfaces(engine
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+# Executable ACS
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

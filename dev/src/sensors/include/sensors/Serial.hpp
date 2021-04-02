@@ -45,8 +45,8 @@ public:
     // \return data string
     string Recv();
     // \brief Read predetermined set of bytes
-    // \return byte array
-    char * Recv(int);
+    // \return string array
+    string Recv(int);
     // \brief Release port
     bool Close();
 };

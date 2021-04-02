@@ -1,0 +1,6 @@
+string firmware_version
+string version_number
+string last_time_run
+string total_operation_time
+string serial_number
+string turbine_type

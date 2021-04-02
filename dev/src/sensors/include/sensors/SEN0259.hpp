@@ -19,7 +19,7 @@ class SEN0259: public Serial
 private:
     int distance = 0;
     int strength = 0;
-    char * sensor_data;
+    string sensor_data;
     // \brief read data from serial port
     // \return false if checksum failed or invalid format
     bool readData();
