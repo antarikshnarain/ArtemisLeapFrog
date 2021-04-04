@@ -1,13 +1,11 @@
-build:
-	mpiCC -o GroundStation src/*.cpp ../common/src/Communication.cpp ../common/src/Serial.cpp \
-	 -Isrc/include/ -I../common/src/include/ -lboost_system -lboost_serialization
+objname := serial.o
+libname := libSerial.so
 
-run: GroundStation
-	mpirun -n 2 ./GroundStation
-all:
-	g++ -o build/GroundStation src/*.cpp -Isrc/include/
+build-gs:
+	g++ src/Serial.cpp src/GroundStation.cpp -Iinclude/ -o GroundStation -lpthread
+build-lib:
+	g++ -c -Wall -Werror -fpic -Iinclude/ src/*.cpp -o $(objname)
+	g++ -shared -o $(libname) $(objname)
+	rm $(objname)
 clean:
-	rm -r build/*
-
-build:
-	mpiCC src/*.cpp ../common/src/*.cpp -I../common/src/include -lboost_system -lboost_serialization -std=c++17 -o GroundStation
+	rm *.so *.o GroundStation
