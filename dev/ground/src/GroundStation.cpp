@@ -15,13 +15,20 @@
 #include <chrono>
 #include <thread>
 #include <future>
-
+#include <map>
 // User Defined Libs
 #include "Serial.hpp"
 
 using namespace std;
 
 Serial *serial;
+
+// command, duration_ms
+#define TOTAL_CMDS 2 // 1 + num in heart_beats
+map<string,int> heart_beats = 
+{
+    {"t 1",500}
+};
 
 void Receiver(std::future<void> fut)
 {
@@ -38,18 +45,20 @@ void Receiver(std::future<void> fut)
     printf("Exiting Receiver!\n");
 }
 
-void Sender(std::promise<void> prom)
+void Sender(std::promise<void> * prom)
 {
     printf("Started Sender...\n");
     char data[100];
     while (1)
     {
         cin.getline(data, sizeof(data));
-        //send_data = string(data);
         if (string(data) == "exit")
         {
             printf("Exiting ...\n");
-            prom.set_value();
+            for(int i=0;i<TOTAL_CMDS;i++)
+            {
+                prom[i].set_value();
+            }
             break;
         }
         else
@@ -60,6 +69,14 @@ void Sender(std::promise<void> prom)
     printf("Exiting Sender!\n");
 }
 
+void HeartBeats(std::future<void> fut, string cmd, int sleep_time)
+{
+    while (fut.wait_for(chrono::milliseconds(sleep_time)) == std::future_status::timeout)
+    {
+        serial->Send(cmd);
+    }
+}
+
 int main(int argc, char *argv[])
 {
     if (argc != 3)
@@ -68,19 +85,34 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    //Serial serial(argv[1], atoi(argv[2]),'\n',1000,-1);
     serial = new Serial(argv[1], atoi(argv[2]),3,1000,-1);
 
     // Promise to manage threads
-    promise<void> exit_signal;
-    future<void> exit_future = exit_signal.get_future();
+    promise<void> exit_signals[TOTAL_CMDS];
+    future<void> exit_futures[TOTAL_CMDS];
+    for(int i=0;i<TOTAL_CMDS;i++)
+    {
+        exit_futures[i] = exit_signals[i].get_future();
+    }
     
-    thread t2(&Receiver, move(exit_future));
-    thread t1(&Sender, move(exit_signal));
+    thread t2(&Receiver, move(exit_futures[0]));
+    thread t1(&Sender, move(exit_signals));
     sleep(1);
-    
+    thread pool[TOTAL_CMDS - 1];
+    auto itr = heart_beats.begin();
+    int i=0;
+    while(itr != heart_beats.end())
+    {
+        pool[i++] = thread(&HeartBeats, move(exit_futures[i+1]), itr->first, itr->second);
+        itr++;
+    }
+
     t1.join();
     t2.join();
-
+    for(int i=0;i<TOTAL_CMDS - 1;i++)
+    {
+        pool[i].join();
+    }
+    printf("Closed all threads safely!\n");
     return 0;
 }

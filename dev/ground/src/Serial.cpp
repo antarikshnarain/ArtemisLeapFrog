@@ -1,4 +1,5 @@
 #include "Serial.hpp"
+#include <stdexcept>
 
 Serial::~Serial()
 {
@@ -15,7 +16,7 @@ Serial::Serial(string portname, int baudrate, char delim='\n', int q_size=1000, 
     this->exit_future = this->exit_signal.get_future();
     if(!this->initializePort())
     {
-        return;
+        throw runtime_error("Port Initialization failed!");
     }
     // Initialize thread to monitor port
     this->monitor_thread = new thread(&Serial::manageQueue, this, std::move(this->exit_future));
