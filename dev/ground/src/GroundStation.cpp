@@ -16,12 +16,14 @@
 #include <thread>
 #include <future>
 #include <map>
+#include <mutex>
 // User Defined Libs
 #include "Serial.hpp"
 
 using namespace std;
 
 Serial *serial;
+mutex _mutex;
 
 // command, duration_ms
 #define TOTAL_CMDS 2 // 1 + num in heart_beats
@@ -63,7 +65,9 @@ void Sender(std::promise<void> * prom)
         }
         else
         {
+            _mutex.lock();
             serial->Send(data);
+            _mutex.unlock();
         }
     }
     printf("Exiting Sender!\n");
@@ -73,7 +77,9 @@ void HeartBeats(std::future<void> fut, string cmd, int sleep_time)
 {
     while (fut.wait_for(chrono::milliseconds(sleep_time)) == std::future_status::timeout)
     {
+        _mutex.lock();
         serial->Send(cmd);
+        _mutex.unlock();
     }
 }
 
@@ -109,6 +115,7 @@ int main(int argc, char *argv[])
 
     t1.join();
     t2.join();
+    printf("Closed primary threads! ");
     for(int i=0;i<TOTAL_CMDS - 1;i++)
     {
         pool[i].join();
