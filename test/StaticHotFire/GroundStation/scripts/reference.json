@@ -1,0 +1,20 @@
+{
+    "engine":
+    {
+        "ctrl" : 0-1, 
+        "power" : 0-1,
+        "enable": 0-1,
+        "telem" : 0-2, // health check, system info, telemetry
+        "thrust": 0.0-100.0
+    },
+    "acs":
+    {
+        "enable": 0-1,
+        "fire" : "r=<dur>,R=<dur>,p=<dur>,P=<dur>,y=<dur>,Y=<dur>"
+    },
+    "sensors":
+    {
+        "enable": 0-1,
+        "telem" : 0-2 // imu, laser, battery
+    }
+}
