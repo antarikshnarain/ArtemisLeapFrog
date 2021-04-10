@@ -2,8 +2,9 @@
 Laser Sensor Read
 """
 import serial
+import time
 
-ser = serial.Serial("/dev/ttyS0", 115200)
+ser = serial.Serial("/dev/ttyAMA4", 115200)
 
 while 1:
     #data = ser.readline()
@@ -21,3 +22,4 @@ while 1:
         check_sum = int(data[8])
         print(header, dist, signal, mode, spare, check_sum)
     #print(data)
+    time.sleep(0.1)
