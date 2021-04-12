@@ -4,6 +4,7 @@
  * Author     : Antariksh Narain
  * Description: Library to communicate using UART.
  * Reference  : https://blog.mbedded.ninja/electronics/communication-protocols/uart-communication-protocol/
+ * Note       : Note: The pkt size is a separate function because the byte value may be equal to.
 ----------------------------------------------------------------- */
 
 // Standard headers
@@ -28,11 +29,8 @@ using namespace std;
 #ifndef _SERIAL_h_
 #define _SERIAL_h_
 
-#define EOT 4 // End of transmission
-
-/*
-Note: The pkt size is a separate function because the byte value may be equal to
-*/
+#define EOT 4  // End of transmission
+#define RATE 1 // time in ms
 
 class Serial
 {
@@ -55,12 +53,12 @@ private:
     std::future<void> exit_future;
 
 protected:
+    // \brief Initialize terminal serial port and properties
+    // \return success or failure
     bool initializePort();
+
     // \brief Function to maintain the queue of data
     void manageQueue(std::future<void>);
-
-    // \brief Release port
-    bool closeSerial();
 
 public:
     // \brief Destructor to close port

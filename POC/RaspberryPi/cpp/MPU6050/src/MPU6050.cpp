@@ -74,7 +74,7 @@ void MPU6050::readValues()
 
 void MPU6050::imuManager(std::future<void> _future)
 {
-    printf("Starting IMU manager!\n");
+    printf("Starting MPU6050 manager!\n");
     while (_future.wait_for(chrono::milliseconds(RATE)) == std::future_status::timeout)
     {
         this->readValues();
@@ -138,7 +138,7 @@ void MPU6050::imuManager(std::future<void> _future)
             _gyro_angle[2] = 0;
         }
     }
-    printf("Closing IMU Manager.\n");
+    printf("Closing MPU6050 Manager.\n");
 }
 
 void MPU6050::Calibrate(int count = 10000)

@@ -2,8 +2,10 @@
 
 Serial::~Serial()
 {
-    printf("Destructor called!\n");
-    this->closeSerial();
+    printf("Stopping Serial Communication %s.\n", this->port_name.c_str());
+    this->exit_signal.set_value();
+    sleep(1);
+    close(this->serial_port);
 }
 
 Serial::Serial(string portname, int baudrate, char delim = '\n', int q_size = 100, int pkt_size = -1)
@@ -19,9 +21,8 @@ Serial::Serial(string portname, int baudrate, char delim = '\n', int q_size = 10
         return;
     }
     // Initialize thread to monitor port
-    //this->monitor_thread = new thread(&Serial::manageQueue, this, std::move(this->exit_future));
-    //this->monitor_thread->detach();
     thread(&Serial::manageQueue, this, std::move(this->exit_future)).detach();
+    printf("Started Serial communication at %s.\n", this->port_name.c_str());
 }
 
 bool Serial::initializePort()
@@ -80,12 +81,11 @@ void Serial::manageQueue(std::future<void> _future)
         if (size == 0)
         {
             // buffer is empty sleep for a while
-            if (_future.wait_for(chrono::microseconds(1)) != std::future_status::timeout)
+            if (_future.wait_for(chrono::milliseconds(RATE)) != std::future_status::timeout)
             {
                 break;
             }
             printf("Sleeping for a while!\n");
-            std::this_thread::sleep_for(chrono::milliseconds(1000));
         }
         else if ((this->num_bytes == -1 && c == this->delimitter) || (this->num_bytes == (int)data.size()))
         {
@@ -105,17 +105,6 @@ void Serial::manageQueue(std::future<void> _future)
         size = read(this->serial_port, &c, 1);
     }
     printf("Closing Queue Manager for %s, end of transmission received.\n", this->port_name.c_str());
-}
-
-bool Serial::closeSerial()
-{
-    //this->monitor_thread->join();
-    this->exit_signal.set_value();
-    if (close(this->serial_port) < 0)
-    {
-        return false;
-    }
-    return true;
 }
 
 bool Serial::Send(string data)
