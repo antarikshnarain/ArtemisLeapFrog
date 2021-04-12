@@ -8,79 +8,88 @@
 
 MPU6050::~MPU6050()
 {
-    printf("Destructor called!\n");
+    printf("Closing MPU6050.\n");
     this->exit_signal.set_value();
+    sleep(1);
 }
 
-MPU6050::MPU6050(int device_address, int duration = 2000)
+MPU6050::MPU6050(int device_address, int cycles = 1000) : I2C(device_address)
 {
-    this->id = wiringPiI2CSetup(device_address);
-    wiringPiI2CWriteReg8(this->id, PWR_MGMT_1, 0x00);   /* Write to power management register */
-    wiringPiI2CWriteReg8(this->id, CONFIG, 0x03);       /* Write to Configuration register */
-    wiringPiI2CWriteReg8(this->id, SMPLRT_DIV, 0x04);   /* Write to sample rate register */
-    wiringPiI2CWriteReg8(this->id, GYRO_CONFIG, 0x00);  /* Write to Gyro Configuration register */
-    wiringPiI2CWriteReg8(this->id, ACCEL_CONFIG, 0x00); /* Write to Gyro Configuration register */
+    this->i2cWrite(SMPLRT_DIV, 4); // 7, 4
+    this->i2cWrite(PWR_MGMT_1, 0); // 1, 0
+    this->i2cWrite(CONFIG, 3); // 0, 3
+    this->i2cWrite(GYRO_CONFIG, 0); // 24, 0
+    this->i2cWrite(ACCEL_CONFIG, 0); // 0, 0
+
     // Update local variables
-    this->Calibrate(duration);
+    this->Calibrate(cycles);
     // Initialize Manager thread
     this->exit_future = this->exit_signal.get_future();
     thread(&MPU6050::imuManager, this, std::move(this->exit_future)).detach();
 }
 
-short MPU6050::registerValue(int addr)
+int16_t MPU6050::registerValue(int8_t addr)
 {
-    short high_byte, low_byte, value;
-    high_byte = wiringPiI2CReadReg8(this->id, addr);
-    low_byte = wiringPiI2CReadReg8(this->id, addr + 1);
-    value = (high_byte << 8) | low_byte;
-    printf("Value: %d, ", value);
-    return value;
+    int16_t t = (this->i2cRead(addr) << 8) | this->i2cRead(addr + 1);
+    // if(t > 32768)
+    // {
+    //     t -= 65536;
+    // }
+    return t;
 }
 void MPU6050::readRawValues()
 {
-    // Get Acceleration Values
-    this->accel_linear[0] = this->registerValue(ACCEL_XOUT_H);
-    this->accel_linear[1] = this->registerValue(ACCEL_YOUT_H);
-    this->accel_linear[2] = this->registerValue(ACCEL_ZOUT_H);
-    // Get Gyro Values
-    this->accel_angular[0] = this->registerValue(GYRO_XOUT_H);
-    this->accel_angular[1] = this->registerValue(GYRO_YOUT_H);
-    this->accel_angular[2] = this->registerValue(GYRO_ZOUT_H);
-    // Get Temperature values
-    this->TempC = this->registerValue(TEMP_OUT_H);
+    int8_t start_addr = 0x3B;
+    for(int i = 0; i < 3;i++)
+    {
+        this->accel_linear[i] = this->registerValue(start_addr);
+        start_addr += 2; 
+    }
+    this->TempC = this->registerValue(start_addr);
+    start_addr += 2;
+    for(int i = 0; i < 3;i++)
+    {
+        this->accel_angular[i] = this->registerValue(start_addr); 
+        start_addr += 2;
+    }
 }
 void MPU6050::readValues()
 {
-    this->readRawValues();
-    // Get Acceleration Values
-    this->accel_linear[0] = round((this->accel_linear[0] - this->offsetA[0]) * 1000.0 / ACCEL_SENS) * 1000.0;
-    this->accel_linear[1] = round((this->accel_linear[1] - this->offsetA[1]) * 1000.0 / ACCEL_SENS) * 1000.0;
-    this->accel_linear[2] = round((this->accel_linear[2] - this->offsetA[2]) * 1000.0 / ACCEL_SENS) * 1000.0;
-    // Get Gyro Values
-    this->accel_angular[0] = round((this->accel_angular[0] - this->offsetG[0]) * 1000.0 / GYRO_SENS) * 1000.0;
-    this->accel_angular[1] = round((this->accel_angular[1] - this->offsetG[1]) * 1000.0 / GYRO_SENS) * 1000.0;
-    this->accel_angular[2] = round((this->accel_angular[2] - this->offsetG[2]) * 1000.0 / GYRO_SENS) * 1000.0;
+    int8_t start_addr = 0x3B;
+    // Add offset Acceleration Values
+    for(int i = 0; i < 3;i++)
+    {
+        this->accel_linear[i] = round(this->registerValue(start_addr) - this->offsetA[i]) / ACCEL_SENS;
+        start_addr += 2;
+    }
+    this->TempC = this->registerValue(start_addr);
+    start_addr += 2; 
+    // Add offset Gyro Values
+    for(int i = 0; i < 3;i++)
+    {
+        this->accel_angular[i] = round(this->registerValue(start_addr) - this->offsetG[i]) / GYRO_SENS;
+        start_addr += 2;
+    }
 }
 
 void MPU6050::imuManager(std::future<void> _future)
 {
     printf("Starting IMU manager!\n");
-    int ctr = 0;
-    while (_future.wait_for(chrono::microseconds(this->dt)) == std::future_status::timeout)
+    while (_future.wait_for(chrono::milliseconds(RATE)) == std::future_status::timeout)
     {
         this->readValues();
         //X (roll) axis
         this->_accel_angle[0] = atan2(this->accel_linear[2], this->accel_linear[1]) * RAD_TO_DEG - 90.0; //Calculate the angle with z and y convert to degrees and subtract 90 degrees to rotate
-        this->_gyro_angle[0] = this->rpy[0] + this->accel_angular[0] * this->dt;                         //Use roll axis (X axis)
+        this->_gyro_angle[0] = this->rpy[0] + this->accel_angular[0] * RATE;                         //Use roll axis (X axis)
 
         //Y (pitch) axis
         _accel_angle[1] = atan2(this->accel_linear[2], this->accel_linear[0]) * RAD_TO_DEG - 90.0; //Calculate the angle with z and x convert to degrees and subtract 90 dethis->accel_angular[0]ees to rotate
-        _gyro_angle[1] = this->rpy[1] + this->accel_angular[1] * this->dt;                         //Use pitch axis (Y axis)
+        _gyro_angle[1] = this->rpy[1] + this->accel_angular[1] * RATE;                         //Use pitch axis (Y axis)
 
         //Z (yaw) axis
         if (calc_yaw)
         {
-            _gyro_angle[2] = this->rpy[2] + this->accel_angular[2] * this->dt; //Use yaw axis (Z axis)
+            _gyro_angle[2] = this->rpy[2] + this->accel_angular[2] * RATE; //Use yaw axis (Z axis)
         }
 
         if (this->_first_run)
@@ -128,20 +137,17 @@ void MPU6050::imuManager(std::future<void> _future)
             this->rpy[2] = 0;
             _gyro_angle[2] = 0;
         }
-        
-        ctr++;
-        if(ctr == 10)
-        {
-            printf("Updated values!\n");
-            ctr = 0;
-        }
     }
     printf("Closing IMU Manager.\n");
 }
 
 void MPU6050::Calibrate(int count = 10000)
 {
-    printf("Calibrating...\n");
+    if(count == 0)
+    {
+        return;
+    }
+    printf("Calibrating...");
     // Read sensor values for <count>
     for (int i = 0; i < count; i++)
     {
@@ -156,21 +162,18 @@ void MPU6050::Calibrate(int count = 10000)
     // TODO: Calulate the mean, variance, max and min values
     for (int i = 0; i < 3; i++)
     {
-        this->offsetA[i] /= count;
-        this->offsetG[i] /= count;
+        this->offsetA[i] /= float(count);
+        this->offsetG[i] /= float(count);
+
     }
     // IMP: Remove 1g from the value calculated to compensate for gravity
     this->offsetA[2] -= ACCEL_SENS;
-    printf("Offsets: ");
-    for(int i=0;i<3;i++)
-    {
-        printf("%.2f | %.2f, ",this->offsetA[i], this->offsetG[i]);
-    }
     printf("Done with Calibration!\n");
 }
 
 vector<float> MPU6050::RawValues()
 {
+    //this->readValues();
     return vector<float>{
         this->accel_linear[0], this->accel_linear[1], this->accel_linear[2],
         this->accel_angular[0], this->accel_angular[1], this->accel_angular[2],

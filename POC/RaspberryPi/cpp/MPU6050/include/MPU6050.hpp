@@ -6,14 +6,9 @@
  * Reference  : https://github.com/alex-mous/MPU6050-C-CPP-Library-for-Raspberry-Pi
 ----------------------------------------------------------------- */
 
-#include <vector>
-#include <math.h>
-#include <time.h>
-#include <stdlib.h>
-#include <wiringPiI2C.h>
-#include <future>
-#include <thread>
-#include <chrono>
+
+#include <iostream>
+#include "I2C.hpp"
 
 #ifndef _MPU6050_h_
 #define _MPU6050_h_
@@ -42,17 +37,17 @@ using namespace std;
 #define RAD_TO_DEG 57.29577951308
 #define TAU 0.05 //Complementary filter percentage
 
-class MPU6050
+#define RATE 1 // rate in ms
+
+class MPU6050: public I2C
 {
 private:
-    int id;
     float accel_linear[3];
     float accel_angular[3];
     float rpy[3];
     float TempC;
-    float offsetA[3];
-    float offsetG[3];
-    const int dt = 1; // microsecond
+    float offsetA[3] = {0.0};
+    float offsetG[3] = {0.0};
 
     float _accel_angle[3];
     float _gyro_angle[3];
@@ -64,12 +59,12 @@ private:
 
 protected:
     // \brief Function to read raw register value
-    short registerValue(int addr);
+    int16_t registerValue(int8_t);
 
     // \brief read values from the registers
     void readRawValues();
 
-    // \brief add offset with sensitivity to values
+    // \brief read values with offset
     void readValues();
 
     // \brief compute principal axis values
@@ -84,7 +79,7 @@ public:
     ~MPU6050();
     // \brief Function to Initialize with the selected device address
     // \param device address
-    // \param Optional : calibration duration
+    // \param Optional : calibration cycles
     MPU6050(int, int);
 
     // \brief Function to return RAW values from the sensor.
