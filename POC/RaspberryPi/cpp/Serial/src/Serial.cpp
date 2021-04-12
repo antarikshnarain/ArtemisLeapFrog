@@ -75,7 +75,7 @@ void Serial::manageQueue(std::future<void> _future)
     char c;
     string data = "";
     int size = read(this->serial_port, &c, 1);
-    printf("Starting serial queue manager.\n");
+    printf("Starting Serial Queue Manager for %s.\n", this->port_name.c_str());
     while (1)
     {
         if (size == 0)
@@ -110,7 +110,9 @@ void Serial::manageQueue(std::future<void> _future)
 bool Serial::Send(string data)
 {
     data += this->delimitter;
+    #ifdef TEST_SERIAL
     printf("Writing: %s\n", data.c_str());
+    #endif
     if (write(this->serial_port, data.c_str(), data.size()) < 0)
     {
         return false;
@@ -125,7 +127,9 @@ string Serial::Recv()
     data = this->recv_data.front();
     this->recv_data.pop();
     this->_mutex.unlock();
+    #ifdef TEST_SERIAL
     printf("Received: %s\n", data.c_str());
+    #endif
     return data;
 }
 

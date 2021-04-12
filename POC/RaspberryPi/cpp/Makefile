@@ -1,3 +1,11 @@
+objname := serial.o
+libname := libSerial.so
+
+build-lib-serial:
+	g++ -c -Wall -Werror -fpic -Iinclude/ src/*.cpp -o $(objname)
+	g++ -shared -o $(libname) $(objname)
+	rm $(objname)
+
 install-wiringpi:
 	sudo apt-get install wiringpi
 
@@ -14,4 +22,5 @@ open-serial:
 	socat -d -d pty,raw,echo=0 pty,raw,echo=0
 
 clean:
-	rm -f serial mpu6050
+	rm -f serial mpu6050 a.out
+	rm -f *.so *.o
