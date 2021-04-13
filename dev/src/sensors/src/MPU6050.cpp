@@ -96,15 +96,17 @@ vector<float> MPU6050::GetValues()
 // }
 
 #ifdef TEST
+#include<bits/stdc++.h>
+using namespace std;
 #include <unistd.h>
 int main(int argc, char *argv[])
 {
     if(argc != 2)
     {
-        printf("Pass port as parameters"\n);
+        printf("Pass port as parameters\n");
         return -1;
     }
-    MPU6050 mpu(string(argv[1]));
+    MPU6050 mpu(atoi(argv[1]));
     printf("Ax,Ay,Az,Gx,Gy,Gz,R,P,Temp\n");
     while(1)
     {
@@ -113,7 +115,7 @@ int main(int argc, char *argv[])
             printf("%.4f, ",v);
         }
         printf("\n");
-        std::usleep(10000);
+        usleep(10000);
     }
     return 0;
 }
