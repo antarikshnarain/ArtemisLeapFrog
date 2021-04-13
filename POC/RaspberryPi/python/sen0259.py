@@ -4,7 +4,7 @@ Laser Sensor Read
 import serial
 import time
 
-ser = serial.Serial("/dev/ttyAMA4", 115200)
+ser = serial.Serial("/dev/ttyAMA1", 115200)
 
 while 1:
     #data = ser.readline()
