@@ -1,12 +1,14 @@
-#include "sensors/Serial.hpp"
-#include <stdexcept>
+#include "Serial.hpp"
 
 Serial::~Serial()
 {
-    this->closeSerial();
+    this->exit_signal.set_value();
+    printf("Stopping Serial Communication %s.\n", this->port_name.c_str());
+    sleep(1);
+    close(this->serial_port);
 }
 
-Serial::Serial(string portname, int baudrate, char delim='\n', int q_size=1000, int pkt_size=-1)
+Serial::Serial(string portname, int baudrate, char delim = '\n', int q_size = 100, int pkt_size = -1)
 {
     this->port_name = portname;
     this->baud_rate = baudrate;
@@ -14,12 +16,13 @@ Serial::Serial(string portname, int baudrate, char delim='\n', int q_size=1000, 
     this->queue_size = q_size;
     this->num_bytes = pkt_size;
     this->exit_future = this->exit_signal.get_future();
-    if(!this->initializePort())
+    if (!this->initializePort())
     {
-        throw runtime_error("Port Initialization failed!");
+        return;
     }
     // Initialize thread to monitor port
-    this->monitor_thread = new thread(&Serial::manageQueue, this, std::move(this->exit_future));
+    thread(&Serial::manageQueue, this, std::move(this->exit_future)).detach();
+    printf("Started Serial communication at %s.\n", this->port_name.c_str());
 }
 
 bool Serial::initializePort()
@@ -69,51 +72,68 @@ bool Serial::initializePort()
 
 void Serial::manageQueue(std::future<void> _future)
 {
-    char c;
-    string data = "";
+    uint8_t c;
+    vector<uint8_t> data;
+    //memset(c, '\0', sizeof(c));
     int size = read(this->serial_port, &c, 1);
-    while(c != EOT)
+    printf("Starting Serial Queue Manager for %s.\n", this->port_name.c_str());
+    while (1)
     {
-        if(size == 0)
+        if (size == 0)
         {
             // buffer is empty sleep for a while
-            if(_future.wait_for(chrono::microseconds(1)) != std::future_status::timeout)
+            if (_future.wait_for(chrono::milliseconds(RATE)) != std::future_status::timeout)
             {
                 break;
             }
-            #ifdef TEST_SERIAL
+#ifdef DEBUG_SERIAL
             printf("Sleeping for a while!\n");
-            #endif
-            std::this_thread::sleep_for(chrono::milliseconds(1000));
+#endif
         }
-        else if((this->num_bytes == -1 && c == this->delimitter) 
-            || (this->num_bytes == (int)data.size()))
+        //else if ((this->num_bytes == -1 && c == this->delimitter) || (this->num_bytes == (int)data.size()))
+        else if (this->num_bytes == -1 && c == this->delimitter)
         {
             this->_mutex.lock();
             this->recv_data.push(data);
-            if(this->recv_data.size() == this->queue_size)
+            if (this->recv_data.size() > this->queue_size)
             {
                 this->recv_data.pop();
             }
             this->_mutex.unlock();
-            data = "";
+            data.clear();
+        }
+        else if (this->num_bytes == (int)data.size())
+        {
+#ifdef DEBUG_SERIAL
+            printf("Pushing---");
+            for (int i = 0; i < this->num_bytes; i++)
+            {
+                printf("%d,", data[i]);
+            }
+#endif
+            this->_mutex.lock();
+            this->recv_data.push(data);
+            if (this->recv_data.size() > this->queue_size)
+            {
+                this->recv_data.pop();
+            }
+            this->_mutex.unlock();
+            data.clear();
+            data.push_back(c);
         }
         else
         {
-            data += c;
+            data.push_back(c);
         }
         size = read(this->serial_port, &c, 1);
     }
-    #ifdef TEST_SERIAL
-    printf("Closing Queue Manager for %s\n", this->port_name.c_str());
-    #endif
+    printf("Closing Queue Manager for %s, end of transmission received.\n", this->port_name.c_str());
 }
 
-bool Serial::closeSerial()
+bool Serial::Send(vector<uint8_t> data)
 {
-    this->monitor_thread->join();
-    this->exit_signal.set_value();
-    if (close(this->serial_port) < 0)
+    data.push_back(this->delimitter);
+    if (write(this->serial_port, &data[0], data.size()) < 0)
     {
         return false;
     }
@@ -122,27 +142,36 @@ bool Serial::closeSerial()
 
 bool Serial::Send(string data)
 {
-    data += this->delimitter;
-    #ifdef TEST_SERIAL
-    printf("Writing: %s\n", data.c_str());
-    #endif
-    if (write(this->serial_port, data.c_str(), data.size()) < 0)
-    {
-        return false;
-    }
-    return true;
+    return this->Send(this->convert_to_bytes(data));
 }
 
-string Serial::Recv()
+vector<uint8_t> Serial::Recv()
 {
-    string data = "";
+    vector<uint8_t> data;
     this->_mutex.lock();
     data = this->recv_data.front();
     this->recv_data.pop();
     this->_mutex.unlock();
-    #ifdef TEST_SERIAL
-    printf("Received: %s\n", data.c_str());
-    #endif
+    return data;
+}
+
+string Serial::convert_to_string(vector<uint8_t> data)
+{
+    string str = "";
+    for (const uint8_t b : data)
+    {
+        str += b;
+    }
+    return str;
+}
+
+vector<uint8_t> Serial::convert_to_bytes(string str)
+{
+    vector<uint8_t> data;
+    for (int i = 0; i < (int)str.size(); i++)
+    {
+        data.push_back(str[i]);
+    }
     return data;
 }
 
@@ -155,25 +184,53 @@ bool Serial::IsAvailable()
 }
 
 #ifdef TEST_SERIAL
-int main(int argv, char *argc[])
+int main(int argc, char *argv[])
 {
-    if (argv != 2)
+    if (argc != 3)
     {
-        cout << "Pass port name";
+        cout << "Pass port name and baud rate.\n";
         return 1;
     }
-    Serial serial(argc[1], 9600, '\n');
-    //serial.Send("Test1 Send String from " + string(argc[1]));
+    Serial serial(argv[1], atoi(argv[2]), '\n');
+    serial.Send(serial.convert_to_bytes("Test1 Send String from " + string(argv[1])));
     sleep(2);
     while (1)
     {
-        if(serial.IsAvailable())
+        if (serial.IsAvailable())
         {
-            string recv = serial.Recv();
-            cout << argc[1] << " Received: " << recv << endl;
+            string recv = serial.convert_to_string(serial.Recv());
+            cout << argv[1] << " Received: " << recv << endl;
+            break;
         }
         sleep(1);
     }
+    printf("Exiting main thread!\n");
+    return 0;
+}
+#endif
+
+#ifdef TEST_SERIAL2
+int main(int argc, char *argv[])
+{
+    if (argc != 3)
+    {
+        cout << "Pass port name and baud rate.\n";
+        return 1;
+    }
+    Serial serial(argv[1], atoi(argv[2]), 0, 1, 9);
+    serial.Send(argv[1]);
+    sleep(2);
+    while (1)
+    {
+        if (serial.IsAvailable())
+        {
+            string recv = serial.convert_to_string(serial.Recv());
+            cout << argv[1] << " Received: " << recv << endl;
+            break;
+        }
+        sleep(1);
+    }
+    printf("Exiting main thread!\n");
     return 0;
 }
 #endif

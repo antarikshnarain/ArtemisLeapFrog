@@ -1,31 +1,45 @@
 #include <chrono>
 #include <memory>
 
+#include <Serial.hpp>
 #include "rclcpp/rclcpp.hpp"
 #include "sensors/msg/sensor_laser.hpp"
-#include "sensors/SEN0259.hpp"
 
 using namespace std::chrono_literals;
 
-class LaserPublisher : public rclcpp::Node, public SEN0259
+class LaserPublisher : public rclcpp::Node, public Serial
 {
 private:
 	rclcpp::Publisher<sensors::msg::SensorLaser>::SharedPtr sensor_publisher_;
 	rclcpp::TimerBase::SharedPtr timer_;
 
 public:
-	LaserPublisher(string port, int baud) : Node("SEN0259"), SEN0259(port, baud)
+	LaserPublisher(string port, int baud) : Node("SEN0259"), Serial(port, baud, 0, 1, 9)
 	{
 		// Create Publisher
 		this->sensor_publisher_ = this->create_publisher<sensors::msg::SensorLaser>("laser", 10);
 		// Create lambda function to publish data
 		auto publish_msg = [this]() -> void {
-			auto message = sensors::msg::SensorLaser();
-			// process data and update message
-			message.distance = this->GetDistance();
-			message.sig_strength = this->GetStrength();
-			// Publish
-			this->sensor_publisher_->publish(message);
+			if(this->IsAvailable())
+			{
+				auto message = sensors::msg::SensorLaser();
+				vector<uint8_t> data = this->Recv();
+				int sum = 0;
+				// process data and update message
+				message.distance = (data[3] << 8) | data[2];
+				message.sig_strength = (data[5] << 8) | data[4];
+				uint8_t checksum = (int8_t)data[8];
+				for(int i=0;i<8;i++)
+				{
+					sum += (int8_t)data[i];
+				}
+				sum &= 0x00FF;
+				message.checksum = (sum == checksum);
+				// Publish
+				this->sensor_publisher_->publish(message);
+			}
+
+			
 		};
 		// register publisher with timer
 		this->timer_ = this->create_wall_timer(10ms, publish_msg);

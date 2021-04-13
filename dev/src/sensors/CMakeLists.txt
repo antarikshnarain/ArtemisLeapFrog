@@ -16,6 +16,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -48,20 +49,19 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 ament_export_dependencies(rosidl_default_runtime)
 
 # Executables
+find_library(mserial Serial)
+find_library(mi2c I2C)
+find_library(si2c i2c)
+find_library(pthreads pthread)
 
 ## Executable IMU
 add_executable(imu 
   src/imu.cpp
   src/MPU6050.cpp
-  src/Kalman.cpp
 )
 ament_target_dependencies(imu
   "rclcpp"
 )
-find_library(wpi wiringPi)
-find_library(shm rt)
-find_library(cpt crypt)
-
 # add_library(
 #   ${wpi}
 # )
@@ -69,12 +69,7 @@ target_include_directories(imu PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(imu "${wpi}" "${shm}" "${cpt}")
-
-
-# target_link_libraries(
-  # /usr/lib/libwiringPi.so
-# )
+target_link_libraries(imu "${si2c}" "${mi2c}" "${pthreads}")
 
 install(TARGETS imu
   DESTINATION lib/${PROJECT_NAME}
@@ -85,8 +80,6 @@ rosidl_target_interfaces(imu
 ## Executable Laser
 add_executable(laser 
   src/laser.cpp
-  src/Serial.cpp
-  src/SEN0259.cpp
 )
 ament_target_dependencies(laser
   "rclcpp"
@@ -95,6 +88,8 @@ target_include_directories(laser PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
+
+target_link_libraries(laser "${mserial}" "${pthreads}")
 
 install(TARGETS laser
   DESTINATION lib/${PROJECT_NAME}
