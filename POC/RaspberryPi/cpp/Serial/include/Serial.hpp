@@ -45,7 +45,7 @@ private:
     int serial_port;
     termios tty;
 
-    queue<string> recv_data;
+    queue<vector<uint8_t>> recv_data;
 
     thread *monitor_thread;
     mutex _mutex;
@@ -71,14 +71,28 @@ public:
     // \param packet size
     Serial(string, int, char, int, int);
 
-    // \brief Send data on the port
-    // \param data to be send
+    // \brief Send data to the port
+    // \param vector of bytes
+    bool Send(vector<uint8_t>);
+
+    // \brief Send data to the port
+    // \param string data
     bool Send(string);
 
     // \brief Read data on the port
-    // \return data string
-    string Recv();
+    // \return vector of bytes
+    vector<uint8_t> Recv();
 
+    // \brief convert byte vector to string
+    // \param converted string
+    // \return string
+    string convert_to_string(vector<uint8_t>);
+
+    // \brief convert string to byte vector
+    // \param string to be converted
+    // \return byte vector
+    vector<uint8_t> convert_to_bytes(string);
+    
     // \brief Check if values exist in the buffer queue
     bool IsAvailable();
 };
