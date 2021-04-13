@@ -16,12 +16,17 @@ class JetCatP300Manager : public rclcpp::Node, public JetCatP300
 {
 private:
 	// ROS variables
-	rclcpp::Publisher<actuators::msg::ActuatorJCP300Info>::SharedPtr info_publisher_;
-	rclcpp::Publisher<actuators::msg::ActuatorJCP300Telemetry>::SharedPtr telemetry_publisher_;
-	rclcpp::Service<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_service_;
-	rclcpp::Service<actuators::srv::ActuatorJCP300Params>::SharedPtr params_service_;
-	rclcpp::Service<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_service_;
-	rclcpp::Service<actuators::srv::ActuatorJCP300Status>::SharedPtr status_service_;
+	// Subscriptions
+	rclcpp::Subscription<actuators::msg::ActuatorJCP300Info>::SharedPtr info_subscriber_;
+	rclcpp::Subscription<actuators::msg::ActuatorJCP300Telemetry>::SharedPtr telemetry_subscriber_;
+	rclcpp::Subscription<sensors::msg::SensorImu>::SharedPtr imu_subscriber_;
+	rclcpp::Subscription<sensors::msg::SensorLaser>::SharedPtr sensor_subscriber_;
+	// Add Subscription to system temperature
+
+	rclcpp::Client<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_client_;
+	rclcpp::Client<actuators::srv::ActuatorJCP300Params>::SharedPtr params_client_;
+	rclcpp::Client<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_client_;
+	rclcpp::Client<actuators::srv::ActuatorJCP300Status>::SharedPtr status_client_;
 	rclcpp::TimerBase::SharedPtr timer_[3];
 
 	// Local variables
@@ -162,8 +167,8 @@ public:
 		}
 		message.firmware_version = response.params[0];
 		message.version_number = response.params[1];
-		message.last_time_run = atoi(response.params[2].c_str());
-		message.total_operation_time = atoi(response.params[3].c_str());
+		message.last_time_run = response.params[2];
+		message.total_operation_time = response.params[3];
 		message.serial_number = response.params[4];
 		message.turbine_type = response.params[5];
 		// Publish

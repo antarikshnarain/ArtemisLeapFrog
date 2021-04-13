@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(safety)
+project(flightcontrol)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -17,11 +17,39 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(actuators REQUIRED)
+find_package(sensors REQUIRED)
+# find_package(ros REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(heartbeat src/heartbeat.cpp)
+# set(msg_files
+#   "SensorImu.msg"
+#   "msg/SensorLaser.msg"
+#   "msg/ActuatorJCP300Info.msg"
+#   "msg/ActuatorJCP300Telemetry.msg"
+# )
+
+# rosidl_generate_interfaces(${PROJECT_NAME}
+#   # ${msg_files}
+#   DEPENDENCIES actuators sensors
+# )
+
+# Executable
+## Executable heartbear
+add_executable(heartbeat 
+  src/heartbeat.cpp
+)
+ament_target_dependencies(heartbeat
+  "rclcpp"
+  "actuators"
+  "sensors"
+)
+
 target_include_directories(heartbeat PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)

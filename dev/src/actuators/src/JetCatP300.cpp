@@ -62,7 +62,7 @@ RS232 JetCatP300::read_response(string response)
 	data.ADR = atoi(values[0].c_str());
 	memcpy(data.CMDCODE, values[2].c_str(), sizeof(char) * 3);
 	data.len = 0;
-	for (auto i = 3; i < values.size(); i++)
+	for (auto i = 3; i < (int)values.size(); i++)
 	{
 		data.params[data.len] = values[i];
 		data.len++;
