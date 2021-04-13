@@ -20,7 +20,7 @@
 #include <random>
 #include <chrono>
 // User Defined Libs
-#include "Serial.hpp"
+#include <Serial.hpp>
 
 using namespace std;
 
@@ -44,12 +44,13 @@ void Receiver(std::future<void> fut)
 {
     printf("\rStarted Receiver...\n");
     bool echo_mode = false;
-    while (fut.wait_for(chrono::milliseconds(1)) == std::future_status::timeout)
+    while (fut.wait_for(chrono::milliseconds(100)) == std::future_status::timeout)
     {
-        string recv;
+        //string recv;
         if(serial->IsAvailable())
         {
-            recv = serial->Recv();
+            auto recv = serial->Recv();
+            printf("Got a response!\n");
             //printf("\r>>%s\n", recv.c_str());
             _mutex.lock();
             t1 = Clock::now();
@@ -97,6 +98,11 @@ void Sender(std::promise<void> prom)
         if (string(data) == "exit")
         {
             printf("Exiting ...\n");
+            _mutex.lock();
+            printf("Sending exit command to other node.\n");
+            serial->Send("exit");
+            _mutex.unlock();
+            sleep(1);
             prom.set_value();
             break;
         }
