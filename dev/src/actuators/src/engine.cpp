@@ -197,6 +197,11 @@ public:
 int main(int argc, char *argv[])
 {
 	rclcpp::init(argc, argv);
+	if (argc < 3)
+	{
+		printf("Pass port and baudrate as parameters");
+		return -1;
+	}
 	rclcpp::spin(std::make_shared<JetCatP300Manager>(string(argv[1]), atoi(argv[2])));
 	rclcpp::shutdown();
 	return 0;

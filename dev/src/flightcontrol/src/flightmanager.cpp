@@ -359,6 +359,11 @@ string FlightManager::cmd_script(int value)
 int main(int argc, char *argv[])
 {
 	rclcpp::init(argc, argv);
+	if (argc < 3)
+	{
+		printf("Pass port and baudrate as parameters");
+		return -1;
+	}
 	promise<void> exit_signal;
 	future<void> exit_future = exit_signal.get_future();
 	rclcpp::spin(std::make_shared<FlightManager>(std::string(argv[1]), atoi(argv[2]), move(exit_future)));

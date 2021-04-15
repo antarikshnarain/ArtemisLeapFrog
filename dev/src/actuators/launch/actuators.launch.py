@@ -6,15 +6,15 @@ import launch_ros.actions
 def generate_launch_description():
     return LaunchDescription([
         launch_ros.actions.Node(
-            package='sensors', 
-            executable='imu', 
+            package='actuators', 
+            executable='engine', 
             output='screen',
-            arguments=["104"]
+            arguments=["/dev/ttyAMA3", "9600"]
         ),
         launch_ros.actions.Node(
-            package='sensors', 
-            executable='laser', 
+            package='actuators', 
+            executable='acs', 
             output='screen',
-            arguments=["/dev/ttyAMA1","115200"]    
+            arguments=[]    
         ),
     ])
