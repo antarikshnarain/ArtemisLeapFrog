@@ -1,6 +1,8 @@
-
 build-sensors:
 	colcon build --packages-select sensors
+
+build-communication:
+	colcon build --packages-select communication
 
 source:
 	. install/local_setup.bash

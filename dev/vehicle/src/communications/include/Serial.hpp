@@ -30,7 +30,7 @@ using namespace std;
 #define _SERIAL_h_
 
 #define EOT 4  // End of transmission
-#define RATE 1 // time in ms
+#define RATE 5 // time in ms
 
 class Serial
 {
