@@ -45,12 +45,12 @@ ament_export_dependencies(rosidl_default_runtime)
 find_library(wpi wiringPi)
 find_library(shm rt)
 find_library(cpt crypt)
+find_library(serial Serial)
 
 # Executable Engine
 add_executable(engine
  src/engine.cpp
  src/JetCatP300.cpp
- src/Serial.cpp
 )
 ament_target_dependencies(engine
   "rclcpp"
@@ -59,7 +59,7 @@ ament_target_dependencies(engine
 target_include_directories(engine PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(engine "${wpi}" "${shm}" "${cpt}")
+target_link_libraries(engine "${wpi}" "${shm}" "${cpt}" "${serial}")
 
 install(TARGETS engine
   DESTINATION lib/${PROJECT_NAME})

@@ -24,11 +24,12 @@ public:
 			{
 				auto message = sensors::msg::SensorLaser();
 				vector<uint8_t> data = this->Recv();
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Laser data: %d %d %d+%d %d+%d", data[0], data[1], data[3], data[2], data[5], data[4]);
 				int sum = 0;
 				// process data and update message
 				message.distance = (data[3] << 8) | data[2];
 				message.sig_strength = (data[5] << 8) | data[4];
-				uint8_t checksum = (int8_t)data[8];
+				uint8_t checksum = (uint8_t)data[8];
 				for(int i=0;i<8;i++)
 				{
 					sum += (int8_t)data[i];
@@ -48,14 +49,7 @@ public:
 
 int main(int argc, char *argv[])
 {
-	printf("No Args: %d\n", argc);
 	rclcpp::init(argc, argv);
-	printf("No Args: %d %s %s\n", argc, argv[1], argv[2]);
-	for(int i=0;i<argc;i++)
-	{
-		printf("%s ", argv[i]);
-	}
-	printf("\n");
 	if (argc < 3)
 	{
 		printf("Pass port and baudrate as parameters");

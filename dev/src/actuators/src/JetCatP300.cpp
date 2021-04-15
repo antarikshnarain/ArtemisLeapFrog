@@ -9,7 +9,7 @@
 
 using namespace std;
 
-JetCatP300::JetCatP300(string communication_port, int baudrate) : Serial(communication_port, baudrate)
+JetCatP300::JetCatP300(string port, int baudrate) : Serial(port, baudrate, 13, 100, -1)
 {
 }
 
@@ -34,7 +34,7 @@ bool JetCatP300::send_command(RS232 data)
 
 RS232 JetCatP300::receive_response()
 {
-	return this->read_response(this->Recv());
+	return this->read_response(this->convert_to_string(this->Recv()));
 }
 
 vector<string> JetCatP300::split(string value, string delim)

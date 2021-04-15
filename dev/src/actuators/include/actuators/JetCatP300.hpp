@@ -5,7 +5,7 @@
  * Description: Library to control JetCat P300 Engine
 ----------------------------------------------------------------- */
 
-#include "actuators/Serial.hpp"
+#include <Serial.hpp>
 #include <wiringPi.h>
 #include <vector>
 

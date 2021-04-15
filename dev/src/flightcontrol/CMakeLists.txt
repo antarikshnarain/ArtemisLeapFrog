@@ -27,34 +27,42 @@ find_package(sensors REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-# set(msg_files
-#   "SensorImu.msg"
-#   "msg/SensorLaser.msg"
-#   "msg/ActuatorJCP300Info.msg"
-#   "msg/ActuatorJCP300Telemetry.msg"
-# )
-
-# rosidl_generate_interfaces(${PROJECT_NAME}
-#   # ${msg_files}
-#   DEPENDENCIES actuators sensors
-# )
-
 # Executable
-## Executable heartbear
-add_executable(heartbeat 
-  src/heartbeat.cpp
+## Executable heartbeat
+# add_executable(heartbeat 
+#   src/heartbeat.cpp
+# )
+# ament_target_dependencies(heartbeat
+#   "rclcpp"
+#   "actuators"
+#   "sensors"
+# )
+
+# target_include_directories(heartbeat PUBLIC
+#   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#   $<INSTALL_INTERFACE:include>)
+
+# install(TARGETS heartbeat
+#   DESTINATION lib/${PROJECT_NAME})
+
+## Executable flightmanager
+find_library(serial Serial)
+add_executable(flightmanager 
+  src/flightmanager.cpp
+  src/CommandParser.cpp
 )
-ament_target_dependencies(heartbeat
+ament_target_dependencies(flightmanager
   "rclcpp"
   "actuators"
   "sensors"
 )
 
-target_include_directories(heartbeat PUBLIC
+target_include_directories(flightmanager PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
+target_link_libraries(flightmanager "${serial}")
 
-install(TARGETS heartbeat
+install(TARGETS flightmanager
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

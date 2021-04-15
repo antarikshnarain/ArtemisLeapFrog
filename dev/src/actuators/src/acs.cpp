@@ -49,6 +49,7 @@ public:
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);
+    wiringPiSetupGpio();
     rclcpp::spin(std::make_shared<ACSManager>());
     rclcpp::shutdown();
     return 0;
