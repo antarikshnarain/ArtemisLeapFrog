@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         printf("Pass Communication port name and baud rate as parameter.\n");
         return -1;
     }
-    Serial serial(argv[1], atoi(argv[2]),3,1000,-1);
+    Serial serial(argv[1], atoi(argv[2]),'\n',1000,-1);
     printf("\rStarted Receiver...\n");
     while (1)
     {

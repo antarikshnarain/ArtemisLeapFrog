@@ -29,8 +29,9 @@ mutex _mutex;
 #define TOTAL_CMDS 2 // 1 + num in heart_beats
 map<string,int> heart_beats = 
 {
-    {"t 1",500}
+    {"t 1",10000}
 };
+
 
 void Receiver(std::future<void> fut)
 {
