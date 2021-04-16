@@ -7,14 +7,16 @@ def generate_launch_description():
     return LaunchDescription([
         launch_ros.actions.Node(
             package='actuators', 
-            executable='engine', 
-            output='screen',
+            executable='engine',
+            namespace='actuators',
+            #output='screen',
             arguments=["/dev/ttyAMA3", "9600"]
         ),
         launch_ros.actions.Node(
             package='actuators', 
-            executable='acs', 
-            output='screen',
+            executable='acs',
+            namespace='actuators',
+            #output='screen',
             arguments=[]    
         ),
     ])

@@ -1,16 +1,18 @@
 #include "flightcontrol/flightmanager.hpp"
 
-FlightManager::FlightManager(string port, int baudrate, std::future<void> fut) : Node("FlightManager"), Serial(port, baudrate, 3, 1000, -1)
+FlightManager::FlightManager(string port, int baudrate, std::future<void> fut) : Node("FlightManager"), Serial(port, baudrate, '\n', 1000, -1)
 {
 	this->InitializeSequence();
 	thread(&FlightManager::SerialMonitor, this, move(fut)).detach();
+	// Send ready message
+	this->Send(string("Vehicle is Ready!"));
 }
 
 void FlightManager::SerialMonitor(std::future<void> fut)
 {
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started Serial Monitor.");
 	int heartbeat_counter = HEARTBEAT_DURATION;
-    while (fut.wait_for(chrono::milliseconds(100)) == std::future_status::timeout && heartbeat_counter > 0)
+    while (fut.wait_for(chrono::milliseconds(200)) == std::future_status::timeout && heartbeat_counter > 0)
     {
         if(this->IsAvailable())
         {
@@ -35,6 +37,7 @@ void FlightManager::SerialMonitor(std::future<void> fut)
 		else
 		{
 			heartbeat_counter --;
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting %d", heartbeat_counter);
 		}
         //this_thread::sleep_for(chrono::milliseconds(200));
     }
@@ -45,7 +48,7 @@ void FlightManager::SerialMonitor(std::future<void> fut)
 void FlightManager::InitializeSequence()
 {
 	// Initialize client services
-	this->thrust_client_ = this->create_client<actuators::srv::ActuatorJCP300Thrust>("JCP300-Thrust");
+	this->thrust_client_ = this->create_client<actuators::srv::ActuatorJCP300Thrust>("/actuators/thrust");
 	while (!this->thrust_client_->wait_for_service(1s))
 	{
 		if (!rclcpp::ok())
@@ -55,7 +58,7 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Thrust service not available, waiting again...");
 	}
-	this->params_client_ = this->create_client<actuators::srv::ActuatorJCP300Params>("JCP300-Params");
+	this->params_client_ = this->create_client<actuators::srv::ActuatorJCP300Params>("/actuators/parameters");
 	while (!this->params_client_->wait_for_service(1s))
 	{
 		if (!rclcpp::ok())
@@ -65,7 +68,7 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Parameter service not available, waiting again...");
 	}
-	this->healthcheck_client_ = this->create_client<actuators::srv::ActuatorJCP300HealthCheck>("JCP300-HealthCheck");
+	this->healthcheck_client_ = this->create_client<actuators::srv::ActuatorJCP300HealthCheck>("/actuators/health_check");
 	while (!this->healthcheck_client_->wait_for_service(1s))
 	{
 		if (!rclcpp::ok())
@@ -75,7 +78,7 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-HealthCheck service not available, waiting again...");
 	}
-	this->status_client_ = this->create_client<actuators::srv::ActuatorJCP300Status>("JCP300-Status");
+	this->status_client_ = this->create_client<actuators::srv::ActuatorJCP300Status>("/actuators/engine_status");
 	while (!this->status_client_->wait_for_service(1s))
 	{
 		if (!rclcpp::ok())
@@ -85,7 +88,7 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Status service not available, waiting again...");
 	}
-	this->coldgas_client_ = this->create_client<actuators::srv::ActuatorColdGasFireThruster>("ACS-Thruster");
+	this->coldgas_client_ = this->create_client<actuators::srv::ActuatorColdGasFireThruster>("/actuators/cold_gas");
 	while (!this->coldgas_client_->wait_for_service(1s))
 	{
 		if (!rclcpp::ok())
@@ -101,7 +104,7 @@ void FlightManager::InitializeSequence()
 	// this->telemetry_subscriber_
 	// this->imu_subscriber_
 	// this->sensor_subscriber_
-	this->info_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Info>("info", 10, [this](const actuators::msg::ActuatorJCP300Info::SharedPtr msg) -> void {
+	this->info_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Info>("/actuators/info", 10, [this](const actuators::msg::ActuatorJCP300Info::SharedPtr msg) -> void {
 		char buffer[256];
 		if(sprintf(buffer, "%s,%s,%d,%d,%s,%s", msg->firmware_version.c_str(), msg->version_number.c_str(), msg->last_time_run, msg->total_operation_time, msg->serial_number.c_str(), msg->turbine_type.c_str()) > 0)
 		{
@@ -112,7 +115,7 @@ void FlightManager::InitializeSequence()
 		
 	});
 
-	this->telemetry_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Telemetry>("telemetry", 10, [this](const actuators::msg::ActuatorJCP300Telemetry::SharedPtr msg) -> void {
+	this->telemetry_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Telemetry>("/actuators/telemetry", 10, [this](const actuators::msg::ActuatorJCP300Telemetry::SharedPtr msg) -> void {
 		char buffer[256];
 		if(sprintf(buffer, "%d,%d,%d,%.4f,%d,%d", msg->actual_fuel, msg->rest_fuel, msg->rpm, msg->battery_voltage, msg->last_run, msg->fuel_actual_run) > 0)
 		{
@@ -121,7 +124,7 @@ void FlightManager::InitializeSequence()
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Telem:%d,%d,%d,%.4f,%d,%d",
 			msg->actual_fuel, msg->rest_fuel, msg->rpm, msg->battery_voltage, msg->last_run, msg->fuel_actual_run);
 	});
-	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("imu", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
+	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
 		char buffer[512];
 		if(sprintf(buffer, "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f", 
 			msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],
@@ -133,7 +136,7 @@ void FlightManager::InitializeSequence()
 					msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],
 					msg->roll, msg->pitch, msg->temp, msg->linear_acc[0], msg->linear_acc[1], msg->linear_acc[2], msg->angular_acc[0], msg->angular_acc[1], msg->angular_acc[2]);
 	});
-	this->laser_subscriber_ = this->create_subscription<sensors::msg::SensorLaser>("laser", 10, [this](const sensors::msg::SensorLaser::SharedPtr msg) -> void {
+	this->laser_subscriber_ = this->create_subscription<sensors::msg::SensorLaser>("/sensors/laser", 10, [this](const sensors::msg::SensorLaser::SharedPtr msg) -> void {
 		char buffer[128];
 		if(sprintf(buffer, "%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum) > 0)
 		{
@@ -158,7 +161,7 @@ string FlightManager::engine_ctrl(int value)
 {
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine control updated %d", value);
 	bool ctrl_val = (bool)value;
-	this->enable_engine = ctrl_val;
+	this->enable_engine = !ctrl_val;
 	auto request = std::make_shared<actuators::srv::ActuatorJCP300Params::Request>();
 	request->ctrl_sig = ctrl_val;
 	request->pwr_sig = false;

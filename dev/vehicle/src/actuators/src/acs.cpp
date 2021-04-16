@@ -26,7 +26,7 @@ public:
     ACSManager() : Node("ColdGasSystem")
     {
         // Create Services
-        this->coldgas_service_ = this->create_service<actuators::srv::ActuatorColdGasFireThruster>("cold_gas_thrusters", [this](const std::shared_ptr<actuators::srv::ActuatorColdGasFireThruster::Request> request, std::shared_ptr<actuators::srv::ActuatorColdGasFireThruster::Response> response) -> void {
+        this->coldgas_service_ = this->create_service<actuators::srv::ActuatorColdGasFireThruster>("cold_gas", [this](const std::shared_ptr<actuators::srv::ActuatorColdGasFireThruster::Request> request, std::shared_ptr<actuators::srv::ActuatorColdGasFireThruster::Response> response) -> void {
             std::thread threads[6];
             for (int i = 0; i < 6; i++)
             {
@@ -43,6 +43,8 @@ public:
             }
             response->status = true;
         });
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ACS service Initialized!");
+
     }
 };
 

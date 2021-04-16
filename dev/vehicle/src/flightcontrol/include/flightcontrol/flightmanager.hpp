@@ -21,7 +21,7 @@
 
 #include "flightcontrol/CommandParser.hpp"
 
-#define HEARTBEAT_DURATION 100
+#define HEARTBEAT_DURATION 500
 
 using namespace std::chrono_literals;
 

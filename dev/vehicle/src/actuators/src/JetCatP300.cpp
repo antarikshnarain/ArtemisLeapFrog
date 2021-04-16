@@ -11,6 +11,8 @@ using namespace std;
 
 JetCatP300::JetCatP300(string port, int baudrate) : Serial(port, baudrate, 13, 100, -1)
 {
+	printf("Intialized JetCatP300!\n");
+	std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 }
 
 bool JetCatP300::send_command(RS232 data)
@@ -28,6 +30,7 @@ bool JetCatP300::send_command(RS232 data)
 		// Dummy parameter
 		command += ",1";
 	}
+	printf("Sending Command to engine: %s\n", command.c_str());
 	command += this->CR;
 	return this->Send(command);
 }

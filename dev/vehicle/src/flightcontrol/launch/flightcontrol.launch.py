@@ -7,8 +7,9 @@ def generate_launch_description():
     return LaunchDescription([
         launch_ros.actions.Node(
             package='flightcontrol', 
-            executable='flightmanager', 
-            output='screen',
+            executable='flightmanager',
+            namespace='flightcontrol',
+            #output='screen',
             arguments=["/dev/ttyAMA4","57600"]
         ),
     ])

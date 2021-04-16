@@ -24,7 +24,7 @@ public:
 			{
 				auto message = sensors::msg::SensorLaser();
 				vector<uint8_t> data = this->Recv();
-				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Laser data: %d %d %d+%d %d+%d", data[0], data[1], data[3], data[2], data[5], data[4]);
+				//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Laser data: %d %d %d+%d %d+%d", data[0], data[1], data[3], data[2], data[5], data[4]);
 				int sum = 0;
 				// process data and update message
 				message.distance = (data[3] << 8) | data[2];
@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 	rclcpp::spin(std::make_shared<LaserPublisher>(string(argv[1]), atoi(argv[2])));
+	printf("Waiting for Serial port to close.\n");
+	std::this_thread::sleep_for(chrono::milliseconds(1000));
 	rclcpp::shutdown();
 	return 0;
 }

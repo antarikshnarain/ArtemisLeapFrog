@@ -45,7 +45,7 @@ public:
 int main(int argc, char *argv[])
 {
 	rclcpp::init(argc, argv);
-	if(argc != 2)
+	if(argc < 2)
 	{
 		printf("Pass device id");
 		return -1;

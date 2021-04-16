@@ -8,13 +8,15 @@ def generate_launch_description():
         launch_ros.actions.Node(
             package='sensors', 
             executable='imu', 
-            output='screen',
+            namespace='sensors',
+            #output='screen',
             arguments=["104"]
         ),
         launch_ros.actions.Node(
             package='sensors', 
             executable='laser', 
-            output='screen',
-            arguments=["/dev/ttyAMA1","115200"]    
+            namespace='sensors',
+            #output='screen',
+            arguments=["/dev/ttyAMA2","115200"]    
         ),
     ])

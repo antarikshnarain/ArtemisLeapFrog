@@ -11,8 +11,8 @@ libname2 := libI2C.so
 deps2 := include/I2C.hpp
 
 build-lib-serial:
-	g++ -c -Wall -Werror -fpic -Iinclude/ src/Serial.cpp -o $(objname1)
-	g++ -shared -o $(libname1) $(objname1)
+	g++ -c -Wall -Werror -fpic -Iinclude/ src/Serial.cpp -o $(objname1) -lpthread
+	g++ -shared -o $(libname1) $(objname1) -lpthread
 	rm $(objname1)
 
 build-lib-i2c:
@@ -31,4 +31,4 @@ uninstall:
 	rm -f /usr/lib/libI2C.so /usr/lib/libSerial.so
 
 clean:
-	rm -f libMPU6050.so libI2C.so
+	rm -f libSerial.so libI2C.so

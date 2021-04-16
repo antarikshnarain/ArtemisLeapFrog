@@ -25,7 +25,7 @@ private:
 	rclcpp::TimerBase::SharedPtr timer_[3];
 
 	// Local variables
-	bool ctrl_sig = false;
+	bool ctrl_sig = true;
 	bool pwr_sig = false;
 	bool engine_started = false;
 	float current_thrust = 0.0;
@@ -37,8 +37,8 @@ public:
 		this->info_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300Info>("info", 10);
 		this->telemetry_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300Telemetry>("telemetry", 10);
 
-		this->timer_[1] = this->create_wall_timer(100ms, std::bind(&JetCatP300Manager::GetEngineInfo, this));
-		this->timer_[2] = this->create_wall_timer(100ms, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
+		this->timer_[1] = this->create_wall_timer(120s, std::bind(&JetCatP300Manager::GetEngineInfo, this));
+		this->timer_[2] = this->create_wall_timer(1s, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
 
 		// Create Services
 		this->thrust_service_ = this->create_service<actuators::srv::ActuatorJCP300Thrust>("thrust", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Response> response) -> void {
@@ -145,6 +145,7 @@ public:
 				response->status = true;
 			}
 		});
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Jet engine services initialized.");
 	}
 	void GetEngineInfo()
 	{
@@ -155,6 +156,11 @@ public:
 			fprintf(stderr, "EngineInformation(): failed!\n");
 		}
 		// process data and update message
+		printf("Waiting to Receive data");
+		while(!this->IsAvailable())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
 		RS232 response = this->receive_response();
 		if (response.len < 6)
 		{
@@ -177,7 +183,13 @@ public:
 		{
 			fprintf(stderr, "GetTelemetry(): falied!\n");
 		}
+		printf("Waiting to Receive data");
+		while(!this->IsAvailable())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
 		RS232 response = this->receive_response();
+		printf("Received data");
 		if (response.len < 6)
 		{
 			printf("Response does not follow the format.\n");
