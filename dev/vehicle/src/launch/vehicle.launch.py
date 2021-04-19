@@ -7,32 +7,37 @@ def generate_launch_description():
     return LaunchDescription([
         launch_ros.actions.Node(
             package='sensors', 
-            executable='imu', 
-            output='screen',
+            executable='imu',
+            namespace='sensors',
+            #output='screen',
             arguments=["104"]
         ),
         launch_ros.actions.Node(
             package='sensors', 
-            executable='laser', 
-            output='screen',
-            arguments=["/dev/ttyAMA1","115200"]    
+            executable='laser',
+            namespace='sensors',
+            #output='screen',
+            arguments=["/dev/ttyAMA2","115200"]    
         ),
         launch_ros.actions.Node(
             package='actuators', 
             executable='engine', 
-            output='screen',
+            namespace='actuators',
+            #output='screen',
             arguments=["/dev/ttyAMA3", "9600"]
         ),
         launch_ros.actions.Node(
             package='actuators', 
             executable='acs', 
-            output='screen',
+            namespace='actuators',
+            #output='screen',
             arguments=[]    
         ),
         launch_ros.actions.Node(
             package='flightcontrol', 
             executable='flightmanager', 
-            output='screen',
+            namespace='flightcontrol',
+            #output='screen',
             arguments=["/dev/ttyAMA4","57600"]
         ),
     ])

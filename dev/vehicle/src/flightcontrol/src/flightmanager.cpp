@@ -124,7 +124,7 @@ void FlightManager::InitializeSequence()
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Telem:%d,%d,%d,%.4f,%d,%d",
 			msg->actual_fuel, msg->rest_fuel, msg->rpm, msg->battery_voltage, msg->last_run, msg->fuel_actual_run);
 	});
-	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
+	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu_data", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
 		char buffer[512];
 		if(sprintf(buffer, "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f", 
 			msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],

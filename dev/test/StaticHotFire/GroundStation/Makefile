@@ -25,4 +25,4 @@ open-serial:
 	socat -d -d pty,raw,echo=0 pty,raw,echo=0
 
 clean:
-	rm -f *.so *.o GroundStation Echo Echo2
+	rm -f *.so *.o GroundStation Echo Echo2 GST
