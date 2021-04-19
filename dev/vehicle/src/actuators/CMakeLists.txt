@@ -27,7 +27,8 @@ find_package(rclcpp REQUIRED)
 # Messages and Services
 set(msg_files
   "msg/ActuatorJCP300Info.msg"
-  "msg/ActuatorJCP300Telemetry.msg"
+  "msg/ActuatorJCP300EngineTelemetry.msg"
+  "msg/ActuatorJCP300FuelTelemetry.msg"
 )
 set(srv_files
   "srv/ActuatorJCP300HealthCheck.srv"

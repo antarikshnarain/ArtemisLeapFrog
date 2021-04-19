@@ -31,12 +31,27 @@ bool JetCatP300::send_command(RS232 data)
 		command += ",1";
 	}
 	printf("Sending Command to engine: %s\n", command.c_str());
-	command += this->CR;
+	//command += this->CR;
 	return this->Send(command);
+}
+
+RS232 JetCatP300::execute(RS232 data)
+{
+	this->_mutex.lock();
+	this->send_command(data);
+	while(!this->IsAvailable())
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	}
+	this->Recv();
+	RS232 resp = this->receive_response();
+	this->_mutex.unlock();
+	return resp;
 }
 
 RS232 JetCatP300::receive_response()
 {
+	//auto sent_command = this->Recv();
 	return this->read_response(this->convert_to_string(this->Recv()));
 }
 
@@ -61,9 +76,11 @@ RS232 JetCatP300::read_response(string response)
 	{
 		return data;
 	}
+	printf("Received from engine: %s\n", response.c_str());
 	vector<string> values = split(response, ",");
 	data.ADR = atoi(values[0].c_str());
-	memcpy(data.CMDCODE, values[2].c_str(), sizeof(char) * 3);
+	data.CMDCODE = values[2];
+	//memcpy(data.CMDCODE, values[2].c_str(), sizeof(char) * 3);
 	data.len = 0;
 	for (auto i = 3; i < (int)values.size(); i++)
 	{

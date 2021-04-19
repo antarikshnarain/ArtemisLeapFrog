@@ -177,12 +177,13 @@ vector<uint8_t> Serial::convert_to_bytes(string str)
     return data;
 }
 
-bool Serial::IsAvailable()
+int Serial::IsAvailable()
 {
+    int available_size;
     this->_mutex.lock();
-    bool available = this->recv_data.size() > 0;
+    available_size = this->recv_data.size() > 0;
     this->_mutex.unlock();
-    return available;
+    return available_size;
 }
 
 #ifdef TEST_SERIAL

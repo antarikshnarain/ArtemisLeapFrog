@@ -94,7 +94,8 @@ public:
     vector<uint8_t> convert_to_bytes(string);
 
     // \brief Check if values exist in the buffer queue
-    bool IsAvailable();
+    // \return number of packets available
+    int IsAvailable();
 };
 
 #endif

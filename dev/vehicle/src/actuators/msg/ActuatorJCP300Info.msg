@@ -1,3 +1,4 @@
+# JCP300 - RTY
 string firmware_version
 string version_number
 int32 last_time_run

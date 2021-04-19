@@ -9,6 +9,7 @@
 #include <wiringPi.h>
 #include <vector>
 #include <chrono>
+#include <mutex>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ using namespace std;
 struct RS232
 {
     int ADR;
-    char CMDCODE[4];
+    string CMDCODE;
     int len;
     string params[7];
 };
@@ -31,7 +32,7 @@ class JetCatP300 : public Serial
 private:
     const char CR = 13;
     char buffer[100];
-
+    mutex _mutex;
     enum
     {
         MAX_THROTTLE = 50000,
@@ -68,4 +69,9 @@ public:
     // \brief Receive response from the engine.
     // \return response in RS232 structure.
     RS232 receive_response();
+
+    // \brief send and receive data in a single command
+    // \param command in RS232 structure
+    // \return response in RS232 structure
+    RS232 execute(RS232);
 };

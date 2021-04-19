@@ -3,7 +3,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "actuators/msg/actuator_jcp300_info.hpp"
-#include "actuators/msg/actuator_jcp300_telemetry.hpp"
+#include "actuators/msg/actuator_jcp300_engine_telemetry.hpp"
+#include "actuators/msg/actuator_jcp300_fuel_telemetry.hpp"
 #include "actuators/srv/actuator_jcp300_thrust.hpp"
 #include "actuators/srv/actuator_jcp300_params.hpp"
 #include "actuators/srv/actuator_jcp300_health_check.hpp"
@@ -17,7 +18,8 @@ class JetCatP300Manager : public rclcpp::Node, public JetCatP300
 private:
 	// ROS variables
 	rclcpp::Publisher<actuators::msg::ActuatorJCP300Info>::SharedPtr info_publisher_;
-	rclcpp::Publisher<actuators::msg::ActuatorJCP300Telemetry>::SharedPtr telemetry_publisher_;
+	rclcpp::Publisher<actuators::msg::ActuatorJCP300EngineTelemetry>::SharedPtr engine_telemetry_publisher_;
+	rclcpp::Publisher<actuators::msg::ActuatorJCP300FuelTelemetry>::SharedPtr fuel_telemetry_publisher_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_service_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300Params>::SharedPtr params_service_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_service_;
@@ -35,10 +37,12 @@ public:
 	{
 		// Create Publishers
 		this->info_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300Info>("info", 10);
-		this->telemetry_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300Telemetry>("telemetry", 10);
+		this->engine_telemetry_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300EngineTelemetry>("engine_telemetry", 10);
+		this->fuel_telemetry_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300FuelTelemetry>("fuel_telemetry", 10);
 
-		this->timer_[1] = this->create_wall_timer(120s, std::bind(&JetCatP300Manager::GetEngineInfo, this));
-		this->timer_[2] = this->create_wall_timer(1s, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
+		//this->timer_[1] = this->create_wall_timer(7s, std::bind(&JetCatP300Manager::GetEngineInfo, this));
+		this->timer_[0] = this->create_wall_timer(10ms, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
+		this->timer_[1] = this->create_wall_timer(10ms, std::bind(&JetCatP300Manager::GetFuelTelemetry, this));
 
 		// Create Services
 		this->thrust_service_ = this->create_service<actuators::srv::ActuatorJCP300Thrust>("thrust", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Response> response) -> void {
@@ -51,15 +55,16 @@ public:
 			{
 				new_value = 100.0;
 			}
-			if (!this->send_command(RS232{1, "TRR", 1, to_string(new_value)}))
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating engine thrust.");
+			RS232 rs232_response = this->execute(RS232{1, "TRR", 1, to_string(new_value)});
+			if(rs232_response.CMDCODE != "OK")
 			{
-				fprintf(stderr, "SetEngineThrust(): failed!");
-				response->status = false;
+				response->status = rs232_response.CMDCODE;
 				return;
 			}
-			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating thrust from %.4f to %.4f", this->current_thrust, new_value);
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating thrust from %.4f to %.4f.", this->current_thrust, new_value);
 			this->current_thrust = new_value;
-			response->status = true;
+			response->status = rs232_response.CMDCODE;
 		});
 
 		this->params_service_ = this->create_service<actuators::srv::ActuatorJCP300Params>("parameters", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Params::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Params::Response> response) -> void {
@@ -79,28 +84,26 @@ public:
 		});
 
 		this->healthcheck_service_ = this->create_service<actuators::srv::ActuatorJCP300HealthCheck>("health_check", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300HealthCheck::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300HealthCheck::Response> response) -> void {
-			if(!request->check_health)
+			// if(!request->check_health)
+			// {
+			// 	return;
+			// }
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initializing engine health check.");
+			RS232 rs232_response = this->execute(RS232{1, "DHC", 0, "1"});
+			if(rs232_response.CMDCODE != "OK")
 			{
+				response->status_message = "Health Check failed, " + rs232_response.CMDCODE;
 				return;
 			}
-			printf("Initializing Check Health!\n");
-			if (!this->send_command(RS232{1, "DHC", 0, "1"}))
+			// Wait for 15 seconds.
+			std::this_thread::sleep_for(std::chrono::milliseconds(15000));
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Reading engine health check response.");
+			rs232_response = this->execute(RS232{1, "RHC", 0, "1"});
+			if(rs232_response.CMDCODE != "OK")
 			{
-				fprintf(stderr, "CheckHealth(): failed!");
+				response->status_message = "Health Check Response failed, " + rs232_response.CMDCODE;
+				return;
 			}
-			// Force wait for 10 seconds
-			for (int i = 10; i >= 0; i--)
-			{
-				printf("Waiting %d...\r", i);
-				usleep(1000000);
-			}
-			printf("Analyzing Results\n");
-			if (!this->send_command(RS232{1, "RHC", 0, "1"}))
-			{
-				fprintf(stderr, "CheckHealth():RHC failed!");
-			}
-
-			RS232 rs232_response = this->receive_response();
 			// Logic to process flags
 			const string health_params[7] = {"Starter", "Main Valve", "Starter Valve", "RPM Sensor", "Pump", "GlowPlug", "EGT Sensor"};
 			string msg = "";
@@ -126,7 +129,7 @@ public:
 					{
 						msg += "Engine Failure, refer manual! ";
 					}
-					msg += "\n";
+					msg += "|";
 				}
 			}
 			response->status_message = msg;
@@ -136,32 +139,40 @@ public:
 			response->status = false;
 			if (this->engine_started != request->state)
 			{
-				this->engine_started = request->state;
-				if (!this->send_command(RS232{1, "TCO", 1, (this->engine_started ? "1" : "0")}))
+				if(request->state)
 				{
-					fprintf(stderr, "Engine Status change failed!");
-					return;
+					RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting engine.");
+					RS232 response = this->execute(RS232{1, "TCO", 1, "1"});
+					if(response.CMDCODE != "OK")
+					{
+						RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting engine failed, %s", response.CMDCODE);
+						return;
+					}
 				}
+				else
+				{
+					RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopping engine.");
+					RS232 response = this->execute(RS232{1, "TCO", 1, "0"});
+					if(response.CMDCODE != "OK")
+					{
+						RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopping engine failed, %s", response.CMDCODE);
+						return;
+					}
+				}
+				this->engine_started = request->state;
 				response->status = true;
 			}
 		});
+
+		this->GetEngineInfo();
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Jet engine services initialized.");
 	}
 	void GetEngineInfo()
 	{
 		auto message = actuators::msg::ActuatorJCP300Info();
-		printf("Fetching Jet Engine information!\n");
-		if (!this->send_command(RS232{1, "RTY", 1, "1"}))
-		{
-			fprintf(stderr, "EngineInformation(): failed!\n");
-		}
-		// process data and update message
-		printf("Waiting to Receive data");
-		while(!this->IsAvailable())
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		}
-		RS232 response = this->receive_response();
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fetching Jet Engine information.");
+		RS232 response = this->execute(RS232{1, "RTY", 1, "1"});
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Info Received data");
 		if (response.len < 6)
 		{
 			return;
@@ -175,21 +186,12 @@ public:
 		// Publish
 		this->info_publisher_->publish(message);
 	}
-	void GetEngineTelemetry()
+	void GetFuelTelemetry()
 	{
-		auto message = actuators::msg::ActuatorJCP300Telemetry();
-		printf("Getting Engine Telemetry!\n");
-		if (!this->send_command(RS232{1, "RFI", 1, "1"}))
-		{
-			fprintf(stderr, "GetTelemetry(): falied!\n");
-		}
-		printf("Waiting to Receive data");
-		while(!this->IsAvailable())
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		}
-		RS232 response = this->receive_response();
-		printf("Received data");
+		auto message = actuators::msg::ActuatorJCP300FuelTelemetry();
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting fuel telemetry.");
+		RS232 response = this->execute(RS232{1, "RFI", 1, "1"});
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel telemetry received.");
 		if (response.len < 6)
 		{
 			printf("Response does not follow the format.\n");
@@ -202,7 +204,27 @@ public:
 		message.last_run = atoi(response.params[4].c_str());
 		message.fuel_actual_run = atoi(response.params[5].c_str());
 		// Publish
-		this->telemetry_publisher_->publish(message);
+		this->fuel_telemetry_publisher_->publish(message);
+	}
+	void GetEngineTelemetry()
+	{
+		auto message = actuators::msg::ActuatorJCP300EngineTelemetry();
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting engine telemetry.");
+		RS232 response = this->execute(RS232{1, "RFI", 1, "1"});
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine telemetry received.");
+		if (response.len < 6)
+		{
+			printf("Response does not follow the format.\n");
+			return;
+		}
+		message.turbine_rpm = atoi(response.params[0].c_str());
+		message.egt_temp = atoi(response.params[1].c_str());
+		message.pump_voltage = atof(response.params[2].c_str());
+		message.turbine_state = atoi(response.params[3].c_str());
+		message.throttle_position = atof(response.params[4].c_str());
+		message.engine_current = atof(response.params[5].c_str());
+		// Publish
+		this->engine_telemetry_publisher_->publish(message);
 	}
 };
 

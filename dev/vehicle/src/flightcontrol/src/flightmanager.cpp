@@ -100,10 +100,7 @@ void FlightManager::InitializeSequence()
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Clients");
 	// Initialize Subscribers
-	// this->info_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Info>("JCP300-Info", )
-	// this->telemetry_subscriber_
-	// this->imu_subscriber_
-	// this->sensor_subscriber_
+	// -- Engine Subscribers
 	this->info_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Info>("/actuators/info", 10, [this](const actuators::msg::ActuatorJCP300Info::SharedPtr msg) -> void {
 		char buffer[256];
 		if(sprintf(buffer, "%s,%s,%d,%d,%s,%s", msg->firmware_version.c_str(), msg->version_number.c_str(), msg->last_time_run, msg->total_operation_time, msg->serial_number.c_str(), msg->turbine_type.c_str()) > 0)
@@ -114,16 +111,26 @@ void FlightManager::InitializeSequence()
 			msg->firmware_version.c_str(), msg->version_number.c_str(), msg->last_time_run, msg->total_operation_time, msg->serial_number.c_str(), msg->turbine_type.c_str());
 		
 	});
-
-	this->telemetry_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Telemetry>("/actuators/telemetry", 10, [this](const actuators::msg::ActuatorJCP300Telemetry::SharedPtr msg) -> void {
+	this->fuel_telemetry_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300FuelTelemetry>("/actuators/fuel_telemetry", 10, [this](const actuators::msg::ActuatorJCP300FuelTelemetry::SharedPtr msg) -> void {
 		char buffer[256];
 		if(sprintf(buffer, "%d,%d,%d,%.4f,%d,%d", msg->actual_fuel, msg->rest_fuel, msg->rpm, msg->battery_voltage, msg->last_run, msg->fuel_actual_run) > 0)
 		{
-			this->sub_telemetry = std::string(buffer);
+			this->sub_fuel_telemetry = std::string(buffer);
 		}
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Telem:%d,%d,%d,%.4f,%d,%d",
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Fuel-Telem:%d,%d,%d,%.4f,%d,%d",
 			msg->actual_fuel, msg->rest_fuel, msg->rpm, msg->battery_voltage, msg->last_run, msg->fuel_actual_run);
 	});
+	this->engine_telemetry_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300EngineTelemetry>("/actuators/engine_telemetry", 10, [this](const actuators::msg::ActuatorJCP300EngineTelemetry::SharedPtr msg) -> void {
+		char buffer[256];
+		if(sprintf(buffer, "%d,%d,%.4f,%d,%.4f,%.4f", msg->turbine_rpm, msg->egt_temp, msg->pump_voltage, msg->turbine_state, msg->throttle_position, msg->engine_current) > 0)
+		{
+			this->sub_engine_telemetry = std::string(buffer);
+		}
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Engine-Telem:%d,%d,%.4f,%d,%.4f,%.4f", 
+			msg->turbine_rpm, msg->egt_temp, msg->pump_voltage, msg->turbine_state, msg->throttle_position, msg->engine_current);
+	});
+
+	// --Sensors Subscribers
 	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu_data", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
 		char buffer[512];
 		if(sprintf(buffer, "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f", 
@@ -144,6 +151,7 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Laser:%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum);
 	});
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Subscriptions.");
 }
 
 void FlightManager::ShutdownSequence()
@@ -229,7 +237,7 @@ string FlightManager::engine_telem_0()
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine Health check requested.");
 	auto request = std::make_shared<actuators::srv::ActuatorJCP300HealthCheck::Request>();
-	request->check_health = true;
+	//request->check_health = true;
 	auto result = this->healthcheck_client_->async_send_request(request);
 	if (result.wait_for(15s) == std::future_status::ready)
 	{
@@ -258,7 +266,16 @@ string FlightManager::engine_telem_2()
 		return "Please enable engine before proceeding...";
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine Telemetry requested.");
-	return this->sub_telemetry;
+	return this->sub_engine_telemetry;
+}
+string FlightManager::engine_telem_3()
+{
+	if (!this->enable_engine)
+	{
+		return "Please enable engine before proceeding...";
+	}
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel Telemetry requested.");
+	return this->sub_fuel_telemetry;
 }
 string FlightManager::engine_thrust(float value)
 {
@@ -273,7 +290,7 @@ string FlightManager::engine_thrust(float value)
 	if (result.wait_for(15s) == std::future_status::ready)
 	{
 		//Use the result
-		return result.get()->status ? "OK" : "Not OK";
+		return result.get()->status;
 	}
 	else
 	{
