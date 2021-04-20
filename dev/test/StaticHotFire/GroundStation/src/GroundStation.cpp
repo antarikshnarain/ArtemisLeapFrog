@@ -76,6 +76,10 @@ void Sender(vector<promise<void>> exit_promises, string filename)
         cin.getline(data, sizeof(data));
         if (string(data) == "exit")
         {
+            _mutex.lock();
+            serial->Send(data);
+            _mutex.unlock();
+            this_thread::sleep_for(std::chrono::seconds(3));
             printf("Exiting ...\n");
             break;
         }

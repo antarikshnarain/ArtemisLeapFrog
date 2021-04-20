@@ -132,6 +132,10 @@ public:
 					msg += "|";
 				}
 			}
+			else
+			{
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Read Health check. Not enough parameters in response %d.", rs232_response.len);
+			}
 			response->status_message = msg;
 		});
 
@@ -170,9 +174,9 @@ public:
 	void GetEngineInfo()
 	{
 		auto message = actuators::msg::ActuatorJCP300Info();
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fetching Jet Engine information.");
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fetching Jet Engine information.");
 		RS232 response = this->execute(RS232{1, "RTY", 1, "1"});
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Info Received data");
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Info Received data");
 		if (response.len < 6)
 		{
 			return;
@@ -194,9 +198,9 @@ public:
 	void GetFuelTelemetry()
 	{
 		auto message = actuators::msg::ActuatorJCP300FuelTelemetry();
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting fuel telemetry.");
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting fuel telemetry.");
 		RS232 response = this->execute(RS232{1, "RFI", 1, "1"});
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel telemetry received.");
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel telemetry received.");
 		if (response.len < 5)
 		{
 			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel telemetry, response format invalid %d %s.", response.len, response.CMDCODE.c_str());
@@ -215,9 +219,9 @@ public:
 	void GetEngineTelemetry()
 	{
 		auto message = actuators::msg::ActuatorJCP300EngineTelemetry();
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting engine telemetry.");
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting engine telemetry.");
 		RS232 response = this->execute(RS232{1, "RAC", 1, "1"});
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine telemetry received.");
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine telemetry received.");
 		if (response.len < 5)
 		{
 			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine telemetry, response format invalid %d %s.", response.len, response.CMDCODE.c_str());

@@ -11,3 +11,5 @@ __pycache__
 dev/vehicle/scripts/custom_scripts.list
 dev/vehicle/scripts/*.script
 
+dev/test/StaticHotFire/GroundStation/GroundStation
+dev/test/StaticHotFire/GroundStation/GST

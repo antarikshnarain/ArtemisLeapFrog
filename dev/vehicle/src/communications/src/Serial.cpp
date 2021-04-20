@@ -100,14 +100,14 @@ void Serial::manageQueue(std::future<void> _future)
             {
                 this->recv_data.pop();
             }
-            printf("Pushing data to queue. %d \n", (int)this->recv_data.size());
+            //printf("Pushing data to queue. %d \n", (int)this->recv_data.size());
             this->_mutex.unlock();
             data.clear();
         }
         else if (this->num_bytes == (int)data.size())
         {
 #ifdef DEBUG_SERIAL
-            printf("Pushing---");
+            //printf("Pushing---");
             for (int i = 0; i < this->num_bytes; i++)
             {
                 printf("%d,", data[i]);
@@ -135,7 +135,7 @@ void Serial::manageQueue(std::future<void> _future)
 bool Serial::Send(vector<uint8_t> data)
 {
     data.push_back(this->delimitter);
-    printf("Sending data of size %d \n", (int)data.size());
+    //printf("Sending data of size %d \n", (int)data.size());
     if (write(this->serial_port, &data[0], data.size()) < 0)
     {
         return false;

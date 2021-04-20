@@ -188,9 +188,9 @@ string FlightManager::engine_ctrl(int value)
 {
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine control updated %d", value);
 	bool ctrl_val = (bool)value;
-	this->enable_engine = !ctrl_val;
+	this->enable_engine = ctrl_val;
 	auto request = std::make_shared<actuators::srv::ActuatorJCP300Params::Request>();
-	request->ctrl_sig = ctrl_val;
+	request->ctrl_sig = !ctrl_val;
 	request->pwr_sig = false;
 	auto result = this->params_client_->async_send_request(request);
 	if (result.wait_for(15s) == std::future_status::ready)
