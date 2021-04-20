@@ -63,7 +63,9 @@ private:
     future<void> exit_script_thread_future;
     thread script_thread;
 
-    vector<string> script_map = {"data_gather.script","engine_profile.script"};
+    const string path_to_files = "/usr/local/share/script/";
+    const string custom_script_file = "custom_scripts.list";
+    vector<string> script_map;
 public:
     FlightManager(string, int, std::future<void>);
 

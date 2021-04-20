@@ -2,10 +2,29 @@
 
 FlightManager::FlightManager(string port, int baudrate, std::future<void> fut) : Node("FlightManager"), Serial(port, baudrate, '\n', 1000, -1)
 {
+	// Load Script files
+	string filename = this->path_to_files + this->custom_script_file;
+	ifstream file;
+	file.open(filename.c_str(), ios::in);
+	string data;
+	if(file.is_open())
+	{
+		while(getline(file, data))
+		{
+			this->script_map.push_back(this->path_to_files + data);
+		}
+	}
+	else
+	{
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Script file not loaded.");
+	}
+
 	this->InitializeSequence();
 	thread(&FlightManager::SerialMonitor, this, move(fut)).detach();
 	// Send ready message
-	this->Send(string("Vehicle is Ready!"));
+	string temp_msg = string("Vehicle is Ready!") + string(" Loaded Scripts ") + to_string(this->script_map.size());
+	this->Send(temp_msg);
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "%s", temp_msg.c_str());
 }
 
 void FlightManager::SerialMonitor(std::future<void> fut)

@@ -84,10 +84,10 @@ public:
 		});
 
 		this->healthcheck_service_ = this->create_service<actuators::srv::ActuatorJCP300HealthCheck>("health_check", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300HealthCheck::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300HealthCheck::Response> response) -> void {
-			// if(!request->check_health)
-			// {
-			// 	return;
-			// }
+			if(!request->check_health)
+			{
+				return;
+			}
 			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initializing engine health check.");
 			RS232 rs232_response = this->execute(RS232{1, "DHC", 0, "1"});
 			if(rs232_response.CMDCODE != "OK")

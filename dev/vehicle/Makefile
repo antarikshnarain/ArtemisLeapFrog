@@ -17,3 +17,9 @@ stop-service: setup-exec setup-service
 
 uninstall-service: 
 	sudo systemctl disable vehicle.service
+
+build:
+	colcon build
+
+clean:
+	rm -r build/ log/ install/
