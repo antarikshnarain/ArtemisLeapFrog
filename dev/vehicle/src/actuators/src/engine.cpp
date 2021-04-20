@@ -41,8 +41,8 @@ public:
 		this->fuel_telemetry_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300FuelTelemetry>("fuel_telemetry", 10);
 
 		//this->timer_[1] = this->create_wall_timer(7s, std::bind(&JetCatP300Manager::GetEngineInfo, this));
-		this->timer_[0] = this->create_wall_timer(10ms, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
-		this->timer_[1] = this->create_wall_timer(10ms, std::bind(&JetCatP300Manager::GetFuelTelemetry, this));
+		this->timer_[0] = this->create_wall_timer(100ms, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
+		this->timer_[1] = this->create_wall_timer(150ms, std::bind(&JetCatP300Manager::GetFuelTelemetry, this));
 
 		// Create Services
 		this->thrust_service_ = this->create_service<actuators::srv::ActuatorJCP300Thrust>("thrust", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Response> response) -> void {
@@ -186,14 +186,20 @@ public:
 		// Publish
 		this->info_publisher_->publish(message);
 	}
+	void GetTelemetry()
+	{
+		this->GetEngineTelemetry();
+		this->GetFuelTelemetry();
+	}
 	void GetFuelTelemetry()
 	{
 		auto message = actuators::msg::ActuatorJCP300FuelTelemetry();
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting fuel telemetry.");
 		RS232 response = this->execute(RS232{1, "RFI", 1, "1"});
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel telemetry received.");
-		if (response.len < 6)
+		if (response.len < 5)
 		{
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel telemetry, response format invalid %d %s.", response.len, response.CMDCODE.c_str());
 			printf("Response does not follow the format.\n");
 			return;
 		}
@@ -210,10 +216,11 @@ public:
 	{
 		auto message = actuators::msg::ActuatorJCP300EngineTelemetry();
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting engine telemetry.");
-		RS232 response = this->execute(RS232{1, "RFI", 1, "1"});
+		RS232 response = this->execute(RS232{1, "RAC", 1, "1"});
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine telemetry received.");
-		if (response.len < 6)
+		if (response.len < 5)
 		{
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine telemetry, response format invalid %d %s.", response.len, response.CMDCODE.c_str());
 			printf("Response does not follow the format.\n");
 			return;
 		}

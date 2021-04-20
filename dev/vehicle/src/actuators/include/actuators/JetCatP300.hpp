@@ -10,6 +10,8 @@
 #include <vector>
 #include <chrono>
 #include <mutex>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -46,7 +48,7 @@ protected:
     // \param string to split
     // \param delimitter
     // \return vector of values
-    vector<string> split(string, string);
+    vector<string> split(string, char);
 
     // \brief process the response to RS232 structure
     // \param response string

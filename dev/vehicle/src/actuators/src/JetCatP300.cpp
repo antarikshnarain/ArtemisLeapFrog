@@ -39,7 +39,8 @@ RS232 JetCatP300::execute(RS232 data)
 {
 	this->_mutex.lock();
 	this->send_command(data);
-	while(!this->IsAvailable())
+	// The engine sends 2 packets : 1. command send 2. response
+	while(this->IsAvailable() < 2)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
@@ -55,17 +56,15 @@ RS232 JetCatP300::receive_response()
 	return this->read_response(this->convert_to_string(this->Recv()));
 }
 
-vector<string> JetCatP300::split(string value, string delim)
+vector<string> JetCatP300::split(string value, char delim)
 {
 	vector<string> data;
-	size_t pos = 0;
-	string token;
-	while ((pos = value.find(delim)) != string::npos)
-	{
-		token = value.substr(0, pos);
-		data.push_back(token);
-		value.erase(0, pos + delim.length());
-	}
+	stringstream check(value);
+    string temp;
+    while (getline(check, temp, delim))
+    {
+        data.push_back(temp);
+    }
 	return data;
 }
 
@@ -77,7 +76,7 @@ RS232 JetCatP300::read_response(string response)
 		return data;
 	}
 	printf("Received from engine: %s\n", response.c_str());
-	vector<string> values = split(response, ",");
+	vector<string> values = split(response, ',');
 	data.ADR = atoi(values[0].c_str());
 	data.CMDCODE = values[2];
 	//memcpy(data.CMDCODE, values[2].c_str(), sizeof(char) * 3);

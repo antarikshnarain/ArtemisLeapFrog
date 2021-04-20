@@ -67,6 +67,7 @@ bool Serial::initializePort()
         printf("tcgetattr(): failed! %i %s\n", errno, strerror(errno));
         return false;
     }
+    tcflush(this->serial_port,TCIOFLUSH);
     return true;
 }
 
@@ -181,7 +182,8 @@ int Serial::IsAvailable()
 {
     int available_size;
     this->_mutex.lock();
-    available_size = this->recv_data.size() > 0;
+    //available_size = this->recv_data.size() > 0;
+    available_size = this->recv_data.size();
     this->_mutex.unlock();
     return available_size;
 }
