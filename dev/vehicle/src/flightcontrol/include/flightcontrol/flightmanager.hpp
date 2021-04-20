@@ -4,6 +4,8 @@
 #include <string>
 #include <Serial.hpp>
 #include <future>
+#include <thread>
+#include <fstream>
 
 #include "rclcpp/rclcpp.hpp"
 // JetCatP300
@@ -57,6 +59,11 @@ private:
     string sub_imu;
     string sub_laser;
 
+    promise<void> exit_script_thread_promise;
+    future<void> exit_script_thread_future;
+    thread script_thread;
+
+    vector<string> script_map = {"data_gather.script","engine_profile.script"};
 public:
     FlightManager(string, int, std::future<void>);
 
@@ -65,6 +72,8 @@ public:
     void InitializeSequence();
 
     void ShutdownSequence();
+
+    void ScriptRunner(string filename, std::future<void>);
 
     virtual string engine_ctrl(int value);
     virtual string engine_power(int value);

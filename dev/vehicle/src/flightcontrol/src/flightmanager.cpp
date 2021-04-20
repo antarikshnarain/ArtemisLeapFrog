@@ -369,8 +369,77 @@ string FlightManager::cmd_echo(int value)
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Command Echo state updated %d", value);
 	return "OK";
 }
+
+void FlightManager::ScriptRunner(string filename, future<void> script_future)
+{
+	// load commands to memory
+	ifstream file;
+	file.open(filename.c_str(), ios::in);
+	vector<string> commands;
+	vector<int> cmd_delays;
+	string data;
+	if(file.is_open())
+	{
+		bool toggle = true;
+		while(getline(file,data))
+		{
+			if(toggle)
+			{
+				commands.push_back(data);
+			}
+			else
+			{
+				cmd_delays.push_back(atoi(data.c_str()));
+			}
+			toggle = !toggle;
+		}
+	}
+	else
+	{
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Custom script %s does not exist.", filename.c_str());
+		return;
+	}
+	if(commands.size() != cmd_delays.size() || commands.size() == 0)
+	{
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Script is not valid. Commands: %d -> Delays: %d.", commands.size(), cmd_delays.size());
+		return;
+	}
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started custom script %s.", filename.c_str());
+	int i = 0;
+	do
+	{
+		string resp = this->Parser(commands[i]);
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Executed %s with response: %s.", commands[i], resp);
+		//std::this_thread.sleep_for(std::chrono::milliseconds(cmd_delays[i]));
+		i++;
+	} while (i < (int)commands.size() && script_future.wait_for(chrono::milliseconds(cmd_delays[i])) == std::future_status::timeout);
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Completed custom script %s. %d / %d.", filename.c_str(), i, commands.size());
+}
+
 string FlightManager::cmd_script(int value)
 {
+	// Command to interrupt script
+	if(this->enable_script > 0)
+	{
+		if(value == 0)
+		{
+			exit_script_thread_promise.set_value();
+		}
+		else
+		{
+			return "Script already running " + string(script_map[this->enable_script-1]);
+		}
+	}
+	else
+	{
+		if(value < 0 || value >= (int)this->script_map.size())
+		{
+			return "Invalid Script number " + to_string(value);
+		}
+		exit_script_thread_future = exit_script_thread_promise.get_future();
+		thread(&FlightManager::ScriptRunner, this, move(this->script_map[value]), move(exit_script_thread_future)).detach();
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting script %s for %d.", this->script_map[value], value);
+	}
 	this->enable_script = value;
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Command Script state updated %d", value);
 	return "OK";
