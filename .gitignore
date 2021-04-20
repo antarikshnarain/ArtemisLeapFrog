@@ -8,3 +8,6 @@ __pycache__
 # Dynamic build files
 *.so
 *.o
+dev/vehicle/scripts/custom_scripts.list
+dev/vehicle/scripts/*.script
+

@@ -9,6 +9,7 @@ pwr_pin = 11
 commands = [
     "1,RTY,1",
     "1,RAC,1",
+    "1,RFI,1",
     "1,DHC,1",
     "1,RHC,1"
 ]
@@ -36,7 +37,9 @@ for cmd in commands:
     time.sleep(0.01)
     if cmd == "1,DHC,1":
         print("Waiting for 10 sec.")
-        time.sleep(10)
+        time.sleep(15)
     print(readSerial(ser,b'\r'))
-    
+    print(readSerial(ser,b'\r'))
+
+gpio.output(pwr_pin, gpio.LOW)   
 gpio.cleanup()

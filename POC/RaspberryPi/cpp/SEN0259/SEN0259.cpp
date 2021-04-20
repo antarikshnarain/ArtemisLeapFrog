@@ -1,10 +1,10 @@
-#include "Serial.hpp"
+#include <Serial.hpp>
 
 using namespace std;
 
 int main()
 {
-    Serial serial("/dev/ttyAMA1", 115200, 0, 1, 9);
+    Serial serial("/dev/ttyAMA2", 115200, 0, 1, 9);
     int count = 10;
     while(count)
     {
