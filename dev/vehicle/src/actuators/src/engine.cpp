@@ -27,10 +27,11 @@ private:
 	rclcpp::TimerBase::SharedPtr timer_[3];
 
 	// Local variables
-	bool ctrl_sig = true;
+	bool ctrl_sig = false;
 	bool pwr_sig = false;
 	bool engine_started = false;
 	float current_thrust = 0.0;
+	const string ENGINE_DISABLED = "Please enable engine, before proceeding.";
 
 public:
 	JetCatP300Manager(string port, int baudrate) : Node("JetCatP300"), JetCatP300(port, baudrate)
@@ -46,6 +47,11 @@ public:
 
 		// Create Services
 		this->thrust_service_ = this->create_service<actuators::srv::ActuatorJCP300Thrust>("thrust", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Response> response) -> void {
+			if(this->ctrl_sig || !this->pwr_sig)
+			{
+				response->status = ENGINE_DISABLED;
+				return;
+			}
 			float new_value = request->thrust_value;
 			if (new_value < 0.0)
 			{
@@ -68,22 +74,43 @@ public:
 		});
 
 		this->params_service_ = this->create_service<actuators::srv::ActuatorJCP300Params>("parameters", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Params::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Params::Response> response) -> void {
-			response->status = 0;
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Jet engine, updating parameters %d %d.", request->ctrl_sig, request->pwr_sig);
+			response->status = "Not OK";
 			if (this->ctrl_sig != request->ctrl_sig)
 			{
 				this->ctrl_sig = request->ctrl_sig;
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Digital Write started ctrl");
+				//wiringPiSetupGpio();
+				//pinMode(JETCAT_SAFE, OUTPUT);
 				digitalWrite(JETCAT_SAFE, this->ctrl_sig);
-				response->status |= int(this->ctrl_sig);
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Digital Write completed");
+				response->status = "OK";
 			}
 			if (this->pwr_sig != request->pwr_sig)
 			{
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Digital Write started pwr");
+				//wiringPiSetupGpio();
+				//pinMode(JETCAT_POWER, OUTPUT);
+				digitalWrite(JETCAT_POWER, request->pwr_sig);
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Digital Write completed");
+				response->status = "OK";
 				this->pwr_sig = request->pwr_sig;
-				digitalWrite(JETCAT_POWER, this->pwr_sig);
-				response->status |= (int(this->ctrl_sig) << 1);
+			}
+			if(!this->ctrl_sig && this->pwr_sig)
+			{
+				//GetEngineInfo();
+				//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				//this->timer_[0] = this->create_wall_timer(100ms, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Jet engine ECU started.");
 			}
 		});
 
 		this->healthcheck_service_ = this->create_service<actuators::srv::ActuatorJCP300HealthCheck>("health_check", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300HealthCheck::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300HealthCheck::Response> response) -> void {
+			if(this->ctrl_sig || !this->pwr_sig)
+			{
+				response->status_message = ENGINE_DISABLED;
+				return;
+			}
 			if(!request->check_health)
 			{
 				return;
@@ -140,44 +167,68 @@ public:
 		});
 
 		this->status_service_ = this->create_service<actuators::srv::ActuatorJCP300Status>("engine_status", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Status::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Status::Response> response) -> void {
+			if(this->ctrl_sig || !this->pwr_sig)
+			{
+				response->status = ENGINE_DISABLED;
+				return;
+			}
 			response->status = false;
 			if (this->engine_started != request->state)
 			{
 				if(request->state)
 				{
 					RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting engine.");
-					RS232 response = this->execute(RS232{1, "TCO", 1, "1"});
-					if(response.CMDCODE != "OK")
+					RS232 rs232_response = this->execute(RS232{1, "TCO", 1, "1"});
+					if(rs232_response.CMDCODE != "OK")
 					{
-						RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting engine failed, %s", response.CMDCODE);
+						RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting engine failed, %s", rs232_response.CMDCODE);
 						return;
 					}
+					response->status = "Engine Started " + rs232_response.CMDCODE;
 				}
 				else
 				{
 					RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopping engine.");
-					RS232 response = this->execute(RS232{1, "TCO", 1, "0"});
-					if(response.CMDCODE != "OK")
+					RS232 rs232_response = this->execute(RS232{1, "TCO", 1, "0"});
+					if(rs232_response.CMDCODE != "OK")
 					{
-						RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopping engine failed, %s", response.CMDCODE);
+						RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopping engine failed, %s", rs232_response.CMDCODE);
 						return;
 					}
+					response->status = "Engine Stopped " + rs232_response.CMDCODE;
 				}
 				this->engine_started = request->state;
-				response->status = true;
 			}
 		});
 
-		this->GetEngineInfo();
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Jet engine services initialized.");
+		//this->GetEngineInfo();
+
+		// Start the ECU
+		pinMode(JETCAT_SAFE, OUTPUT);
+		pinMode(JETCAT_POWER, OUTPUT);
+		this->ctrl_sig = false;
+		this->pwr_sig = true;
+		digitalWrite(JETCAT_SAFE, this->ctrl_sig);
+		digitalWrite(JETCAT_POWER, this->pwr_sig);
+		
+		// digitalWrite(JETCAT_SAFE, LOW);
+		// digitalWrite(JETCAT_POWER, HIGH);
+		// RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Jet engine ECU started.");
+
 	}
 	void GetEngineInfo()
 	{
+		if(this->ctrl_sig || !this->pwr_sig)
+		{
+			//response->status_message = ENGINE_DISABLED;
+			return;
+		}
 		auto message = actuators::msg::ActuatorJCP300Info();
 		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fetching Jet Engine information.");
 		RS232 response = this->execute(RS232{1, "RTY", 1, "1"});
 		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Info Received data");
-		if (response.len < 6)
+		if (response.len < 5)
 		{
 			return;
 		}
@@ -197,6 +248,11 @@ public:
 	}
 	void GetFuelTelemetry()
 	{
+		if(this->ctrl_sig || !this->pwr_sig)
+		{
+			//response->status_message = ENGINE_DISABLED;
+			return;
+		}
 		auto message = actuators::msg::ActuatorJCP300FuelTelemetry();
 		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting fuel telemetry.");
 		RS232 response = this->execute(RS232{1, "RFI", 1, "1"});
@@ -218,9 +274,28 @@ public:
 	}
 	void GetEngineTelemetry()
 	{
+		if(this->ctrl_sig || !this->pwr_sig)
+		{
+			//response->status_message = ENGINE_DISABLED;
+			return;
+		}
 		auto message = actuators::msg::ActuatorJCP300EngineTelemetry();
 		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting engine telemetry.");
 		RS232 response = this->execute(RS232{1, "RAC", 1, "1"});
+		// this->send_command(RS232{1, "RAC", 1, "1"});
+		// // The engine sends 2 packets : 1. command send 2. response
+		// RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting for part 1.");
+		// while(!this->IsAvailable())
+		// {
+		// 	std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		// }
+		// auto resp = this->Recv();
+		// RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting for part 2.");
+		// while(!this->IsAvailable())
+		// {
+		// 	std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		// }
+		// RS232 response = this->receive_response();
 		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine telemetry received.");
 		if (response.len < 5)
 		{
@@ -241,6 +316,7 @@ public:
 
 int main(int argc, char *argv[])
 {
+	wiringPiSetupGpio();
 	rclcpp::init(argc, argv);
 	if (argc < 3)
 	{

@@ -39,11 +39,9 @@ public:
 				// Publish
 				this->sensor_publisher_->publish(message);
 			}
-
-			
 		};
-		// register publisher with timer
-		this->timer_ = this->create_wall_timer(10ms, publish_msg);
+		// register publisher with timer changed from 10ms to 100ms
+		this->timer_ = this->create_wall_timer(100ms, publish_msg);
 	}
 };
 

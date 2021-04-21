@@ -10,6 +10,7 @@ source /opt/ros/foxy/setup.bash
 echo "Loading package path"
 . ~/vehicle/install/local_setup.bash
 # Run packages
-echo "Running Sensor Package"
-ros2 launch sensors sensors.launch.py
-#ros2 launch ~/vehicle/src/launch/vehicle.launch.py
+#echo "Running Sensor Package"
+#ros2 launch sensors sensors.launch.py
+echo "Running LEAPOS Package"
+ros2 launch ~/vehicle/src/launch/vehicle.launch.py

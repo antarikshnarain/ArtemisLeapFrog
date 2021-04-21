@@ -26,3 +26,7 @@ open-serial:
 
 clean:
 	rm -f *.so *.o GroundStation Echo Echo2 GST
+
+run-gst: build-gst
+	python3 flush_serial.py
+	./GST /dev/ttyACM0 57600

@@ -56,7 +56,10 @@ void FlightManager::SerialMonitor(std::future<void> fut)
 		else
 		{
 			heartbeat_counter --;
-			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting %d", heartbeat_counter);
+			if(heartbeat_counter % 100 == 0)
+			{
+				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting %d", heartbeat_counter);
+			}
 		}
         //this_thread::sleep_for(chrono::milliseconds(200));
     }
@@ -158,9 +161,9 @@ void FlightManager::InitializeSequence()
 		{
 			this->sub_imu = std::string(buffer);
 		}
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-IMU:%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
-					msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],
-					msg->roll, msg->pitch, msg->temp, msg->linear_acc[0], msg->linear_acc[1], msg->linear_acc[2], msg->angular_acc[0], msg->angular_acc[1], msg->angular_acc[2]);
+		// RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-IMU:%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
+		// 			msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],
+		// 			msg->roll, msg->pitch, msg->temp, msg->linear_acc[0], msg->linear_acc[1], msg->linear_acc[2], msg->angular_acc[0], msg->angular_acc[1], msg->angular_acc[2]);
 	});
 	this->laser_subscriber_ = this->create_subscription<sensors::msg::SensorLaser>("/sensors/laser", 10, [this](const sensors::msg::SensorLaser::SharedPtr msg) -> void {
 		char buffer[128];
@@ -168,7 +171,7 @@ void FlightManager::InitializeSequence()
 		{
 			this->sub_laser = std::string(buffer);
 		}
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Laser:%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum);
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Laser:%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum);
 	});
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Subscriptions.");
 }
@@ -189,20 +192,21 @@ string FlightManager::engine_ctrl(int value)
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine control updated %d", value);
 	bool ctrl_val = (bool)value;
 	this->enable_engine = ctrl_val;
-	auto request = std::make_shared<actuators::srv::ActuatorJCP300Params::Request>();
-	request->ctrl_sig = !ctrl_val;
-	request->pwr_sig = false;
-	auto result = this->params_client_->async_send_request(request);
-	if (result.wait_for(15s) == std::future_status::ready)
-	{
-		//Use the result
-		return "OK";
-	}
-	else
-	{
-		//Something went wrong
-		return "Something went wrong!, engine_ctrl";
-	}
+	// auto request = std::make_shared<actuators::srv::ActuatorJCP300Params::Request>();
+	// request->ctrl_sig = !ctrl_val;
+	// request->pwr_sig = false;
+	// auto result = this->params_client_->async_send_request(request);
+	// if (result.wait_for(15s) == std::future_status::ready)
+	// {
+	// 	//Use the result
+	// 	return "OK";
+	// }
+	// else
+	// {
+	// 	//Something went wrong
+	// 	return "Something went wrong!, engine_ctrl";
+	// }
+	return "OK";
 }
 string FlightManager::engine_power(int value)
 {
@@ -213,13 +217,13 @@ string FlightManager::engine_power(int value)
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine power updated %d", value);
 	bool pwr_val = (bool)value;
 	auto request = std::make_shared<actuators::srv::ActuatorJCP300Params::Request>();
-	request->ctrl_sig = true;
+	request->ctrl_sig = false;
 	request->pwr_sig = pwr_val;
 	auto result = this->params_client_->async_send_request(request);
 	if (result.wait_for(15s) == std::future_status::ready)
 	{
 		//Use the result
-		return "OK";
+		return result.get()->status;
 	}
 	else
 	{
@@ -240,7 +244,7 @@ string FlightManager::engine_enable(int value)
 	if (result.wait_for(15s) == std::future_status::ready)
 	{
 		//Use the result
-		return result.get()->status ? "OK" : "Not OK";
+		return result.get()->status;
 	}
 	else
 	{
@@ -256,9 +260,9 @@ string FlightManager::engine_telem_0()
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine Health check requested.");
 	auto request = std::make_shared<actuators::srv::ActuatorJCP300HealthCheck::Request>();
-	//request->check_health = true;
+	request->check_health = true;
 	auto result = this->healthcheck_client_->async_send_request(request);
-	if (result.wait_for(15s) == std::future_status::ready)
+	if (result.wait_for(25s) == std::future_status::ready)
 	{
 		//Use the result
 		return result.get()->status_message;
@@ -323,7 +327,7 @@ string FlightManager::acs_enable(int value)
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ACS state updated %d", value);
 	return "OK";
 }
-string FlightManager::acs_fire(float durations[6])
+string FlightManager::acs_fire(int durations[6])
 {
 	if (!this->enable_acs)
 	{

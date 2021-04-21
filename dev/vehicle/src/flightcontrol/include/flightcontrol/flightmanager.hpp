@@ -87,7 +87,7 @@ public:
     virtual string engine_thrust(float value);
 
     virtual string acs_enable(int value);
-    virtual string acs_fire(float durations[6]);
+    virtual string acs_fire(int durations[6]);
 
     virtual string sensor_enable(int value);
     virtual string sensor_telem_0();
