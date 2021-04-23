@@ -24,7 +24,7 @@
 
 #include "flightcontrol/CommandParser.hpp"
 
-#define HEARTBEAT_DURATION 500
+#define HEARTBEAT_DURATION 2000
 
 using namespace std::chrono_literals;
 
@@ -59,8 +59,10 @@ private:
     string sub_imu;
     string sub_laser;
 
-    promise<void> exit_script_thread_promise;
-    future<void> exit_script_thread_future;
+    //promise<void> exit_script_thread_promise;
+    promise<void> *exit_script_thread_promise = NULL;
+    //future<void> exit_script_thread_future;
+    future<void> *exit_script_thread_future = NULL;
     thread script_thread;
 
     const string path_to_files = "/usr/local/share/script/";

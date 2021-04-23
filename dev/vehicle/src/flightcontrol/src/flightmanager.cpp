@@ -7,11 +7,14 @@ FlightManager::FlightManager(string port, int baudrate, std::future<void> fut) :
 	ifstream file;
 	file.open(filename.c_str(), ios::in);
 	string data;
+	string script_names = "";
+	int num = 1;
 	if(file.is_open())
 	{
 		while(getline(file, data))
 		{
 			this->script_map.push_back(this->path_to_files + data);
+			script_names += "| " + to_string(num++) +" -> "+ this->path_to_files + data + " |";
 		}
 	}
 	else
@@ -22,7 +25,7 @@ FlightManager::FlightManager(string port, int baudrate, std::future<void> fut) :
 	this->InitializeSequence();
 	thread(&FlightManager::SerialMonitor, this, move(fut)).detach();
 	// Send ready message
-	string temp_msg = string("Vehicle is Ready!") + string(" Loaded Scripts ") + to_string(this->script_map.size());
+	string temp_msg = string("Vehicle is Ready!") + string(" Loaded Scripts ") + to_string(this->script_map.size()) + script_names;
 	this->Send(temp_msg);
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "%s", temp_msg.c_str());
 }
@@ -63,6 +66,7 @@ void FlightManager::SerialMonitor(std::future<void> fut)
 		}
         //this_thread::sleep_for(chrono::milliseconds(200));
     }
+	this->Send("Vehicle Shutting down!!!");
 	this->ShutdownSequence();
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopped Serial Monitor. %d", heartbeat_counter);
 }
@@ -121,9 +125,14 @@ void FlightManager::InitializeSequence()
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ACS-Thruster service not available, waiting again...");
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Clients");
+	
 	// Initialize Subscribers
 	// -- Engine Subscribers
 	this->info_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300Info>("/actuators/info", 10, [this](const actuators::msg::ActuatorJCP300Info::SharedPtr msg) -> void {
+		if(!this->enable_engine)
+		{
+			return;
+		}
 		char buffer[256];
 		if(sprintf(buffer, "%s,%s,%d,%d,%s,%s", msg->firmware_version.c_str(), msg->version_number.c_str(), msg->last_time_run, msg->total_operation_time, msg->serial_number.c_str(), msg->turbine_type.c_str()) > 0)
 		{
@@ -134,6 +143,10 @@ void FlightManager::InitializeSequence()
 		
 	});
 	this->fuel_telemetry_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300FuelTelemetry>("/actuators/fuel_telemetry", 10, [this](const actuators::msg::ActuatorJCP300FuelTelemetry::SharedPtr msg) -> void {
+		if(!this->enable_engine)
+		{
+			return;
+		}
 		char buffer[256];
 		if(sprintf(buffer, "%d,%d,%d,%.4f,%d,%d", msg->actual_fuel, msg->rest_fuel, msg->rpm, msg->battery_voltage, msg->last_run, msg->fuel_actual_run) > 0)
 		{
@@ -143,6 +156,10 @@ void FlightManager::InitializeSequence()
 			msg->actual_fuel, msg->rest_fuel, msg->rpm, msg->battery_voltage, msg->last_run, msg->fuel_actual_run);
 	});
 	this->engine_telemetry_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300EngineTelemetry>("/actuators/engine_telemetry", 10, [this](const actuators::msg::ActuatorJCP300EngineTelemetry::SharedPtr msg) -> void {
+		if(!this->enable_engine)
+		{
+			return;
+		}
 		char buffer[256];
 		if(sprintf(buffer, "%d,%d,%.4f,%d,%.4f,%.4f", msg->turbine_rpm, msg->egt_temp, msg->pump_voltage, msg->turbine_state, msg->throttle_position, msg->engine_current) > 0)
 		{
@@ -154,6 +171,10 @@ void FlightManager::InitializeSequence()
 
 	// --Sensors Subscribers
 	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu_data", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
+		if(!this->enable_sensors)
+		{
+			return;
+		}
 		char buffer[512];
 		if(sprintf(buffer, "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f", 
 			msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],
@@ -161,17 +182,21 @@ void FlightManager::InitializeSequence()
 		{
 			this->sub_imu = std::string(buffer);
 		}
-		// RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-IMU:%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
-		// 			msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],
-		// 			msg->roll, msg->pitch, msg->temp, msg->linear_acc[0], msg->linear_acc[1], msg->linear_acc[2], msg->angular_acc[0], msg->angular_acc[1], msg->angular_acc[2]);
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-IMU:%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
+			msg->raw_linear_acc[0], msg->raw_linear_acc[1], msg->raw_linear_acc[2], msg->raw_angular_acc[0], msg->raw_angular_acc[1], msg->raw_angular_acc[2],
+			msg->roll, msg->pitch, msg->temp, msg->linear_acc[0], msg->linear_acc[1], msg->linear_acc[2], msg->angular_acc[0], msg->angular_acc[1], msg->angular_acc[2]);
 	});
 	this->laser_subscriber_ = this->create_subscription<sensors::msg::SensorLaser>("/sensors/laser", 10, [this](const sensors::msg::SensorLaser::SharedPtr msg) -> void {
+		if(!this->enable_sensors)
+		{
+			return;
+		}
 		char buffer[128];
 		if(sprintf(buffer, "%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum) > 0)
 		{
 			this->sub_laser = std::string(buffer);
 		}
-		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Laser:%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum);
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Laser:%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum);
 	});
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Subscriptions.");
 }
@@ -181,6 +206,7 @@ void FlightManager::ShutdownSequence()
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Shutdown Sequence: Started");
 	// Power off engine
 	this->engine_power(0);
+	this->enable_engine = false;
 	// Disable sensor data
 	this->sensor_enable(0);
 	// Disable ACS system
@@ -427,41 +453,55 @@ void FlightManager::ScriptRunner(string filename, future<void> script_future)
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Script is not valid. Commands: %d -> Delays: %d.", commands.size(), cmd_delays.size());
 		return;
 	}
+	string notify = "Script Started: " + filename;
+	this->Send(notify);
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started custom script %s.", filename.c_str());
 	int i = 0;
 	do
 	{
 		string resp = this->Parser(commands[i]);
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Executed %s with response: %s.", commands[i], resp);
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Executed %s with response: %s.", commands[i].c_str(), resp.c_str());
 		//std::this_thread.sleep_for(std::chrono::milliseconds(cmd_delays[i]));
 		i++;
 	} while (i < (int)commands.size() && script_future.wait_for(chrono::milliseconds(cmd_delays[i])) == std::future_status::timeout);
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Completed custom script %s. %d / %d.", filename.c_str(), i, commands.size());
+	notify = "Script completed: " + filename;
+	this->Send(notify);
+	this->enable_script = 0;
 }
 
 string FlightManager::cmd_script(int value)
 {
 	// Command to interrupt script
-	if(this->enable_script > 0)
+	if(value == 0)
 	{
-		if(value == 0)
+		this->enable_script = 0;
+		if(exit_script_thread_promise != NULL)
 		{
-			exit_script_thread_promise.set_value();
+			exit_script_thread_promise->set_value();
+			exit_script_thread_promise = NULL;
+			return "OK - Stopping Running Scripts.";
 		}
-		else
-		{
-			return "Script already running " + string(script_map[this->enable_script-1]);
-		}
+		return "OK - No script running.";
 	}
 	else
 	{
-		if(value < 0 || value >= (int)this->script_map.size())
+		if(this->enable_script > 0)
+		{
+			return "Script already running.";
+		}
+		if(value < 0 || value > (int)this->script_map.size())
 		{
 			return "Invalid Script number " + to_string(value);
 		}
-		exit_script_thread_future = exit_script_thread_promise.get_future();
-		thread(&FlightManager::ScriptRunner, this, move(this->script_map[value]), move(exit_script_thread_future)).detach();
-		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting script %s for %d.", this->script_map[value], value);
+		for(string files: this->script_map)
+		{
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Available Scripts %s", files.c_str());
+		}
+		exit_script_thread_promise = new promise<void>();
+		future<void> exit_script_thread_future2 = exit_script_thread_promise->get_future();
+		thread(&FlightManager::ScriptRunner, this, this->script_map[value-1], move(exit_script_thread_future2)).detach();
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting script %s for %d.", this->script_map[value-1], value);
 	}
 	this->enable_script = value;
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Command Script state updated %d", value);
