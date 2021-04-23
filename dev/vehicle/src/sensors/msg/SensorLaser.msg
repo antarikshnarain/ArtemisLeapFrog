@@ -1,0 +1,3 @@
+uint16 distance
+uint16 sig_strength
+bool checksum

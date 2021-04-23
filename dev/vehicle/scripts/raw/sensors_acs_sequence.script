@@ -1,0 +1,16 @@
+sensors enable 1
+10
+acs enable 1
+10
+sensors telem 0
+100
+sensors telem 1
+100
+acs fire r=1000,P=2000,y=3000,Y=3000,p=2000,R=1000
+3000
+sensors telem 0
+10
+sensors telem 1
+10
+acs fire r=1000,P=1000,y=500,Y=500,p=1000,R=2000
+2000

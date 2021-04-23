@@ -1,0 +1,4 @@
+comm send 1
+comm send 256
+comm send 1024
+comm send 2048

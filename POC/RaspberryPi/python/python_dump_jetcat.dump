@@ -1,0 +1,155 @@
+ubuntu@ubuntu:~/python$ python
+Python 3.8.5 (default, Jan 27 2021, 15:41:15) 
+[GCC 9.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import RPi.GPIO as gpio
+>>> import time
+>>> import serial
+>>> 
+>>> ctrl_pin = 25
+>>> pwr_pin = 11
+>>> commands = [
+...     "1,RTY,1",
+...     "1,RAC,1",
+...     "1,DHC,1",
+...     "1,RHC,1"
+... ]
+>>> def readSerial(ser, delim):
+...     data = b''
+...     ch = ser.read()
+...     while ch != delim:
+...         ch = ser.read()
+...         data += ch
+...     return data.decode('utf-8')
+... 
+>>> gpio.setmode(gpio.BCM)
+>>> gpio.setup(ctrl_pin, gpio.OUT)
+<stdin>:1: RuntimeWarning: This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.
+>>> gpio.setup(pwr_pin, gpio.OUT)
+>>> gpio.output(ctrl_pin, gpio.LOW)
+>>> print("Powering up ECU")
+Powering up ECU
+>>> gpio.output(pwr_pin, gpio.HIGH)
+>>> print("Opening Serial port")
+Opening Serial port
+>>> ser = serial.Serial("/dev/ttyAMA3", 9600)
+>>> print("Sending commands")
+Sending commands
+>>> ser.write(bytes(cmd+'\r', 'utf-8'))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'cmd' is not defined
+>>> ser.write(bytes(commands[0]+'\r', 'utf-8'))
+8
+>>> readSerial(ser,'\r')
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 5, in readSerial
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.read()
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.write(bytes(commands[0]+'\r', 'utf-8'))
+8
+>>> ser.read()
+b'1'
+>>> ser.read()
+b','
+>>> ser.read()
+b'R'
+>>> ser.read()
+b'T'
+>>> t=ser.read()
+>>> t
+b'Y'
+>>> t == 'Y'
+False
+>>> t == b'Y'
+True
+>>> ser.read()
+b','
+>>> ser.read()
+b'1'
+>>> ser.read()
+b'\r'
+>>> ser.read()
+b'1'
+>>> ser.readline()
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.read()
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.write(bytes(commands[0]+'\r', 'utf-8'))
+8
+>>> resp = readSerial(ser,b'\r')
+>>> resp
+',RTY,1\r'
+>>> ser.write(bytes(commands[0]+'\r', 'utf-8'))
+8
+>>> resp = readSerial(ser,b'\r')
+>>> resp
+',HS,OK,JetCat V12.34,12.34,77,1242,2050,P300-PRO\r'
+>>> resp = readSerial(ser,b'\r')
+>>> resp
+',RTY,1\r'
+>>> resp = readSerial(ser,b'\r')
+>>> resp
+',HS,OK,JetCat V12.34,12.34,77,1242,2050,P300-PRO\r'
+>>> resp = readSerial(ser,b'\r')
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 3, in readSerial
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.read()
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.write(bytes(commands[1]+'\r', 'utf-8'))
+8
+>>> readSerial(ser,b'\r')
+',RAC,1\r'
+>>> readSerial(ser,b'\r')
+',HS,OK,0,20,0,0,0,0.046\r'
+>>> readSerial(ser,b'\r')
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 3, in readSerial
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.write(bytes(commands[2]+'\r', 'utf-8'))
+8
+>>> readSerial(ser,b'\r')
+',DHC,1\r'
+>>> readSerial(ser,b'\r')
+',HS,OK,1\r'
+>>> readSerial(ser,b'\r')
+^CTraceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 3, in readSerial
+  File "/usr/lib/python3/dist-packages/serial/serialposix.py", line 483, in read
+    ready, _, _ = select.select([self.fd, self.pipe_abort_read_r], [], [], timeout.time_left())
+KeyboardInterrupt
+>>> ser.write(bytes(commands[3]+'\r', 'utf-8'))
+8
+>>> readSerial(ser,b'\r')
+',RHC,1\r'
+>>> readSerial(ser,b'\r')
+',HS,OK,1,1,1,1,8,1,1\r'
+>>> 

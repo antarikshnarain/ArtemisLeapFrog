@@ -1,0 +1,13 @@
+[Unit]
+Description=Leapfrog OS Vehicle System
+After=network.target
+
+[Service]
+User=ubuntu
+TimeoutStartSec=10
+WorkingDirectory=~
+ExecStart=/usr/local/bin/run_leapos.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
