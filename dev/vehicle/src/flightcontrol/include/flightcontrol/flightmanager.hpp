@@ -6,6 +6,7 @@
 #include <future>
 #include <thread>
 #include <fstream>
+#include <stdlib.h>
 
 #include "rclcpp/rclcpp.hpp"
 // JetCatP300
@@ -25,7 +26,7 @@
 
 #include "flightcontrol/CommandParser.hpp"
 
-#define HEARTBEAT_DURATION 2000
+#define HEARTBEAT_DURATION 2500
 
 using namespace std::chrono_literals;
 
@@ -81,6 +82,8 @@ public:
     void ShutdownSequence();
 
     void ScriptRunner(string filename, std::future<void>);
+
+    int CopyLogs();
 
     virtual string engine_ctrl(int value);
     virtual string engine_power(int value);

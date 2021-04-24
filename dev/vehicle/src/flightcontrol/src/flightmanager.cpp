@@ -30,6 +30,19 @@ FlightManager::FlightManager(string port, int baudrate, std::future<void> fut) :
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "%s", temp_msg.c_str());
 }
 
+int FlightManager::CopyLogs()
+{
+	int i;
+	printf ("Checking if processor is available...");
+	// if (system(NULL)) puts ("Ok");
+	// else exit (EXIT_FAILURE);
+	printf ("Executing command DIR...\n");
+	// TODO: Remove hardcoded command.
+	i=system ("~/vehicle/copylogs.sh");
+	printf ("The value returned was: %d.\n",i);
+	return i;
+}
+
 void FlightManager::SerialMonitor(std::future<void> fut)
 {
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started Serial Monitor.");
@@ -70,7 +83,8 @@ void FlightManager::SerialMonitor(std::future<void> fut)
 		}
         //this_thread::sleep_for(chrono::milliseconds(200));
     }
-	this->Send("Vehicle Shutting down!!!");
+	int datacopied = this->CopyLogs();
+	this->Send("Vehicle Shutting down !!! " + to_string(datacopied));
 	this->ShutdownSequence();
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopped Serial Monitor. %d", heartbeat_counter);
 }
@@ -488,6 +502,7 @@ void FlightManager::ScriptRunner(string filename, future<void> script_future)
 	{
 		string resp = this->Parser(commands[i]);
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Executed %s with response: %s.", commands[i].c_str(), resp.c_str());
+		this->Send(resp);
 		//std::this_thread.sleep_for(std::chrono::milliseconds(cmd_delays[i]));
 		i++;
 	} while (i < (int)commands.size() && script_future.wait_for(chrono::milliseconds(cmd_delays[i])) == std::future_status::timeout);

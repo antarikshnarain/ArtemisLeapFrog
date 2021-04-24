@@ -1,6 +1,8 @@
 setup-exec:
 	chmod +x ~/vehicle/run_leapos.sh
 	sudo cp ~/vehicle/run_leapos.sh /usr/local/bin/
+	chmod +x ~/vehicle/copylogs.sh
+	sudo cp ~/vehicle/copylogs.sh /usr/local/bin/
 
 setup-service:
 	sudo cp ~/vehicle/vehicle.service /etc/systemd/system/vehicle.service
