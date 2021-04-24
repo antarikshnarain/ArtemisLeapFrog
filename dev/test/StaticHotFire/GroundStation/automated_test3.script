@@ -1,0 +1,28 @@
+sensors enable 1
+0
+acs enable 1
+0
+engine enable 1
+10
+#X 92:95:0.1
+engine thrust #X
+10
+engine thrust 95
+10
+#Y 95:100:0.01
+engine thrust #Y
+10
+#Y 100:97:-0.02
+engine thrust #Y
+10
+engine thrust 97
+100
+engine thrust 94
+100
+engine thrust 97
+100
+engine thrust 94
+100
+#Y 94:92:-0.05
+engine thrust #Y
+10

@@ -26,6 +26,29 @@ using namespace std;
 
 Serial *serial;
 mutex _mutex;
+int enable_echo = 0;
+typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::milliseconds milliseconds;
+Clock::time_point t0;
+Clock::time_point t1;
+
+string random_string(std::size_t length)
+{
+    const std::string CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    std::random_device random_device;
+    std::mt19937 generator(random_device());
+    std::uniform_int_distribution<> distribution(0, CHARACTERS.size() - 1);
+
+    std::string random_string;
+
+    for (std::size_t i = 0; i < length; ++i)
+    {
+        random_string += CHARACTERS[distribution(generator)];
+    }
+
+    return random_string;
+}
 
 void Receiver(std::future<void> fut)
 {
@@ -36,7 +59,21 @@ void Receiver(std::future<void> fut)
         if(serial->IsAvailable())
         {
             recv = serial->convert_to_string(serial->Recv());
-            printf("\r>>%s\n", recv.c_str());
+            if(enable_echo)
+            {
+                enable_echo--;
+                if(enable_echo == 0)
+                {
+                    printf(">>Echo Disabled! - ");
+                    t1 = Clock::now();
+                    milliseconds ms = std::chrono::duration_cast<milliseconds>(t1 - t0);
+                    std::cout << ms.count() << "ms\n";
+                }
+            }
+            else
+            {
+                printf("\r>>%s\n", recv.c_str());
+            }
         }
     }
     printf("Exiting Receiver!\n");
@@ -79,9 +116,28 @@ void Sender(vector<promise<void>> exit_promises, string filename)
             _mutex.lock();
             serial->Send(data);
             _mutex.unlock();
-            this_thread::sleep_for(std::chrono::seconds(3));
+            printf("Waiting for 5 seconds for the vehicle to shutdown!\n");
+            this_thread::sleep_for(std::chrono::seconds(5));
             printf("Exiting ...\n");
             break;
+        }
+        else if(string(data) == "cmd echo 1")
+        {
+            enable_echo = 2;
+            printf("Echo Enabled!");
+             _mutex.lock();
+            serial->Send(data);
+            _mutex.unlock();
+        }
+        else if(enable_echo)
+        {
+            int pkt_size = atoi(data) * 1024;
+            string packet = random_string(pkt_size);
+            _mutex.lock();
+            serial->Send(packet);
+            t0 = Clock::now();
+            //printf("Sent Time: %s", t0);
+            _mutex.unlock();
         }
         else if(string(data) != "")
         {
@@ -94,6 +150,12 @@ void Sender(vector<promise<void>> exit_promises, string filename)
             _mutex.lock();
             serial->Send(commands[i]);
             _mutex.unlock();
+            if(commands[i] == "exit")
+            {
+                printf("Waiting for 5 seconds for the vehicle to shutdown!\n");
+                this_thread::sleep_for(std::chrono::seconds(5));
+                printf("Exiting ...\n");
+            }
             i++;
         }
     }

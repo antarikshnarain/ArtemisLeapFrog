@@ -14,7 +14,8 @@ build-gs:
 	g++ src/GroundStation.cpp -o GroundStation -lpthread -lSerial
 
 build-gst:
-	g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial
+	#g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial
+	g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial -lboost_system
 
 build-lib:
 	g++ -c -Wall -Werror -fpic -Iinclude/ src/*.cpp -o $(objname)

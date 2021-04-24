@@ -1,0 +1,9 @@
+sensors enable 1
+acs enable 1
+sensors telem 0
+sensors telem 1
+acs fire r=1000,R=1000,p=1000,P=1000,y=1000,Y=1000
+acs enable 0
+engine telem 1
+engine power 0
+exit

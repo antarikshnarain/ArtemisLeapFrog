@@ -32,36 +32,6 @@ typedef std::chrono::milliseconds milliseconds;
 Clock::time_point t0;
 Clock::time_point t1;
 
-// Boost Libs
-#define BOOST_LOG_DYN_LINK 1
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-
-namespace logging = boost::log;
-namespace src = boost::log::sources;
-namespace sinks = boost::log::sinks;
-namespace keywords = boost::log::keywords;
-namespace severity = boost::log::trivial;
-
-void initialize()
-{
-    //logging::add_file_log("sample.log");
-    logging::add_file_log(
-        keywords::file_name = "sample_%N.log",
-        keywords::rotation_size = 10 * 1024 * 1024, // 10 MB
-        keywords::time_based_rotation = sinks::file::rotation_at_time_point(0, 0, 0),
-        keywords::format = "%LineID% [%TimeStamp%]: %Message%");
-
-    logging::core::get()->set_filter(
-        logging::trivial::severity >= logging::trivial::info);
-}
-
 string random_string(std::size_t length)
 {
     const std::string CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -167,7 +137,7 @@ int main(int argc, char *argv[])
     }
 
     serial = new Serial(argv[1], atoi(argv[2]),'\n',1000,-1);
-    initialize();
+    //initialize();
     promise<void> exit_signal;
     future<void> exit_future;
     exit_future = exit_signal.get_future();
