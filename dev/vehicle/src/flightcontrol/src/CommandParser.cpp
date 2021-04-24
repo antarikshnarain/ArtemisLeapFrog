@@ -52,6 +52,11 @@ string CommandParser::engineParser(string cmd, string values)
             // Publisher
             return this->engine_telem_3();
         }
+        else if (value == 4)
+        {
+            // Publisher
+            return this->engine_telem_4();
+        }
         else
         {
             return INVALID_COMMAND;

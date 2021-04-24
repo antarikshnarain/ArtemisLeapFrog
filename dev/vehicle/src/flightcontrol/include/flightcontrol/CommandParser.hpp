@@ -79,6 +79,10 @@ public:
     {
         return "Fuel Telemetry";
     }
+    virtual string engine_telem_4()
+    {
+        return "Engine System status";
+    }
     virtual string engine_thrust(float value)
     {
         return "Setting thrust to " + to_string(value);

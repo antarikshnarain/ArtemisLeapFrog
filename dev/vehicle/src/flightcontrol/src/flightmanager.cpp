@@ -63,6 +63,10 @@ void FlightManager::SerialMonitor(std::future<void> fut)
 			{
 				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting %d", heartbeat_counter);
 			}
+			if(heartbeat_counter == 500)
+			{
+				this->Send("Vehicle will shutdown in 2 minutes.");
+			}
 		}
         //this_thread::sleep_for(chrono::milliseconds(200));
     }
@@ -168,7 +172,18 @@ void FlightManager::InitializeSequence()
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Engine-Telem:%d,%d,%.4f,%d,%.4f,%.4f", 
 			msg->turbine_rpm, msg->egt_temp, msg->pump_voltage, msg->turbine_state, msg->throttle_position, msg->engine_current);
 	});
-
+	this->system_status_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300SystemStatus>("/actuators/system_status", 10, [this](const actuators::msg::ActuatorJCP300SystemStatus::SharedPtr msg) -> void {
+		if(!this->enable_engine)
+		{
+			return;
+		}
+		char buffer[256];
+		if(sprintf(buffer, "%d,%d", msg->off_condition, msg->flight_speed) > 0)
+		{
+			this->sub_system_status = std::string(buffer);
+		}
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-System-Status:%d,%d", msg->off_condition, msg->flight_speed);
+	});
 	// --Sensors Subscribers
 	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu_data", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
 		if(!this->enable_sensors)
@@ -207,9 +222,11 @@ void FlightManager::ShutdownSequence()
 	// Power off engine
 	this->engine_power(0);
 	this->enable_engine = false;
+	this->enable_sensors = false;
 	// Disable sensor data
 	this->sensor_enable(0);
 	// Disable ACS system
+	this->enable_acs = false;
 	this->acs_enable(0);
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Shutdown Sequence: Complete");
 }
@@ -325,6 +342,16 @@ string FlightManager::engine_telem_3()
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel Telemetry requested.");
 	return this->sub_fuel_telemetry;
+}
+
+string FlightManager::engine_telem_4()
+{
+	if (!this->enable_engine)
+	{
+		return "Please enable engine before proceeding...";
+	}
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine System Status requested.");
+	return this->sub_system_status;
 }
 string FlightManager::engine_thrust(float value)
 {

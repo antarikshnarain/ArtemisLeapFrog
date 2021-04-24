@@ -5,6 +5,7 @@
 #include "actuators/msg/actuator_jcp300_info.hpp"
 #include "actuators/msg/actuator_jcp300_engine_telemetry.hpp"
 #include "actuators/msg/actuator_jcp300_fuel_telemetry.hpp"
+#include "actuators/msg/actuator_jcp300_system_status.hpp"
 #include "actuators/srv/actuator_jcp300_thrust.hpp"
 #include "actuators/srv/actuator_jcp300_params.hpp"
 #include "actuators/srv/actuator_jcp300_health_check.hpp"
@@ -20,6 +21,7 @@ private:
 	rclcpp::Publisher<actuators::msg::ActuatorJCP300Info>::SharedPtr info_publisher_;
 	rclcpp::Publisher<actuators::msg::ActuatorJCP300EngineTelemetry>::SharedPtr engine_telemetry_publisher_;
 	rclcpp::Publisher<actuators::msg::ActuatorJCP300FuelTelemetry>::SharedPtr fuel_telemetry_publisher_;
+	rclcpp::Publisher<actuators::msg::ActuatorJCP300SystemStatus>::SharedPtr system_status_publisher_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_service_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300Params>::SharedPtr params_service_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_service_;
@@ -40,10 +42,13 @@ public:
 		this->info_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300Info>("info", 10);
 		this->engine_telemetry_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300EngineTelemetry>("engine_telemetry", 10);
 		this->fuel_telemetry_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300FuelTelemetry>("fuel_telemetry", 10);
+		this->system_status_publisher_ = this->create_publisher<actuators::msg::ActuatorJCP300SystemStatus>("system_status", 10);
 
 		//this->timer_[1] = this->create_wall_timer(7s, std::bind(&JetCatP300Manager::GetEngineInfo, this));
 		this->timer_[0] = this->create_wall_timer(100ms, std::bind(&JetCatP300Manager::GetEngineTelemetry, this));
 		this->timer_[1] = this->create_wall_timer(150ms, std::bind(&JetCatP300Manager::GetFuelTelemetry, this));
+		this->timer_[2] = this->create_wall_timer(125ms, std::bind(&JetCatP300Manager::GetSystemStatus, this));
+
 
 		// Create Services
 		this->thrust_service_ = this->create_service<actuators::srv::ActuatorJCP300Thrust>("thrust", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Thrust::Response> response) -> void {
@@ -311,6 +316,28 @@ public:
 		message.engine_current = atof(response.params[5].c_str());
 		// Publish
 		this->engine_telemetry_publisher_->publish(message);
+	}
+	void GetSystemStatus()
+	{
+		if(this->ctrl_sig || !this->pwr_sig)
+		{
+			//response->status_message = ENGINE_DISABLED;
+			return;
+		}
+		auto message = actuators::msg::ActuatorJCP300SystemStatus();
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Getting fuel telemetry.");
+		RS232 response = this->execute(RS232{1, "RSS", 1, "1"});
+		//RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel telemetry received.");
+		if (response.len < 5)
+		{
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine system status, response format invalid %d %s.", response.len, response.CMDCODE.c_str());
+			printf("Response does not follow the format.\n");
+			return;
+		}
+		message.off_condition = atoi(response.params[1].c_str());
+		message.flight_speed = atoi(response.params[2].c_str());
+		// Publish
+		this->system_status_publisher_->publish(message);
 	}
 };
 

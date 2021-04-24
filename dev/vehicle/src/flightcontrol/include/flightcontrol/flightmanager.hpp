@@ -12,6 +12,7 @@
 #include "actuators/msg/actuator_jcp300_info.hpp"
 #include "actuators/msg/actuator_jcp300_engine_telemetry.hpp"
 #include "actuators/msg/actuator_jcp300_fuel_telemetry.hpp"
+#include "actuators/msg/actuator_jcp300_system_status.hpp"
 #include "actuators/srv/actuator_jcp300_thrust.hpp"
 #include "actuators/srv/actuator_jcp300_params.hpp"
 #include "actuators/srv/actuator_jcp300_health_check.hpp"
@@ -36,6 +37,7 @@ private:
     rclcpp::Subscription<actuators::msg::ActuatorJCP300Info>::SharedPtr info_subscriber_;
 	rclcpp::Subscription<actuators::msg::ActuatorJCP300EngineTelemetry>::SharedPtr engine_telemetry_subscriber_;
 	rclcpp::Subscription<actuators::msg::ActuatorJCP300FuelTelemetry>::SharedPtr fuel_telemetry_subscriber_;
+	rclcpp::Subscription<actuators::msg::ActuatorJCP300SystemStatus>::SharedPtr system_status_subscriber_;
 	rclcpp::Client<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_client_;
 	rclcpp::Client<actuators::srv::ActuatorJCP300Params>::SharedPtr params_client_;
 	rclcpp::Client<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_client_;
@@ -56,6 +58,7 @@ private:
     string sub_info;
     string sub_engine_telemetry;
     string sub_fuel_telemetry;
+    string sub_system_status;
     string sub_imu;
     string sub_laser;
 
@@ -86,6 +89,7 @@ public:
     virtual string engine_telem_1();
     virtual string engine_telem_2();
     virtual string engine_telem_3();
+    virtual string engine_telem_4();
     virtual string engine_thrust(float value);
 
     virtual string acs_enable(int value);

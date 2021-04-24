@@ -29,6 +29,7 @@ set(msg_files
   "msg/ActuatorJCP300Info.msg"
   "msg/ActuatorJCP300EngineTelemetry.msg"
   "msg/ActuatorJCP300FuelTelemetry.msg"
+  "msg/ActuatorJCP300SystemStatus.msg"
 )
 set(srv_files
   "srv/ActuatorJCP300HealthCheck.srv"
