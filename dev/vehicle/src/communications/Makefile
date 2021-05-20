@@ -11,20 +11,20 @@ libname2 := libI2C.so
 deps2 := include/I2C.hpp
 
 build-lib-serial:
-	g++ -c -Wall -Werror -fpic -Iinclude/ src/Serial.cpp -o $(objname1) -lpthread
-	g++ -shared -o $(libname1) $(objname1) -lpthread
+	g++ -c -Wall -fpic -Iinclude/ src/Serial.cpp -o $(objname1) -std=c++17
+	g++ -shared -o $(libname1) $(objname1) -std=c++17
 	rm $(objname1)
 
 build-lib-i2c:
-	g++ -c -Wall -Werror -fpic -Iinclude/ src/I2C.cpp -o $(objname2) -li2c
-	g++ -shared -o $(libname2) $(objname2) -li2c
+	g++ -c -Wall -Werror -fpic -Iinclude/ src/I2C.cpp -o $(objname2) -li2c -std=c++17
+	g++ -shared -o $(libname2) $(objname2) -li2c -std=c++17
 	rm $(objname2)
 
-install: build-lib-serial build-lib-i2c
+install: build-lib-serial
 	install -m 755 -p $(libname1) /usr/lib/
 	install -m 644 -p $(deps1) /usr/include/
-	install -m 755 -p $(libname2) /usr/lib/
-	install -m 644 -p $(deps2) /usr/include/
+	#install -m 755 -p $(libname2) /usr/lib/
+	#install -m 644 -p $(deps2) /usr/include/
 
 uninstall:
 	rm -f /usr/include/I2C.hpp /usr/include/Serial.hpp

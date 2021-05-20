@@ -45,12 +45,15 @@ private:
     // Sensors
 	rclcpp::Subscription<sensors::msg::SensorImu>::SharedPtr imu_subscriber_;
 	rclcpp::Subscription<sensors::msg::SensorLaser>::SharedPtr laser_subscriber_;
+    // Gimbal
+    rclcpp::Client<actuators::srv::ActuatorMoveGimbal>::SharedPtr gimbal_client_;
 
     // Local variables
     bool enable_engine = false;
     bool enable_acs = false;
     bool enable_sensors = false;
     bool enable_echo = false;
+    bool enable_gimbal = false;
     int enable_script = 0;
 
     string sub_info;
@@ -98,4 +101,7 @@ public:
 
     virtual string cmd_echo(int value);
     virtual string cmd_script(int value);
+
+    virtual string gimbal_enable(int value);
+    virtual string gimbal_move(float angles[2]);
 };

@@ -45,6 +45,12 @@ protected:
     // \return status
     string cmdParser(string cmd, string values);
 
+    // \brief Command Parser for Gimbal
+    // \param command to execute
+    // \param additional params
+    // \return status
+    string gimbalParser(string cmd, string values);
+
 public:
     // \brief Primary Command Parser.
     // \param command to execute
@@ -123,6 +129,21 @@ public:
     virtual string cmd_script(int value)
     {
         return value == 1 ? "Script enabled" : "Script disabled";
+    }
+
+    virtual string gimbal_enable(int value)
+    {
+        return value == 1 ? "gimbal enabled" : "gimbal disabled";
+    }
+    virtual string gimbal_move(float angles[2])
+    {
+        char temp[] = {'r', 'p'};
+        string send_string = "";
+        for (int i = 0; i < 2; i++)
+        {
+            send_string += "Activating " + to_string(temp[i]) + " for " + to_string(angles[i]) + '\n';
+        }
+        return send_string;
     }
 };
 
