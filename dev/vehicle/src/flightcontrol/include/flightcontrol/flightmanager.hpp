@@ -18,6 +18,8 @@
 #include "actuators/srv/actuator_jcp300_status.hpp"
 // ACS
 #include "actuators/srv/actuator_cold_gas_fire_thruster.hpp"
+// Gimbal
+#include "actuators/srv/actuator_move_gimbal.hpp"
 // Sensors
 #include "sensors/msg/sensor_imu.hpp"
 #include "sensors/msg/sensor_laser.hpp"

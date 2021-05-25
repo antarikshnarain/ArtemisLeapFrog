@@ -36,6 +36,7 @@ set(srv_files
   "srv/ActuatorJCP300Status.srv"
   "srv/ActuatorJCP300Thrust.srv"
   "srv/ActuatorColdGasFireThruster.srv"
+  "srv/ActuatorMoveGimbal.srv"
 )
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${srv_files}

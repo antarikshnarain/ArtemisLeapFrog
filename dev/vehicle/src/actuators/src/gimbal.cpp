@@ -62,7 +62,9 @@ public:
     GimbalManager() : Node("Move")
     {
         // Initialize pin modes and calibrating roll then pitch
-        for(int i = 0; i < 2; ++i) {
+        //  0: roll, 1: pitch
+        int gimbalProperties = 2;
+        for(int i = 0; i < gimbalProperties; ++i) {
             pinMode(gimbalProp[i].pin_f, OUTPUT);
             pinMode(gimbalProp[i].pin_b, OUTPUT);
             pinMode(gimbalProp[i].analog_read, INPUT);
@@ -80,6 +82,7 @@ public:
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Expected Position: expected_pos = %d", expected_pos);
 
                     // Gimbal movement negative feedback logic
+                    int duration;               // TODO: should we pass in duration?
                     while (curr_pos != expected_pos) {
                         int diff = curr_pos - expected_pos;
                         if (abs(diff) < this->ERROR) {
@@ -112,7 +115,7 @@ public:
     /**
      * Calibrates the GimbalProp Obj
      * 
-     * @prop Gimbal property to calibrate
+     * @prop Gimbal property to calibrate: roll or pitch
      */
     void calibrate(GimbalProp prop) {
         int duration = 10000;           // TODO: Find the actual time the linear actuator takes to fully extend
@@ -147,7 +150,7 @@ public:
     /**
      * Move forward
      * 
-     * @prop Gimbal property to move
+     * @prop Gimbal property to move: roll or pitch
      */
     void moveForward(GimbalProp prop) {                // TODO: Take in time as input
         digitalWrite(prop.pin_f, HIGH);
@@ -157,7 +160,7 @@ public:
     /**
      * Move backward
      * 
-     * @prop Gimbal property to move
+     * @prop Gimbal property to move: roll or pitch
      */
     void moveBackward(GimbalProp prop) {               // TODO: Take in time as input
         digitalWrite(prop.pin_f, LOW);
@@ -167,7 +170,7 @@ public:
     /**
      * Halts movement
      * 
-     * @prop Gimbal property to halt
+     * @prop Gimbal property to halt: roll or pitch
      */
     void halt(GimbalProp prop) {                   // TODO: Take in time as input
         digitalWrite(prop.pin_f, HIGH);
@@ -178,7 +181,7 @@ public:
      * TODO:
      * Moves gimbal to origin
      * 
-     * @prop Gimbal property to halt
+     * @prop Gimbal property to move to origin: roll or pitch
      */
     void moveToOrigin(GimbalProp prop) {
 
