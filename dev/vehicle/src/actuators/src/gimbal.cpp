@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <memory>
+#include <cmath>
 
 #include "rclcpp/rclcpp.hpp"
 #include "actuators/srv/actuator_move_gimbal.hpp"
@@ -13,14 +14,12 @@
 
 using namespace std::chrono_literals;
 
-/* TODO: Initialize pin numbers
-#define PIN_ROLL_P 11
-#define PIN_ROLL_N 10
-#define PIN_PITCH_P 24
-#define PIN_PITCH_N 17
-#define READ_0 
-#define READ_1
-*/
+#define PIN_ROLL_P 27
+#define PIN_ROLL_N 22
+#define PIN_PITCH_P 27
+#define PIN_PITCH_N 22
+#define READ_ROLL 0
+#define READ_PITCH 1
 
 /**
  * Gimbal Properties
@@ -49,15 +48,19 @@ private:
     GimbalProp gimbalProp[2] = {
         {
             // Responsible for roll
-            PIN_ROLL_P,PIN_ROLL_N,READ_0, READ_0, 0, 0
+            PIN_ROLL_P,PIN_ROLL_N,READ_ROLL, READ_ROLL, 0, 0
         },
         {
             // Responsible for pitch
-            PIN_PITCH_P,PIN_PITCH_N,READ_1, READ_1, 0, 0    
+            PIN_PITCH_P,PIN_PITCH_N,READ_PITCH, READ_PITCH, 0, 0    
         }
     };
     // Error tolerance
     const float ERROR = 0.5;
+    // Measurement in millimeters of Gimbal system required to convert angular values to linear values
+    const int H = 378;
+    const int L = 158;
+    const int X = 287;
 
 public:
     GimbalManager() : Node("Move")
@@ -77,7 +80,7 @@ public:
             std::thread threads[2];
             for (int i = 0; i < 2; i++)
             {
-                threads[i] = std::thread([](int expected_pos, GimbalProp prop) {
+                threads[i] = std::thread([this](int expected_pos, GimbalProp prop) {
                     int curr_pos = analogRead(prop.analog_read); // TODO: change to subscriber
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Expected Position: expected_pos = %d", expected_pos);
@@ -119,37 +122,37 @@ public:
      */
     void calibrate(GimbalProp prop) {
         int duration = 10000;           // TODO: Find the actual time the linear actuator takes to fully extend
-        halt();
+        halt(prop);
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Calibrating gimbal...");
 
         // Get origin
         prop.origin = analogRead(prop.analog_read);
 
-        moveForward();
+        moveForward(prop);
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-        halt();
+        halt(prop);
         prop.max_angle = analogRead(prop.analog_read);
         
-        moveBackward();
+        moveBackward(prop);
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-        halt();
+        halt(prop);
         prop.min_angle = analogRead(prop.analog_read);
 
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Done Calibration!");
-        halt();
+        halt(prop);
     }
 
     /**
-     * Converts float angular value to int linear value
+     * Converts float angular value to int linear value in millimeters
      * 
      * @angle Float of gimbal in terms of angular
      */
     int angularToLinear(float angle) {
-        // TODO: map float angular value to int linear value
-        int linear = 0;
-
+        float piDiv180 = 0.017460;
+        int linear = (int) (sqrt(H*H + L*L - 2*H*L*cos(angle * piDiv180)) - X);
         return linear;
     }
+    
 
     /**
      * Move forward
@@ -179,53 +182,6 @@ public:
     void halt(GimbalProp prop) {
         digitalWrite(prop.pin_f, HIGH);
         digitalWrite(prop.pin_b, HIGH);
-    }
-
-    /**
-     * Moves gimbal to origin
-     * 
-     * @prop Gimbal property to move to origin: roll or pitch
-     */
-    void moveToOrigin(GimbalProp prop) {
-       this->gimbal_service_ = this->create_service<actuators::srv::ActuatorMoveGimbal>("gimbal", [this](const std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Request> request, std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Response> response) -> void {
-            std::thread threads[2];
-            for (int i = 0; i < 2; i++)
-            {
-                threads[i] = std::thread([](GimbalProp prop) {
-                    int curr_pos = analogRead(prop.analog_read); // TODO: change to subscriber
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Origin Position: prop.origin = %d", prop.origin);
-
-                    // Gimbal movement negative feedback logic
-                    int duration;               // TODO: should we pass in duration?
-                    while (curr_pos != prop.origin) {
-                        int diff = prop.origin - prop.origin;
-                        if (abs(diff) < this->ERROR) {
-                            halt(prop);
-                            break;
-                        } else if (diff > 0) {
-                            moveForward(prop);
-                        } else if (diff < 0) {
-                            moveBackward(prop);
-                        }
-                        curr_pos = analogRead(prop.analog_read); // TODO: change to subscriber
-                    }
-
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Origin Position: prop.origin = %d", prop.origin);
-                },
-                                        gimbalProp[i]);
-            }
-
-            // Perform threads
-            for (int i = 0; i < 2; i++)
-            {
-                threads[i].join();
-                
-            }
-            response->status = true;
-        });
-        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Gimbal moved to origin complete!");
     }
 };
 

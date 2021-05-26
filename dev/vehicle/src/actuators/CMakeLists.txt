@@ -87,6 +87,24 @@ install(TARGETS acs
 rosidl_target_interfaces(acs
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
+# Executable Gimbal
+add_executable(gimbal
+ src/gimbal.cpp
+)
+ament_target_dependencies(gimbal
+  "rclcpp"
+)
+
+target_include_directories(gimbal PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_link_libraries(gimbal "${wpi}" "${shm}" "${cpt}")
+
+install(TARGETS gimbal
+  DESTINATION lib/${PROJECT_NAME})
+rosidl_target_interfaces(gimbal
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
 # install the launch directory
 install(DIRECTORY
   launch
