@@ -36,6 +36,7 @@ struct GimbalProp
     int pin_f;
     int pin_b;
     int analog_read;
+    int origin;
     int max_angle;
     int min_angle;
 };
@@ -48,11 +49,11 @@ private:
     GimbalProp gimbalProp[2] = {
         {
             // Responsible for roll
-            PIN_ROLL_P,PIN_ROLL_N,READ_0, 0, 0
+            PIN_ROLL_P,PIN_ROLL_N,READ_0, READ_0, 0, 0
         },
         {
             // Responsible for pitch
-            PIN_PITCH_P,PIN_PITCH_N,READ_1, 0, 0    
+            PIN_PITCH_P,PIN_PITCH_N,READ_1, READ_1, 0, 0    
         }
     };
     // Error tolerance
@@ -82,7 +83,6 @@ public:
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Expected Position: expected_pos = %d", expected_pos);
 
                     // Gimbal movement negative feedback logic
-                    int duration;               // TODO: should we pass in duration?
                     while (curr_pos != expected_pos) {
                         int diff = curr_pos - expected_pos;
                         if (abs(diff) < this->ERROR) {
@@ -122,6 +122,9 @@ public:
         halt();
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Calibrating gimbal...");
 
+        // Get origin
+        prop.origin = analogRead(prop.analog_read);
+
         moveForward();
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
         halt();
@@ -144,6 +147,7 @@ public:
     int angularToLinear(float angle) {
         // TODO: map float angular value to int linear value
         int linear = 0;
+
         return linear;
     }
 
@@ -152,7 +156,7 @@ public:
      * 
      * @prop Gimbal property to move: roll or pitch
      */
-    void moveForward(GimbalProp prop) {                // TODO: Take in time as input
+    void moveForward(GimbalProp prop) {
         digitalWrite(prop.pin_f, HIGH);
         digitalWrite(prop.pin_b, LOW);
     }
@@ -162,7 +166,7 @@ public:
      * 
      * @prop Gimbal property to move: roll or pitch
      */
-    void moveBackward(GimbalProp prop) {               // TODO: Take in time as input
+    void moveBackward(GimbalProp prop) {
         digitalWrite(prop.pin_f, LOW);
         digitalWrite(prop.pin_b, HIGH);
     }
@@ -172,19 +176,56 @@ public:
      * 
      * @prop Gimbal property to halt: roll or pitch
      */
-    void halt(GimbalProp prop) {                   // TODO: Take in time as input
+    void halt(GimbalProp prop) {
         digitalWrite(prop.pin_f, HIGH);
         digitalWrite(prop.pin_b, HIGH);
     }
 
     /**
-     * TODO:
      * Moves gimbal to origin
      * 
      * @prop Gimbal property to move to origin: roll or pitch
      */
     void moveToOrigin(GimbalProp prop) {
+       this->gimbal_service_ = this->create_service<actuators::srv::ActuatorMoveGimbal>("gimbal", [this](const std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Request> request, std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Response> response) -> void {
+            std::thread threads[2];
+            for (int i = 0; i < 2; i++)
+            {
+                threads[i] = std::thread([](GimbalProp prop) {
+                    int curr_pos = analogRead(prop.analog_read); // TODO: change to subscriber
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Origin Position: prop.origin = %d", prop.origin);
 
+                    // Gimbal movement negative feedback logic
+                    int duration;               // TODO: should we pass in duration?
+                    while (curr_pos != prop.origin) {
+                        int diff = prop.origin - prop.origin;
+                        if (abs(diff) < this->ERROR) {
+                            halt(prop);
+                            break;
+                        } else if (diff > 0) {
+                            moveForward(prop);
+                        } else if (diff < 0) {
+                            moveBackward(prop);
+                        }
+                        curr_pos = analogRead(prop.analog_read); // TODO: change to subscriber
+                    }
+
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Origin Position: prop.origin = %d", prop.origin);
+                },
+                                        gimbalProp[i]);
+            }
+
+            // Perform threads
+            for (int i = 0; i < 2; i++)
+            {
+                threads[i].join();
+                
+            }
+            response->status = true;
+        });
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Gimbal moved to origin complete!");
     }
 };
 
