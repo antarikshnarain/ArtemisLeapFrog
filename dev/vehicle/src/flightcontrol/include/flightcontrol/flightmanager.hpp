@@ -13,6 +13,7 @@
 #include "actuators/msg/actuator_jcp300_engine_telemetry.hpp"
 #include "actuators/msg/actuator_jcp300_fuel_telemetry.hpp"
 #include "actuators/srv/actuator_jcp300_thrust.hpp"
+#include "actuators/srv/actuator_jcp300_thrust2.hpp"
 #include "actuators/srv/actuator_jcp300_params.hpp"
 #include "actuators/srv/actuator_jcp300_health_check.hpp"
 #include "actuators/srv/actuator_jcp300_status.hpp"
@@ -39,6 +40,7 @@ private:
 	rclcpp::Subscription<actuators::msg::ActuatorJCP300EngineTelemetry>::SharedPtr engine_telemetry_subscriber_;
 	rclcpp::Subscription<actuators::msg::ActuatorJCP300FuelTelemetry>::SharedPtr fuel_telemetry_subscriber_;
 	rclcpp::Client<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_client_;
+    rclcpp::Client<actuators::srv::ActuatorJCP300Thrust2>::SharedPtr thrust_client_2;
 	rclcpp::Client<actuators::srv::ActuatorJCP300Params>::SharedPtr params_client_;
 	rclcpp::Client<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_client_;
 	rclcpp::Client<actuators::srv::ActuatorJCP300Status>::SharedPtr status_client_;
@@ -92,6 +94,7 @@ public:
     virtual string engine_telem_2();
     virtual string engine_telem_3();
     virtual string engine_thrust(float value);
+    virtual string engine_thrust2(int value);
 
     virtual string acs_enable(int value);
     virtual string acs_fire(int durations[6]);

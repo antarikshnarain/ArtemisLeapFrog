@@ -62,6 +62,11 @@ string CommandParser::engineParser(string cmd, string values)
         // Action service
         return this->engine_thrust(value);
     }
+    else if (cmd == "thrust2")
+    {
+        // Action service
+        return this->engine_thrust2(value);
+    }
     else
         return INVALID_COMMAND;
 }

@@ -6,6 +6,7 @@
 #include "actuators/msg/actuator_jcp300_engine_telemetry.hpp"
 #include "actuators/msg/actuator_jcp300_fuel_telemetry.hpp"
 #include "actuators/srv/actuator_jcp300_thrust.hpp"
+#include "actuators/srv/actuator_jcp300_thrust2.hpp"
 #include "actuators/srv/actuator_jcp300_params.hpp"
 #include "actuators/srv/actuator_jcp300_health_check.hpp"
 #include "actuators/srv/actuator_jcp300_status.hpp"
@@ -21,6 +22,7 @@ private:
 	rclcpp::Publisher<actuators::msg::ActuatorJCP300EngineTelemetry>::SharedPtr engine_telemetry_publisher_;
 	rclcpp::Publisher<actuators::msg::ActuatorJCP300FuelTelemetry>::SharedPtr fuel_telemetry_publisher_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_service_;
+	rclcpp::Service<actuators::srv::ActuatorJCP300Thrust2>::SharedPtr thrust_service_2;
 	rclcpp::Service<actuators::srv::ActuatorJCP300Params>::SharedPtr params_service_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_service_;
 	rclcpp::Service<actuators::srv::ActuatorJCP300Status>::SharedPtr status_service_;
@@ -31,6 +33,7 @@ private:
 	bool pwr_sig = false;
 	bool engine_started = false;
 	float current_thrust = 0.0;
+	int current_thrust_2 = 0;
 	const string ENGINE_DISABLED = "Please enable engine, before proceeding.";
 
 public:
@@ -70,6 +73,33 @@ public:
 			}
 			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating thrust from %.4f to %.4f.", this->current_thrust, new_value);
 			this->current_thrust = new_value;
+			response->status = rs232_response.CMDCODE;
+		});
+
+		this->thrust_service_2 = this->create_service<actuators::srv::ActuatorJCP300Thrust2>("thrust", [this](const std::shared_ptr<actuators::srv::ActuatorJCP300Thrust2::Request> request, std::shared_ptr<actuators::srv::ActuatorJCP300Thrust2::Response> response) -> void {
+			if(this->ctrl_sig || !this->pwr_sig)
+			{
+				response->status = ENGINE_DISABLED;
+				return;
+			}
+			int new_value = request->thrust_value;
+			if (new_value < 0)
+			{
+				new_value = 0;
+			}
+			if (new_value > 100)
+			{
+				new_value = 100;
+			}
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating engine thrust.");
+			RS232 rs232_response = this->execute(RS232{1, "TRR", 1, to_string(new_value)});
+			if(rs232_response.CMDCODE != "OK")
+			{
+				response->status = rs232_response.CMDCODE;
+				return;
+			}
+			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating thrust from %.4f to %.4f.", this->current_thrust_2, new_value);
+			this->current_thrust_2 = new_value;
 			response->status = rs232_response.CMDCODE;
 		});
 

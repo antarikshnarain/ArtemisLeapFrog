@@ -89,6 +89,10 @@ public:
     {
         return "Setting thrust to " + to_string(value);
     }
+    virtual string engine_thrust2(int value)
+    {
+        return "Setting thrust2 to " + to_string(value);
+    }
 
     virtual string acs_enable(int value)
     {

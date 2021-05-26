@@ -84,6 +84,17 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Thrust service not available, waiting again...");
 	}
+	this->thrust_client_2 = this->create_client<actuators::srv::ActuatorJCP300Thrust2>("/actuators/thrust");
+	while (!this->thrust_client_2->wait_for_service(1s))
+	{
+		if (!rclcpp::ok())
+		{
+			RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
+			return;
+		}
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Thrust2 service not available, waiting again...");
+	}
+
 	this->params_client_ = this->create_client<actuators::srv::ActuatorJCP300Params>("/actuators/parameters");
 	while (!this->params_client_->wait_for_service(1s))
 	{
@@ -358,6 +369,27 @@ string FlightManager::engine_thrust(float value)
 	{
 		//Something went wrong
 		return "Something went wrong!, engine_thrust";
+	}
+}
+string FlightManager::engine_thrust2(int value)
+{
+	if (!this->enable_engine)
+	{
+		return "Please enable engine before proceeding...";
+	}
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine thrust updated %.4f", value);
+	auto request = std::make_shared<actuators::srv::ActuatorJCP300Thrust2::Request>();
+	request->thrust_value = value;
+	auto result = this->thrust_client_2->async_send_request(request);
+	if (result.wait_for(15s) == std::future_status::ready)
+	{
+		//Use the result
+		return result.get()->status;
+	}
+	else
+	{
+		//Something went wrong
+		return "Something went wrong!, engine_thrust2";
 	}
 }
 

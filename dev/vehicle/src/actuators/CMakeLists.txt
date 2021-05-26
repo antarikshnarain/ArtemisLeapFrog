@@ -35,6 +35,7 @@ set(srv_files
   "srv/ActuatorJCP300Params.srv"
   "srv/ActuatorJCP300Status.srv"
   "srv/ActuatorJCP300Thrust.srv"
+  "srv/ActuatorJCP300Thrust2.srv"
   "srv/ActuatorColdGasFireThruster.srv"
   "srv/ActuatorMoveGimbal.srv"
 )
