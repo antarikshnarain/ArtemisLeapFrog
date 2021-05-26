@@ -30,6 +30,22 @@ FlightManager::FlightManager(string port, int baudrate, std::future<void> fut) :
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "%s", temp_msg.c_str());
 }
 
+<<<<<<< HEAD
+=======
+int FlightManager::CopyLogs()
+{
+	int i;
+	printf ("Checking if processor is available...");
+	// if (system(NULL)) puts ("Ok");
+	// else exit (EXIT_FAILURE);
+	printf ("Executing command DIR...\n");
+	// TODO: Remove hardcoded command.
+	i=system ("~/vehicle/copylogs.sh");
+	printf ("The value returned was: %d.\n",i);
+	return i;
+}
+
+>>>>>>> Dev-Hardware
 void FlightManager::SerialMonitor(std::future<void> fut)
 {
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Started Serial Monitor.");
@@ -63,10 +79,22 @@ void FlightManager::SerialMonitor(std::future<void> fut)
 			{
 				RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Waiting %d", heartbeat_counter);
 			}
+<<<<<<< HEAD
 		}
         //this_thread::sleep_for(chrono::milliseconds(200));
     }
 	this->Send("Vehicle Shutting down!!!");
+=======
+			if(heartbeat_counter == 500)
+			{
+				this->Send("Vehicle will shutdown in 2 minutes.");
+			}
+		}
+        //this_thread::sleep_for(chrono::milliseconds(200));
+    }
+	int datacopied = this->CopyLogs();
+	this->Send("Vehicle Shutting down !!! " + to_string(datacopied));
+>>>>>>> Dev-Hardware
 	this->ShutdownSequence();
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Stopped Serial Monitor. %d", heartbeat_counter);
 }
@@ -84,6 +112,7 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Thrust service not available, waiting again...");
 	}
+<<<<<<< HEAD
 	this->thrust_client_2 = this->create_client<actuators::srv::ActuatorJCP300Thrust2>("/actuators/thrust");
 	while (!this->thrust_client_2->wait_for_service(1s))
 	{
@@ -95,6 +124,8 @@ void FlightManager::InitializeSequence()
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Thrust2 service not available, waiting again...");
 	}
 
+=======
+>>>>>>> Dev-Hardware
 	this->params_client_ = this->create_client<actuators::srv::ActuatorJCP300Params>("/actuators/parameters");
 	while (!this->params_client_->wait_for_service(1s))
 	{
@@ -135,6 +166,7 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ACS-Thruster service not available, waiting again...");
 	}
+<<<<<<< HEAD
 	this->gimbal_client_ = this->create_client<actuators::srv::ActuatorMoveGimbal>("/actuators/gimbal");
 	while (!this->gimbal_client_->wait_for_service(1s))
 	{
@@ -145,6 +177,8 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Gimbal service not available, waiting again...");
 	}
+=======
+>>>>>>> Dev-Hardware
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Clients");
 	
 	// Initialize Subscribers
@@ -189,7 +223,22 @@ void FlightManager::InitializeSequence()
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Engine-Telem:%d,%d,%.4f,%d,%.4f,%.4f", 
 			msg->turbine_rpm, msg->egt_temp, msg->pump_voltage, msg->turbine_state, msg->throttle_position, msg->engine_current);
 	});
+<<<<<<< HEAD
 
+=======
+	this->system_status_subscriber_ = this->create_subscription<actuators::msg::ActuatorJCP300SystemStatus>("/actuators/system_status", 10, [this](const actuators::msg::ActuatorJCP300SystemStatus::SharedPtr msg) -> void {
+		if(!this->enable_engine)
+		{
+			return;
+		}
+		char buffer[256];
+		if(sprintf(buffer, "%d,%d", msg->off_condition, msg->flight_speed) > 0)
+		{
+			this->sub_system_status = std::string(buffer);
+		}
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-System-Status:%d,%d", msg->off_condition, msg->flight_speed);
+	});
+>>>>>>> Dev-Hardware
 	// --Sensors Subscribers
 	this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu_data", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
 		if(!this->enable_sensors)
@@ -228,6 +277,7 @@ void FlightManager::ShutdownSequence()
 	// Power off engine
 	this->engine_power(0);
 	this->enable_engine = false;
+<<<<<<< HEAD
 	// Disable sensor data
 	this->sensor_enable(0);
 	// Disable ACS system
@@ -237,6 +287,16 @@ void FlightManager::ShutdownSequence()
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Shutdown Sequence: Complete");
 }
 
+=======
+	this->enable_sensors = false;
+	// Disable sensor data
+	this->sensor_enable(0);
+	// Disable ACS system
+	this->enable_acs = false;
+	this->acs_enable(0);
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Shutdown Sequence: Complete");
+}
+>>>>>>> Dev-Hardware
 string FlightManager::engine_ctrl(int value)
 {
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine control updated %d", value);
@@ -350,12 +410,18 @@ string FlightManager::engine_telem_3()
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel Telemetry requested.");
 	return this->sub_fuel_telemetry;
 }
+<<<<<<< HEAD
 string FlightManager::engine_thrust(float value)
+=======
+
+string FlightManager::engine_telem_4()
+>>>>>>> Dev-Hardware
 {
 	if (!this->enable_engine)
 	{
 		return "Please enable engine before proceeding...";
 	}
+<<<<<<< HEAD
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine thrust updated %.4f", value);
 	auto request = std::make_shared<actuators::srv::ActuatorJCP300Thrust::Request>();
 	request->thrust_value = value;
@@ -372,15 +438,27 @@ string FlightManager::engine_thrust(float value)
 	}
 }
 string FlightManager::engine_thrust2(int value)
+=======
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine System Status requested.");
+	return this->sub_system_status;
+}
+string FlightManager::engine_thrust(float value)
+>>>>>>> Dev-Hardware
 {
 	if (!this->enable_engine)
 	{
 		return "Please enable engine before proceeding...";
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine thrust updated %.4f", value);
+<<<<<<< HEAD
 	auto request = std::make_shared<actuators::srv::ActuatorJCP300Thrust2::Request>();
 	request->thrust_value = value;
 	auto result = this->thrust_client_2->async_send_request(request);
+=======
+	auto request = std::make_shared<actuators::srv::ActuatorJCP300Thrust::Request>();
+	request->thrust_value = value;
+	auto result = this->thrust_client_->async_send_request(request);
+>>>>>>> Dev-Hardware
 	if (result.wait_for(15s) == std::future_status::ready)
 	{
 		//Use the result
@@ -389,10 +467,16 @@ string FlightManager::engine_thrust2(int value)
 	else
 	{
 		//Something went wrong
+<<<<<<< HEAD
 		return "Something went wrong!, engine_thrust2";
 	}
 }
 
+=======
+		return "Something went wrong!, engine_thrust";
+	}
+}
+>>>>>>> Dev-Hardware
 string FlightManager::acs_enable(int value)
 {
 	this->enable_acs = (bool)value;
@@ -424,7 +508,10 @@ string FlightManager::acs_fire(int durations[6])
 		return "Something went wrong!, engine_thrust";
 	}
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> Dev-Hardware
 string FlightManager::sensor_enable(int value)
 {
 	this->enable_sensors = (bool)value;
@@ -466,6 +553,7 @@ string FlightManager::cmd_echo(int value)
 	return "OK";
 }
 
+<<<<<<< HEAD
 string FlightManager::gimbal_enable(int value)
 {
 	this->enable_gimbal = (bool)value;
@@ -498,6 +586,8 @@ string FlightManager::gimbal_move(float angles[2])
 	}
 }
 
+=======
+>>>>>>> Dev-Hardware
 void FlightManager::ScriptRunner(string filename, future<void> script_future)
 {
 	// load commands to memory
@@ -540,6 +630,10 @@ void FlightManager::ScriptRunner(string filename, future<void> script_future)
 	{
 		string resp = this->Parser(commands[i]);
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Executed %s with response: %s.", commands[i].c_str(), resp.c_str());
+<<<<<<< HEAD
+=======
+		this->Send(resp);
+>>>>>>> Dev-Hardware
 		//std::this_thread.sleep_for(std::chrono::milliseconds(cmd_delays[i]));
 		i++;
 	} while (i < (int)commands.size() && script_future.wait_for(chrono::milliseconds(cmd_delays[i])) == std::future_status::timeout);

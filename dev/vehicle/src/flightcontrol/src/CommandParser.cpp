@@ -52,6 +52,14 @@ string CommandParser::engineParser(string cmd, string values)
             // Publisher
             return this->engine_telem_3();
         }
+<<<<<<< HEAD
+=======
+        else if (value == 4)
+        {
+            // Publisher
+            return this->engine_telem_4();
+        }
+>>>>>>> Dev-Hardware
         else
         {
             return INVALID_COMMAND;
@@ -62,11 +70,14 @@ string CommandParser::engineParser(string cmd, string values)
         // Action service
         return this->engine_thrust(value);
     }
+<<<<<<< HEAD
     else if (cmd == "thrust2")
     {
         // Action service
         return this->engine_thrust2(value);
     }
+=======
+>>>>>>> Dev-Hardware
     else
         return INVALID_COMMAND;
 }
@@ -154,6 +165,7 @@ string CommandParser::cmdParser(string cmd, string values)
     else
         return INVALID_COMMAND;
 }
+<<<<<<< HEAD
 string CommandParser::gimbalParser(string cmd, string values)
 {
     if (cmd == "enable")
@@ -190,6 +202,8 @@ string CommandParser::gimbalParser(string cmd, string values)
     else
         return INVALID_COMMAND;
 }
+=======
+>>>>>>> Dev-Hardware
 
 string CommandParser::Parser(string cmd)
 {
@@ -206,8 +220,11 @@ string CommandParser::Parser(string cmd)
         return this->sensorsParser(tokens[1], tokens[2]);
     else if (tokens[0] == "cmd")
         return this->cmdParser(tokens[1], tokens[2]);
+<<<<<<< HEAD
     else if (tokens[0] == "gimbal")
         return this->gimbalParser(tokens[1], tokens[2]);
+=======
+>>>>>>> Dev-Hardware
     else
         return this->INVALID_COMMAND;
 }

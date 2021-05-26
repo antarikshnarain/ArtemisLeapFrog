@@ -14,7 +14,12 @@ build-gs:
 	g++ src/GroundStation.cpp -o GroundStation -lpthread -lSerial
 
 build-gst:
+<<<<<<< HEAD
 	g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial -std=c++17
+=======
+	#g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial
+	g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial -lboost_system
+>>>>>>> Dev-Hardware
 
 build-lib:
 	g++ -c -Wall -Werror -fpic -Iinclude/ src/*.cpp -o $(objname)

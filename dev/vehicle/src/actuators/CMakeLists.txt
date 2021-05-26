@@ -20,6 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(sensors REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -29,6 +30,8 @@ set(msg_files
   "msg/ActuatorJCP300Info.msg"
   "msg/ActuatorJCP300EngineTelemetry.msg"
   "msg/ActuatorJCP300FuelTelemetry.msg"
+  "msg/ActuatorJCP300SystemStatus.msg"
+  "msg/ActuatorColdGasPressure.msg"
 )
 set(srv_files
   "srv/ActuatorJCP300HealthCheck.srv"
@@ -75,6 +78,7 @@ add_executable(acs
 )
 ament_target_dependencies(acs
   "rclcpp"
+  "sensors"
 )
 
 target_include_directories(acs PUBLIC
