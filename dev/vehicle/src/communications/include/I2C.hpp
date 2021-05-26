@@ -42,10 +42,24 @@ public:
     // \param value
     void i2cWrite(int8_t, int8_t);
 
+    // \brief Write word data
+    // \param register address
+    // \param word value
+    void i2cWriteWord(int8_t, int16_t);
+
+    // \brief Send byte
+    // \param register address
+    void i2cSend(int8_t);
+
     // \brief Read register value
     // \param register address
     // \return register value
     int8_t i2cRead(int8_t);
+
+    // \brief Read word value
+    // \param register address
+    // \return word register value
+    int16_t i2cReadWord(int8_t);
 };
 
 #endif

@@ -34,7 +34,23 @@ void I2C::i2cWrite(int8_t register_address, int8_t register_value)
     i2c_smbus_write_byte_data(this->f_dev, register_address, register_value);
 }
 
+void I2C::i2cWriteWord(int8_t register_address, int16_t register_value)
+{
+    i2c_smbus_write_word_data(this->f_dev, register_address, register_value);
+}
+
+void I2C::i2cSend(int8_t register_address)
+{
+    i2c_smbus_write_byte(this->f_dev, register_address);
+}
+
+
 int8_t I2C::i2cRead(int8_t register_address)
 {
     return i2c_smbus_read_byte_data(this->f_dev, register_address);
+}
+
+int16_t I2C::i2cReadWord(int8_t register_address)
+{
+    return i2c_smbus_read_word_data(this->f_dev, register_address);
 }
