@@ -12,13 +12,14 @@ I2C::~I2C()
     close(this->f_dev);
 }
 
-I2C::I2C(int address)
+I2C::I2C(int port, int address)
 {
     this->device_id = address;
-    this->f_dev = open("/dev/i2c-1", O_RDWR);
+    std::string i2c_port = "/dev/i2c-" + std::to_string(port);
+    this->f_dev = open(i2c_port.c_str(), O_RDWR);
     if(this->f_dev < 0)
     {
-        printf("Failed to open /dev/i2c-1.\n");
+        printf("Failed to open %s.\n", i2c_port.c_str());
         return;
     }
     if(ioctl(this->f_dev, I2C_SLAVE, this->device_id) < 0)
@@ -29,12 +30,12 @@ I2C::I2C(int address)
     printf("Starting I2C communication for 0x%x.\n", this->device_id);
 }
 
-void I2C::i2cWrite(int8_t register_address, int8_t register_value)
+void I2C::i2cWrite(int8_t register_address, uint8_t register_value)
 {
     i2c_smbus_write_byte_data(this->f_dev, register_address, register_value);
 }
 
-void I2C::i2cWriteWord(int8_t register_address, int16_t register_value)
+void I2C::i2cWriteWord(int8_t register_address, uint16_t register_value)
 {
     i2c_smbus_write_word_data(this->f_dev, register_address, register_value);
 }
@@ -50,7 +51,7 @@ int8_t I2C::i2cRead(int8_t register_address)
     return i2c_smbus_read_byte_data(this->f_dev, register_address);
 }
 
-int16_t I2C::i2cReadWord(int8_t register_address)
+uint16_t I2C::i2cReadWord(int8_t register_address)
 {
     return i2c_smbus_read_word_data(this->f_dev, register_address);
 }
