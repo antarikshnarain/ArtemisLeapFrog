@@ -39,19 +39,19 @@ private:
     // ROS variables
     // JetCatP300
     rclcpp::Subscription<actuators::msg::ActuatorJCP300Info>::SharedPtr info_subscriber_;
-	rclcpp::Subscription<actuators::msg::ActuatorJCP300EngineTelemetry>::SharedPtr engine_telemetry_subscriber_;
-	rclcpp::Subscription<actuators::msg::ActuatorJCP300FuelTelemetry>::SharedPtr fuel_telemetry_subscriber_;
-	rclcpp::Client<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_client_;
+    rclcpp::Subscription<actuators::msg::ActuatorJCP300EngineTelemetry>::SharedPtr engine_telemetry_subscriber_;
+    rclcpp::Subscription<actuators::msg::ActuatorJCP300FuelTelemetry>::SharedPtr fuel_telemetry_subscriber_;
+    rclcpp::Client<actuators::srv::ActuatorJCP300Thrust>::SharedPtr thrust_client_;
     rclcpp::Client<actuators::srv::ActuatorJCP300Thrust2>::SharedPtr thrust_client_2;
-	rclcpp::Subscription<actuators::msg::ActuatorJCP300SystemStatus>::SharedPtr system_status_subscriber_;
-	rclcpp::Client<actuators::srv::ActuatorJCP300Params>::SharedPtr params_client_;
-	rclcpp::Client<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_client_;
-	rclcpp::Client<actuators::srv::ActuatorJCP300Status>::SharedPtr status_client_;
+    rclcpp::Subscription<actuators::msg::ActuatorJCP300SystemStatus>::SharedPtr system_status_subscriber_;
+    rclcpp::Client<actuators::srv::ActuatorJCP300Params>::SharedPtr params_client_;
+    rclcpp::Client<actuators::srv::ActuatorJCP300HealthCheck>::SharedPtr healthcheck_client_;
+    rclcpp::Client<actuators::srv::ActuatorJCP300Status>::SharedPtr status_client_;
     // ACS
     rclcpp::Client<actuators::srv::ActuatorColdGasFireThruster>::SharedPtr coldgas_client_;
     // Sensors
-	rclcpp::Subscription<sensors::msg::SensorImu>::SharedPtr imu_subscriber_;
-	rclcpp::Subscription<sensors::msg::SensorLaser>::SharedPtr laser_subscriber_;
+    rclcpp::Subscription<sensors::msg::SensorImu>::SharedPtr imu_subscriber_;
+    rclcpp::Subscription<sensors::msg::SensorLaser>::SharedPtr laser_subscriber_;
     // Gimbal
     rclcpp::Client<actuators::srv::ActuatorMoveGimbal>::SharedPtr gimbal_client_;
 
@@ -79,6 +79,7 @@ private:
     const string path_to_files = "/usr/local/share/script/";
     const string custom_script_file = "custom_scripts.list";
     vector<string> script_map;
+
 public:
     FlightManager(string, int, std::future<void>);
 
