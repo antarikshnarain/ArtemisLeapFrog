@@ -71,7 +71,7 @@ private:
     int out_max = 50;
 
 public:
-    GimbalManager() : Node("Move")
+    GimbalManager() : Node("Gimbal")
     {
         // Initialize pin modes and calibrating roll then pitch
         //  0: roll, 1: pitch
@@ -90,7 +90,7 @@ public:
         });
 
         // Create threads in order to perform roll & pitch simultaneously
-        this->gimbal_service_ = this->create_service<actuators::srv::ActuatorMoveGimbal>("gimbal", [this](const std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Request> request, std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Response> response) -> void {
+        this->gimbal_service_ = this->create_service<actuators::srv::ActuatorMoveGimbal>("move_gimbal", [this](const std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Request> request, std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Response> response) -> void {
             std::thread threads[2];
             for (int i = 0; i < 2; i++)
             {

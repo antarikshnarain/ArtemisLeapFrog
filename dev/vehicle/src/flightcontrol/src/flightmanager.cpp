@@ -153,8 +153,8 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ACS-Thruster service not available, waiting again...");
 	}
-	this->gimbal_client_ = this->create_client<actuators::srv::ActuatorMoveGimbal>("/actuators/gimbal");
-	while (!this->gimbal_client_->wait_for_service(1s))
+	this->gimbal_client_ = this->create_client<actuators::srv::ActuatorMoveGimbal>("/actuators/move_gimbal");
+	while (!this->gimbal_client_->wait_for_service(5s))
 	{
 		if (!rclcpp::ok())
 		{
