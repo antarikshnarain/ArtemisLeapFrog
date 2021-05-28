@@ -25,7 +25,7 @@ using namespace std;
 
 #define DELAY_READ 1000*1 // 1000 ns
 
-#define NUM_ANALOG 2
+#define NUM_ANALOG 1
 
 #define RATE 1
 
@@ -38,12 +38,12 @@ private:
 
 protected:
 
-    void readValues();
     // \brief thread function updating the values
     void adsManager(std::future<void> _future);
 
 public:
-    int analog_value[NUM_ANALOG] = {0};
+    void readValues();
+    uint16_t analog_value[NUM_ANALOG] = {0};
 
     ~ADS1015();
     // \brief Function to Initialize with the selected device address

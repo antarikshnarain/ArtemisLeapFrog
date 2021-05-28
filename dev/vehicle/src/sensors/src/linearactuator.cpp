@@ -5,6 +5,7 @@
 #include "sensors/msg/sensor_linear_actuator.hpp"
 #include "sensors/ADS1015.hpp"
 
+
 using namespace std::chrono_literals;
 
 class LinearActuatorPublisher : public rclcpp::Node, public ADS1015

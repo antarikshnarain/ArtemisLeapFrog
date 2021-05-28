@@ -106,8 +106,8 @@ install(DIRECTORY
 
 ## Executable Linear Acuator
 add_executable(linearActuator 
-  src/linearactuator.cpp
-  src/ADS1015.cpp
+  src/linearactuator2.cpp
+  #src/ADS1015.cpp
 )
 ament_target_dependencies(linearActuator
   "rclcpp"
@@ -117,7 +117,8 @@ target_include_directories(linearActuator PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(linearActuator "${si2c}" "${mi2c}" "${pthreads}")
+#target_link_libraries(linearActuator "${si2c}" "${mi2c}" "${pthreads}")
+target_link_libraries(linearActuator "${mserial}" "${pthreads}")
 
 install(TARGETS linearActuator
   DESTINATION lib/${PROJECT_NAME}

@@ -13,11 +13,11 @@ ADS1015::~ADS1015()
     sleep(1);
 }
 
-ADS1015::ADS1015(int device_address) : I2C(device_address)
+ADS1015::ADS1015(int device_address) : I2C(4, device_address)
 {
     // Initialize Manager thread
-    this->exit_future = this->exit_signal.get_future();
-    thread(&ADS1015::adsManager, this, std::move(this->exit_future)).detach();
+    //this->exit_future = this->exit_signal.get_future();
+    //thread(&ADS1015::adsManager, this, std::move(this->exit_future)).detach();
 }
 
 void ADS1015::readValues()
@@ -27,10 +27,10 @@ void ADS1015::readValues()
         switch (i)
         {
         case 0:
-            i2cWriteWord(CONFIG_REG, 0xc183);
+            i2cWriteWord(CONFIG_REG, 0xc383);
             break;
         case 1:
-            i2cWriteWord(CONFIG_REG, 0xd183);
+            i2cWriteWord(CONFIG_REG, 0xd383);
             break;
         case 2:
             i2cWriteWord(CONFIG_REG, 0xe183);
@@ -39,11 +39,12 @@ void ADS1015::readValues()
             i2cWriteWord(CONFIG_REG, 0xf183);
             break;
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         i2cSend(CONV_REG);
-        std::this_thread::sleep_for(std::chrono::nanoseconds(DELAY_READ));
-        int16_t value = i2cReadWord(CONV_REG);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        uint16_t value = i2cReadWord(CONV_REG);
         this->analog_value[i] = (value >> 8) | (value << 8);
-        
+        printf("Recv %d: %d -> %d\n",i,value, this->analog_value[i]);        
     }
 }
 
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
     int values = 100;
     while (values--)
     {
+        ads.readValues();
         for(int i=0;i<NUM_ANALOG;i++)
         {
             printf("%d, ", ads.analog_value[i]);
