@@ -17,18 +17,11 @@
 #include <future>
 #include <map>
 #include <mutex>
-<<<<<<< HEAD
 #include <random>
 // User Defined Libs
 #include <Serial.hpp>
 
-//#include <bits/stdc++.h>
-=======
-// User Defined Libs
-#include <Serial.hpp>
-
 #include <bits/stdc++.h>
->>>>>>> Dev-Hardware
 
 using namespace std;
 
@@ -40,10 +33,6 @@ typedef std::chrono::milliseconds milliseconds;
 Clock::time_point t0;
 Clock::time_point t1;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Dev-Hardware
 string random_string(std::size_t length)
 {
     const std::string CHARACTERS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -161,8 +150,4 @@ int main(int argc, char *argv[])
     printf("Closed primary threads! ");
     printf("Closed all threads safely!\n");
     return 0;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> Dev-Hardware

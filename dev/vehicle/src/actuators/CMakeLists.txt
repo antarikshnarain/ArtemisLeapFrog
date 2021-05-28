@@ -98,6 +98,7 @@ add_executable(gimbal
 )
 ament_target_dependencies(gimbal
   "rclcpp"
+  "sensors"
 )
 
 target_include_directories(gimbal PUBLIC

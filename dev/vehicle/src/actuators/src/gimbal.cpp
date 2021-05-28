@@ -10,16 +10,18 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "actuators/srv/actuator_move_gimbal.hpp"
+#include "sensors/msg/sensor_linear_actuator.hpp"
 #include <wiringPi.h>
 
 using namespace std::chrono_literals;
 
-#define PIN_ROLL_P 27
-#define PIN_ROLL_N 22
-#define PIN_PITCH_P 27
-#define PIN_PITCH_N 22
-#define READ_ROLL 0
-#define READ_PITCH 1
+/**
+ * GPIO Pins
+ */
+#define PIN_ROLL_P 18   // White
+#define PIN_ROLL_N 23   // Grey
+#define PIN_PITCH_P 24  // Purple
+#define PIN_PITCH_N 17  // Yellow
 
 /**
  * Gimbal Properties
@@ -45,14 +47,15 @@ class GimbalManager : public rclcpp::Node
 private:
     // ROS variables
     rclcpp::Service<actuators::srv::ActuatorMoveGimbal>::SharedPtr gimbal_service_;
+    rclcpp::Subscription<sensors::msg::SensorLinearActuator>::SharedPtr actuator_subscriber_;
     GimbalProp gimbalProp[2] = {
         {
             // Responsible for roll
-            PIN_ROLL_P,PIN_ROLL_N,READ_ROLL, READ_ROLL, 0, 0
+            PIN_ROLL_P,PIN_ROLL_N, 0, 0, 0, 0
         },
         {
             // Responsible for pitch
-            PIN_PITCH_P,PIN_PITCH_N,READ_PITCH, READ_PITCH, 0, 0    
+            PIN_PITCH_P,PIN_PITCH_N, 0, 0, 0, 0    
         }
     };
     // Error tolerance
@@ -61,6 +64,11 @@ private:
     const int H = 378;
     const int L = 158;
     const int X = 287;
+    // Mapping values 
+    int in_min = 0;
+    int in_max = 1023;
+    int out_min = 0;
+    int out_max = 50;
 
 public:
     GimbalManager() : Node("Move")
@@ -75,13 +83,19 @@ public:
             calibrate(gimbalProp[i]);
         }
 
+        // Create linear actuator subscriber and change the analog read of each gimbal property (roll, pitch)
+        this->actuator_subscriber_ = this->create_subscription<sensors::msg::SensorLinearActuator>("/sensors/linear_position", 10, [this](const sensors::msg::SensorLinearActuator::SharedPtr msg) -> void {
+            gimbalProp[0].analog_read = msg->position[0];
+            gimbalProp[1].analog_read = msg->position[1];
+        });
+
         // Create threads in order to perform roll & pitch simultaneously
         this->gimbal_service_ = this->create_service<actuators::srv::ActuatorMoveGimbal>("gimbal", [this](const std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Request> request, std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Response> response) -> void {
             std::thread threads[2];
             for (int i = 0; i < 2; i++)
             {
                 threads[i] = std::thread([this](int expected_pos, GimbalProp prop) {
-                    int curr_pos = analogRead(prop.analog_read); // TODO: change to subscriber
+                    int curr_pos = mapFunc(prop.analog_read);
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Expected Position: expected_pos = %d", expected_pos);
 
@@ -96,7 +110,7 @@ public:
                         } else if (diff < 0) {
                             moveBackward(prop);
                         }
-                        curr_pos = analogRead(prop.analog_read); // TODO: change to subscriber
+                        curr_pos = mapFunc(prop.analog_read);
                     }
 
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
@@ -126,17 +140,17 @@ public:
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Calibrating gimbal...");
 
         // Get origin
-        prop.origin = analogRead(prop.analog_read);
+        prop.origin = mapFunc(prop.analog_read);
 
         moveForward(prop);
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
         halt(prop);
-        prop.max_angle = analogRead(prop.analog_read);
+        prop.max_angle = mapFunc(prop.analog_read);
         
         moveBackward(prop);
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
         halt(prop);
-        prop.min_angle = analogRead(prop.analog_read);
+        prop.min_angle = mapFunc(prop.analog_read);
 
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Done Calibration!");
         halt(prop);
@@ -151,6 +165,17 @@ public:
         float piDiv180 = 0.017460;
         int linear = (int) (sqrt(H*H + L*L - 2*H*L*cos(angle * piDiv180)) - X);
         return linear;
+    }
+
+    /**
+     * Maps values from Arduino values [0, 1023] -> [0, 50] in millimeters
+     * When using ADC instead of Arduino -> [0, 4096]
+     * 
+     * @source https://www.arduino.cc/reference/en/language/functions/math/map/
+     * @x Position of linear actuator from actuator_subscriber_
+     */
+    int mapFunc(int x) {
+        return (x - this->in_min) * (this->out_max - out_min) / (in_max - in_min) + out_min;
     }
     
 
