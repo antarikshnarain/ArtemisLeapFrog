@@ -20,6 +20,17 @@ build-lib-i2c:
 	g++ -shared -o $(libname2) $(objname2) -li2c -std=c++17
 	rm $(objname2)
 
+install: build-lib-serial
+	install -m 755 -p $(libname1) /usr/lib/
+	install -m 644 -p $(deps1) /usr/include/
+	#install -m 755 -p $(libname2) /usr/lib/
+	#install -m 644 -p $(deps2) /usr/include/
+
+build-lib-i2c:
+	g++ -c -Wall -Werror -fpic -Iinclude/ src/I2C.cpp -o $(objname2) -li2c -std=c++17
+	g++ -shared -o $(libname2) $(objname2) -li2c -std=c++17
+	rm $(objname2)
+
 install: build-lib-serial build-lib-i2c
 	install -m 755 -p $(libname1) /usr/lib/
 	install -m 644 -p $(deps1) /usr/include/

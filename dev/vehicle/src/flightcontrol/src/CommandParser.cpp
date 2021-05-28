@@ -21,7 +21,6 @@ string CommandParser::engineParser(string cmd, string values)
         // service
         return this->engine_ctrl(value);
     }
-
     else if (cmd == "power")
     { // service
         return this->engine_power(value);
@@ -66,6 +65,11 @@ string CommandParser::engineParser(string cmd, string values)
     {
         // Action service
         return this->engine_thrust(value);
+    }
+    else if (cmd == "thrust2")
+    {
+        // Action service
+        return this->engine_thrust2(value);
     }
     else
         return INVALID_COMMAND;
@@ -154,6 +158,42 @@ string CommandParser::cmdParser(string cmd, string values)
     else
         return INVALID_COMMAND;
 }
+string CommandParser::gimbalParser(string cmd, string values)
+{
+    if (cmd == "enable")
+    {
+        // software flag update
+        int value = atoi(values.c_str());
+        return this->gimbal_enable(value);
+    }
+    else if (cmd == "move")
+    {
+        // service
+        float angles[2] = {0.0};
+        vector<string> tokens = this->split(values, ',');
+        for (string token : tokens)
+        {
+            vector<string> thrust = this->split(token, '=');
+            if (thrust.size() != 2)
+            {
+                return INVALID_COMMAND;
+            }
+            auto pos = this->cg_map.find(thrust[0]);
+            if (pos == this->cg_map.end())
+            {
+                return INVALID_COMMAND;
+            }
+            else
+            {
+                angles[pos->second] = atof(thrust[1].c_str());
+            }
+        }
+        // // If successful activate the thrusters
+        return this->gimbal_move(angles);
+    }
+    else
+        return INVALID_COMMAND;
+}
 
 string CommandParser::Parser(string cmd)
 {
@@ -170,6 +210,8 @@ string CommandParser::Parser(string cmd)
         return this->sensorsParser(tokens[1], tokens[2]);
     else if (tokens[0] == "cmd")
         return this->cmdParser(tokens[1], tokens[2]);
+    else if (tokens[0] == "gimbal")
+        return this->gimbalParser(tokens[1], tokens[2]);
     else
         return this->INVALID_COMMAND;
 }

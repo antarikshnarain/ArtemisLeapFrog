@@ -102,6 +102,17 @@ void FlightManager::InitializeSequence()
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Thrust service not available, waiting again...");
 	}
+	this->thrust_client_2 = this->create_client<actuators::srv::ActuatorJCP300Thrust2>("/actuators/thrust");
+	while (!this->thrust_client_2->wait_for_service(1s))
+	{
+		if (!rclcpp::ok())
+		{
+			RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
+			return;
+		}
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "JCP300-Thrust2 service not available, waiting again...");
+	}
+
 	this->params_client_ = this->create_client<actuators::srv::ActuatorJCP300Params>("/actuators/parameters");
 	while (!this->params_client_->wait_for_service(1s))
 	{
@@ -141,6 +152,16 @@ void FlightManager::InitializeSequence()
 			return;
 		}
 		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "ACS-Thruster service not available, waiting again...");
+	}
+	this->gimbal_client_ = this->create_client<actuators::srv::ActuatorMoveGimbal>("/actuators/gimbal");
+	while (!this->gimbal_client_->wait_for_service(1s))
+	{
+		if (!rclcpp::ok())
+		{
+			RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
+			return;
+		}
+		RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Gimbal service not available, waiting again...");
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Clients");
 	
@@ -242,6 +263,10 @@ void FlightManager::ShutdownSequence()
 	// Disable ACS system
 	this->enable_acs = false;
 	this->acs_enable(0);
+	// Disable Gimbal system
+	this->enable_gimbal = false;
+	this->gimbal_enable(0);
+
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Shutdown Sequence: Complete");
 }
 string FlightManager::engine_ctrl(int value)
@@ -357,7 +382,6 @@ string FlightManager::engine_telem_3()
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Fuel Telemetry requested.");
 	return this->sub_fuel_telemetry;
 }
-
 string FlightManager::engine_telem_4()
 {
 	if (!this->enable_engine)
@@ -367,6 +391,7 @@ string FlightManager::engine_telem_4()
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine System Status requested.");
 	return this->sub_system_status;
 }
+
 string FlightManager::engine_thrust(float value)
 {
 	if (!this->enable_engine)
@@ -388,6 +413,28 @@ string FlightManager::engine_thrust(float value)
 		return "Something went wrong!, engine_thrust";
 	}
 }
+string FlightManager::engine_thrust2(float value)
+{
+	if (!this->enable_engine)
+	{
+		return "Please enable engine before proceeding...";
+	}
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine thrust updated %.4f", value);
+	auto request = std::make_shared<actuators::srv::ActuatorJCP300Thrust2::Request>();
+	request->thrust_value = value;
+	auto result = this->thrust_client_2->async_send_request(request);
+	if (result.wait_for(15s) == std::future_status::ready)
+	{
+		//Use the result
+		return result.get()->status;
+	}
+	else
+	{
+		//Something went wrong
+		return "Something went wrong!, engine_thrust2";
+	}
+}
+
 string FlightManager::acs_enable(int value)
 {
 	this->enable_acs = (bool)value;
@@ -419,6 +466,7 @@ string FlightManager::acs_fire(int durations[6])
 		return "Something went wrong!, engine_thrust";
 	}
 }
+
 string FlightManager::sensor_enable(int value)
 {
 	this->enable_sensors = (bool)value;
@@ -458,6 +506,38 @@ string FlightManager::cmd_echo(int value)
 	this->enable_echo = (bool)value;
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Command Echo state updated %d", value);
 	return "OK";
+}
+
+string FlightManager::gimbal_enable(int value)
+{
+	this->enable_gimbal = (bool)value;
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Gimbal state updated %d", value);
+	return "OK";
+}
+string FlightManager::gimbal_move(float angles[2])
+{
+	if (!this->enable_gimbal)
+	{
+		return "Please enable Gimbal before proceeding...";
+	}
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Gimbal fire sequence requested %.2f, %.2f", 
+		angles[0],angles[1]);
+	auto request = std::make_shared<actuators::srv::ActuatorMoveGimbal::Request>();
+	for(int i=0;i<2;i++)
+	{
+		request->angles[i] = angles[i];
+	}
+	auto result = this->gimbal_client_->async_send_request(request);
+	if (result.wait_for(15s) == std::future_status::ready)
+	{
+		//Use the result
+		return result.get()->status ? "OK" : "Not OK";
+	}
+	else
+	{
+		//Something went wrong
+		return "Something went wrong!, move_gimbal failed";
+	}
 }
 
 void FlightManager::ScriptRunner(string filename, future<void> script_future)

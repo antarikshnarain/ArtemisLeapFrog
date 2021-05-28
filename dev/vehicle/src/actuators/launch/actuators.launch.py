@@ -19,4 +19,11 @@ def generate_launch_description():
             #output='screen',
             arguments=[]    
         ),
+        launch_ros.actions.Node(
+            package='actuators', 
+            executable='gimbal',
+            namespace='actuators',
+            #output='screen',
+            arguments=[]    
+        ),
     ])
