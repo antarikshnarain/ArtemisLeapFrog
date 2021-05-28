@@ -11,10 +11,10 @@
 
 using namespace std::chrono_literals;
 
-#define PIN_ROLL_P 18
-#define PIN_ROLL_N 23
-#define PIN_PITCH_P 24
-#define PIN_PITCH_N 17
+#define PIN_ROLL_P 27
+#define PIN_ROLL_N 22
+#define PIN_PITCH_P 16
+#define PIN_PITCH_N 19
 #define PIN_YAW_P 27
 #define PIN_YAW_N 22
 
