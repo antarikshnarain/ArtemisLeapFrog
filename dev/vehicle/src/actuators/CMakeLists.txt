@@ -50,6 +50,7 @@ find_library(wpi wiringPi)
 find_library(shm rt)
 find_library(cpt crypt)
 find_library(serial Serial)
+find_library(pid PID)
 
 # Executable Engine
 add_executable(engine
@@ -82,7 +83,7 @@ ament_target_dependencies(acs
 target_include_directories(acs PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-target_link_libraries(acs "${wpi}" "${shm}" "${cpt}")
+target_link_libraries(acs "${wpi}" "${shm}" "${cpt}" "${pid}")
 
 install(TARGETS acs
   DESTINATION lib/${PROJECT_NAME})

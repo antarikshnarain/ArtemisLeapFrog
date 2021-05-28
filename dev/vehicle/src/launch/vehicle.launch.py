@@ -20,6 +20,13 @@ def generate_launch_description():
             arguments=["/dev/ttyAMA2","115200"]    
         ),
         launch_ros.actions.Node(
+            package='sensors', 
+            executable='linearActuator', 
+            namespace='sensors',
+            #output='screen',
+            arguments=["/dev/ttyACM0","9600"]    
+        ),
+        launch_ros.actions.Node(
             package='actuators', 
             executable='engine', 
             namespace='actuators',
