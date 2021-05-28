@@ -108,7 +108,7 @@ public:
          *      pass to PID controller
          *      get fire duration as output in ms
         */
-        int durations[2] = {pid_roll.calculate(0.0, msg->roll), pid_pitch.calculate(0.0, msg->pitch)};
+        int durations[2] = {(int) pid_roll.calculate(0.0, msg->roll), (int) pid_pitch.calculate(0.0, msg->pitch)};
         std::thread threads[2];
         for (int i = 0; i < 6; i++)
         {
