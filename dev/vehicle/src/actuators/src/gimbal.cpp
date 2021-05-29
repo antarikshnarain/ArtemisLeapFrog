@@ -73,9 +73,9 @@ private:
     const int X = 287;
     // Mapping values 
     int in_min = 0;
-    int in_max = 1023;
+    int in_max = 50;
     int out_min = 0;
-    int out_max = 50;
+    int out_max = 1023;
 
     int curr_pos[2] = {0};
 
@@ -94,13 +94,13 @@ public:
         this->actuator_subscriber_ = this->create_subscription<sensors::msg::SensorLinearActuator>("/sensors/linear_position", 10, [this](const sensors::msg::SensorLinearActuator::SharedPtr msg) -> void {
             this->gimbalProp[0].analog_read = msg->position[0];
             this->gimbalProp[1].analog_read = msg->position[1];
-            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-LinearActuator:%d,%d", this->gimbalProp[0].analog_read, this->gimbalProp[1].analog_read);
+            //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-LinearActuator:%d,%d", this->gimbalProp[0].analog_read, this->gimbalProp[1].analog_read);
             for(int i=0;i<2;i++)
             {
                 int diff = curr_pos[i] - this->gimbalProp[i].analog_read;
                 if (abs(diff) < this->ERROR) {
                     halt(this->gimbalProp[i]);
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Halt Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
+                    //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Halt Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
                 } else if (diff > 0) {
                     moveForward(this->gimbalProp[i]);
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Forward Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
@@ -129,6 +129,7 @@ public:
         this->gimbal_service_ = this->create_service<actuators::srv::ActuatorMoveGimbal>("move_gimbal", [this](const std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Request> request, std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Response> response) -> void {
             for(int i=0;i<2;i++)
             {
+                //this->curr_pos[i] = this->mapFunc(this->angularToLinear(request->angles[i]));
                 this->curr_pos[i] = request->angles[i];
             }
             // std::thread threads[2];
@@ -250,8 +251,8 @@ public:
      * @x Position of linear actuator from actuator_subscriber_
      */
     int mapFunc(int x) {
-        return x;
-        //return (x - this->in_min) * (this->out_max - out_min) / (in_max - in_min) + out_min;
+        //return x;
+        return (x - this->in_min) * (this->out_max - out_min) / (in_max - in_min) + out_min;
     }
     
 

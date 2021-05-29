@@ -171,22 +171,10 @@ string CommandParser::gimbalParser(string cmd, string values)
         // service
         float angles[2] = {0.0};
         vector<string> tokens = this->split(values, ',');
-        for (string token : tokens)
+        for(int i=0;i<(int)tokens.size();i++)
         {
-            vector<string> thrust = this->split(token, '=');
-            if (thrust.size() != 2)
-            {
-                return INVALID_COMMAND;
-            }
-            auto pos = this->cg_map.find(thrust[0]);
-            if (pos == this->cg_map.end())
-            {
-                return INVALID_COMMAND;
-            }
-            else
-            {
-                angles[pos->second] = atof(thrust[1].c_str());
-            }
+            //vector<string> thrust = this->split(tokens[i], '=');
+            angles[i] = atof(tokens[i].c_str());
         }
         // // If successful activate the thrusters
         return this->gimbal_move(angles);
