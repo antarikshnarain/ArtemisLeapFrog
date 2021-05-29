@@ -52,15 +52,16 @@ private:
     GimbalProp gimbalProp[2] = {
         {
             // Responsible for roll
-            "roll", PIN_ROLL_P, PIN_ROLL_N, 0, 0, 0, 0
+            "roll", PIN_ROLL_P, PIN_ROLL_N, 0, 520, 0, 0
         },
         {
             // Responsible for pitch
-            "pitch", PIN_PITCH_P, PIN_PITCH_N, 0, 0, 0, 0    
+            "pitch", PIN_PITCH_P, PIN_PITCH_N, 0, 550, 0, 0    
         }
     };
     // Error tolerance
-    const float ERROR = 0.5;
+    //const float ERROR = 0.5;
+    const int ERROR = 100;
     // Measurement in millimeters of Gimbal system required to convert angular values to linear values
     const int H = 378;
     const int L = 158;
@@ -71,65 +72,98 @@ private:
     int out_min = 0;
     int out_max = 50;
 
+    int curr_pos[2] = {0};
+
 public:
     GimbalManager() : Node("Gimbal")
     {
+        for(int i=0;i<2;i++)
+        {
+            curr_pos[i] = this->gimbalProp[i].origin;
+            pinMode(gimbalProp[i].pin_f, OUTPUT);
+            pinMode(gimbalProp[i].pin_b, OUTPUT);
+            halt(this->gimbalProp[i]);
+        }
+
         // Create linear actuator subscriber and change the analog read of each gimbal property (roll, pitch)
         this->actuator_subscriber_ = this->create_subscription<sensors::msg::SensorLinearActuator>("/sensors/linear_position", 10, [this](const sensors::msg::SensorLinearActuator::SharedPtr msg) -> void {
-            gimbalProp[0].analog_read = msg->position[0];
-            gimbalProp[1].analog_read = msg->position[1];
+            this->gimbalProp[0].analog_read = msg->position[0];
+            this->gimbalProp[1].analog_read = msg->position[1];
+            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-LinearActuator:%d,%d", this->gimbalProp[0].analog_read, this->gimbalProp[1].analog_read);
+            for(int i=0;i<1;i++)
+            {
+                int diff = curr_pos[i] - this->gimbalProp[i].analog_read;
+                if (abs(diff) < this->ERROR) {
+                    halt(this->gimbalProp[i]);
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Halt Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
+                } else if (diff > 0) {
+                    moveForward(this->gimbalProp[i]);
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Forward Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
+
+                } else if (diff < 0) {
+                    moveBackward(this->gimbalProp[i]);
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Backward Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
+                }
+                //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
+            }
         });
 
         // Initialize pin modes and calibrating roll then pitch
         //  0: roll, 1: pitch
-        int gimbalProperties = 2;
-        for(int i = 0; i < gimbalProperties; ++i) {
-            pinMode(gimbalProp[i].pin_f, OUTPUT);
-            pinMode(gimbalProp[i].pin_b, OUTPUT);
-            pinMode(gimbalProp[i].analog_read, INPUT);
-            calibrate(gimbalProp[i]);
-        }
+        // std::this_thread::sleep_for(std::chrono::seconds(1));
+        // RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Starting Calibration!");
+        // int gimbalProperties = 2;
+        // for(int i = 0; i < gimbalProperties; ++i) {
+        //     pinMode(gimbalProp[i].pin_f, OUTPUT);
+        //     pinMode(gimbalProp[i].pin_b, OUTPUT);
+        //     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Value:%d", this->gimbalProp[i].analog_read);
+        //     calibrate(this->gimbalProp[i]);
+        // }
 
         // Create threads in order to perform roll & pitch simultaneously
         this->gimbal_service_ = this->create_service<actuators::srv::ActuatorMoveGimbal>("move_gimbal", [this](const std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Request> request, std::shared_ptr<actuators::srv::ActuatorMoveGimbal::Response> response) -> void {
-            std::thread threads[2];
-            for (int i = 0; i < 2; i++)
+            for(int i=0;i<2;i++)
             {
-                threads[i] = std::thread([this](int expected_pos, GimbalProp prop) {
-                    int curr_pos = mapFunc(prop.analog_read);
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Expected Position: expected_pos = %d", expected_pos);
-
-                    moveToPosition(prop, expected_pos, curr_pos);
-
-                    /*
-                    // Gimbal movement negative feedback logic
-                    while (curr_pos != expected_pos) {
-                        int diff = curr_pos - expected_pos;
-                        if (abs(diff) < this->ERROR) {
-                            halt(prop);
-                            break;
-                        } else if (diff > 0) {
-                            moveForward(prop);
-                        } else if (diff < 0) {
-                            moveBackward(prop);
-                        }
-                        curr_pos = mapFunc(prop.analog_read);
-                    }
-
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
-                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Expected Position: expected_pos = %d", expected_pos);
-                    */
-                },
-                                        angularToLinear(request->angles[i]), gimbalProp[i]);
+                this->curr_pos[i] = request->angles[i];
             }
+            // std::thread threads[2];
+            // for (int i = 0; i < 2; i++)
+            // {
+            //     threads[i] = std::thread([this](int expected_pos, GimbalProp prop) {
+            //         int curr_pos = mapFunc(prop.analog_read);
+            //         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
+            //         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving to Expected Position: expected_pos = %d", expected_pos);
 
-            // Perform threads
-            for (int i = 0; i < 2; i++)
-            {
-                threads[i].join();
+            //         moveToPosition(prop, expected_pos, curr_pos);
+
+            //         /*
+            //         // Gimbal movement negative feedback logic
+            //         while (curr_pos != expected_pos) {
+            //             int diff = curr_pos - expected_pos;
+            //             if (abs(diff) < this->ERROR) {
+            //                 halt(prop);
+            //                 break;
+            //             } else if (diff > 0) {
+            //                 moveForward(prop);
+            //             } else if (diff < 0) {
+            //                 moveBackward(prop);
+            //             }
+            //             curr_pos = mapFunc(prop.analog_read);
+            //         }
+
+            //         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
+            //         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Expected Position: expected_pos = %d", expected_pos);
+            //         */
+            //     },
+            //                             angularToLinear(request->angles[i]), gimbalProp[i]);
+            // }
+
+            // // Perform threads
+            // for (int i = 0; i < 2; i++)
+            // {
+            //     threads[i].join();
                 
-            }
+            // }
             response->status = true;
         });
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Gimbal service complete!");
@@ -139,14 +173,14 @@ public:
      * 
      * @prop Gimbal property to calibrate: roll or pitch
      */
-    void calibrate(GimbalProp prop) {
+    void calibrate(GimbalProp &prop) {
         int duration = 3000;           // TODO: Find the actual time the linear actuator takes to fully extend
         halt(prop);
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Calibrating gimbal...");
 
         // Get origin
         prop.origin = mapFunc(prop.analog_read);
-
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Setting Origin value to %d", prop.origin);
         // Get max angle
         moveForward(prop);
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
@@ -185,6 +219,7 @@ public:
                 moveBackward(prop);
             }
             curr_pos = mapFunc(prop.analog_read);
+            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Position - From: %d, To: %d", curr_pos, expected_pos);
         }
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Current Position: curr_pos = %d", curr_pos);
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Expected Position: expected_pos = %d", expected_pos);
@@ -210,7 +245,8 @@ public:
      * @x Position of linear actuator from actuator_subscriber_
      */
     int mapFunc(int x) {
-        return (x - this->in_min) * (this->out_max - out_min) / (in_max - in_min) + out_min;
+        return x;
+        //return (x - this->in_min) * (this->out_max - out_min) / (in_max - in_min) + out_min;
     }
     
 
@@ -220,8 +256,8 @@ public:
      * @prop Gimbal property to move: roll or pitch
      */
     void moveForward(GimbalProp prop) {
-        digitalWrite(prop.pin_f, HIGH);
-        digitalWrite(prop.pin_b, LOW);
+        digitalWrite(prop.pin_f, LOW);
+        digitalWrite(prop.pin_b, HIGH);
     }
 
     /**
@@ -230,8 +266,8 @@ public:
      * @prop Gimbal property to move: roll or pitch
      */
     void moveBackward(GimbalProp prop) {
-        digitalWrite(prop.pin_f, LOW);
-        digitalWrite(prop.pin_b, HIGH);
+        digitalWrite(prop.pin_f, HIGH);
+        digitalWrite(prop.pin_b, LOW);
     }
 
     /**
