@@ -18,10 +18,15 @@ using namespace std::chrono_literals;
 /**
  * GPIO Pins
  */
-#define PIN_ROLL_P 18   // White
-#define PIN_ROLL_N 23   // Grey
-#define PIN_PITCH_P 24  // Purple
-#define PIN_PITCH_N 17  // Yellow
+// #define PIN_ROLL_P 18   // White
+// #define PIN_ROLL_N 23   // Grey
+// #define PIN_PITCH_P 24  // Purple
+// #define PIN_PITCH_N 17  // Yellow
+
+#define PIN_ROLL_P 24   // White
+#define PIN_ROLL_N 17   // Grey
+#define PIN_PITCH_P 18  // Purple
+#define PIN_PITCH_N 23  // Yellow
 
 /**
  * Gimbal Properties
@@ -61,7 +66,7 @@ private:
     };
     // Error tolerance
     //const float ERROR = 0.5;
-    const int ERROR = 100;
+    const int ERROR = 20;
     // Measurement in millimeters of Gimbal system required to convert angular values to linear values
     const int H = 378;
     const int L = 158;
@@ -90,7 +95,7 @@ public:
             this->gimbalProp[0].analog_read = msg->position[0];
             this->gimbalProp[1].analog_read = msg->position[1];
             RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-LinearActuator:%d,%d", this->gimbalProp[0].analog_read, this->gimbalProp[1].analog_read);
-            for(int i=0;i<1;i++)
+            for(int i=0;i<2;i++)
             {
                 int diff = curr_pos[i] - this->gimbalProp[i].analog_read;
                 if (abs(diff) < this->ERROR) {
@@ -256,8 +261,8 @@ public:
      * @prop Gimbal property to move: roll or pitch
      */
     void moveForward(GimbalProp prop) {
-        digitalWrite(prop.pin_f, LOW);
-        digitalWrite(prop.pin_b, HIGH);
+        digitalWrite(prop.pin_f, HIGH);
+        digitalWrite(prop.pin_b, LOW);
     }
 
     /**
@@ -266,8 +271,8 @@ public:
      * @prop Gimbal property to move: roll or pitch
      */
     void moveBackward(GimbalProp prop) {
-        digitalWrite(prop.pin_f, HIGH);
-        digitalWrite(prop.pin_b, LOW);
+        digitalWrite(prop.pin_f, LOW);
+        digitalWrite(prop.pin_b, HIGH);
     }
 
     /**
@@ -276,8 +281,8 @@ public:
      * @prop Gimbal property to halt: roll or pitch
      */
     void halt(GimbalProp prop) {
-        digitalWrite(prop.pin_f, HIGH);
-        digitalWrite(prop.pin_b, HIGH);
+        digitalWrite(prop.pin_f, LOW);
+        digitalWrite(prop.pin_b, LOW);
     }
 };
 
