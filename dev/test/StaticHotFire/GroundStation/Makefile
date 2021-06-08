@@ -15,6 +15,7 @@ build-gs:
 	g++ src/GroundStation.cpp -o GroundStation -lpthread -lSerial -std=c++17
 
 build-gst:
+	#g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial
 	g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial -std=c++17
 
 build-lib:
@@ -30,4 +31,5 @@ clean:
 
 run-gst: build-gst
 	python3 flush_serial.py
-	./GST /dev/ttyACM0 57600
+	./GST /dev/cu.usbmodem143201 57600
+	#./GST /dev/ttyACM0 57600
