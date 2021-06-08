@@ -12,6 +12,10 @@ vector<string> CommandParser::split(string data, char delim)
     return tokens;
 }
 
+string CommandParser::nameParser(string name) {
+    return this->label_run(name);
+}
+
 string CommandParser::engineParser(string cmd, string values)
 {
     float value = atof(values.c_str());
@@ -190,7 +194,9 @@ string CommandParser::Parser(string cmd)
     {
         return INVALID_COMMAND;
     }
-    if (tokens[0] == "engine")
+    if (tokens[0] == "name")
+        return this->nameParser(tokens[1]);
+    else if (tokens[0] == "engine")
         return this->engineParser(tokens[1], tokens[2]);
     else if (tokens[0] == "acs")
         return this->acsParser(tokens[1], tokens[2]);
