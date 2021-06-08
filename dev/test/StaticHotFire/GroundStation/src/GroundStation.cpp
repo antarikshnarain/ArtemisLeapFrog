@@ -26,6 +26,8 @@ using namespace std;
 
 Serial *serial;
 mutex _mutex;
+<<<<<<< HEAD
+=======
 int enable_echo = 0;
 typedef std::chrono::high_resolution_clock Clock;
 typedef std::chrono::milliseconds milliseconds;
@@ -49,6 +51,7 @@ string random_string(std::size_t length)
 
     return random_string;
 }
+>>>>>>> Dev-Hardware
 
 void Receiver(std::future<void> fut)
 {
@@ -59,6 +62,9 @@ void Receiver(std::future<void> fut)
         if(serial->IsAvailable())
         {
             recv = serial->convert_to_string(serial->Recv());
+<<<<<<< HEAD
+            printf("\r>>%s\n", recv.c_str());
+=======
             if(enable_echo)
             {
                 enable_echo--;
@@ -74,6 +80,7 @@ void Receiver(std::future<void> fut)
             {
                 printf("\r>>%s\n", recv.c_str());
             }
+>>>>>>> Dev-Hardware
         }
     }
     printf("Exiting Receiver!\n");
@@ -116,6 +123,12 @@ void Sender(vector<promise<void>> exit_promises, string filename)
             _mutex.lock();
             serial->Send(data);
             _mutex.unlock();
+<<<<<<< HEAD
+            this_thread::sleep_for(std::chrono::seconds(3));
+            printf("Exiting ...\n");
+            break;
+        }
+=======
             printf("Waiting for 5 seconds for the vehicle to shutdown!\n");
             this_thread::sleep_for(std::chrono::seconds(5));
             printf("Exiting ...\n");
@@ -139,6 +152,7 @@ void Sender(vector<promise<void>> exit_promises, string filename)
             //printf("Sent Time: %s", t0);
             _mutex.unlock();
         }
+>>>>>>> Dev-Hardware
         else if(string(data) != "")
         {
             _mutex.lock();
@@ -150,12 +164,15 @@ void Sender(vector<promise<void>> exit_promises, string filename)
             _mutex.lock();
             serial->Send(commands[i]);
             _mutex.unlock();
+<<<<<<< HEAD
+=======
             if(commands[i] == "exit")
             {
                 printf("Waiting for 5 seconds for the vehicle to shutdown!\n");
                 this_thread::sleep_for(std::chrono::seconds(5));
                 printf("Exiting ...\n");
             }
+>>>>>>> Dev-Hardware
             i++;
         }
     }

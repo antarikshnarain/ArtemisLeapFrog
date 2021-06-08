@@ -13,7 +13,7 @@ MPU6050::~MPU6050()
     sleep(1);
 }
 
-MPU6050::MPU6050(int device_address, int cycles = 1000) : I2C(device_address)
+MPU6050::MPU6050(int device_address, int cycles = 1000) : I2C(1, device_address)
 {
     this->i2cWrite(SMPLRT_DIV, 4); // 7, 4
     this->i2cWrite(PWR_MGMT_1, 0); // 1, 0

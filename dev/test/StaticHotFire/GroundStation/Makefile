@@ -1,25 +1,26 @@
 objname := serial.o
 libname := libSerial.so
 
+flush-serial:
+	python3 flush_serial.py
+
 build-echo:
-	#g++ src/Serial.cpp src/Echo.cpp -Iinclude/ -o Echo -lpthread
-	g++ src/Echo.cpp -o Echo -lpthread -lSerial
+	g++ src/Echo.cpp -o Echo -lpthread -lSerial -std=c++17
 
 build-echo2:
-	#g++ src/Serial.cpp src/Echo2.cpp -Iinclude/ -o Echo2 -lpthread
-	g++ src/Echo2.cpp -o Echo2 -lpthread -lSerial
+	g++ src/Echo2.cpp -o Echo2 -lpthread -lSerial -std=c++17
 
 build-gs:
 	#g++ src/Serial.cpp src/GroundStation.cpp -Iinclude/ -o GroundStation -lpthread
-	g++ src/GroundStation.cpp -o GroundStation -lpthread -lSerial
+	g++ src/GroundStation.cpp -o GroundStation -lpthread -lSerial -std=c++17
 
 build-gst:
 	#g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial
 	g++ src/GroundStationTerminal.cpp -o GST -lpthread -lSerial -std=c++17
 
 build-lib:
-	g++ -c -Wall -Werror -fpic -Iinclude/ src/*.cpp -o $(objname)
-	g++ -shared -o $(libname) $(objname)
+	g++ -c -Wall -Werror -fpic -Iinclude/ src/*.cpp -o $(objname) -std=c++17
+	g++ -shared -o $(libname) $(objname) -std=c++17
 	rm $(objname)
 
 open-serial:

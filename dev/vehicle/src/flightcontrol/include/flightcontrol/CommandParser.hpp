@@ -45,6 +45,12 @@ protected:
     // \return status
     string cmdParser(string cmd, string values);
 
+    // \brief Command Parser for Gimbal
+    // \param command to execute
+    // \param additional params
+    // \return status
+    string gimbalParser(string cmd, string values);
+
 public:
     // \brief Primary Command Parser.
     // \param command to execute
@@ -75,7 +81,7 @@ public:
     {
         return "Engine Telemetry";
     }
-     virtual string engine_telem_3()
+    virtual string engine_telem_3()
     {
         return "Fuel Telemetry";
     }
@@ -86,6 +92,10 @@ public:
     virtual string engine_thrust(float value)
     {
         return "Setting thrust to " + to_string(value);
+    }
+    virtual string engine_thrust2(int value)
+    {
+        return "Setting thrust2 to " + to_string(value);
     }
 
     virtual string acs_enable(int value)
@@ -127,6 +137,21 @@ public:
     virtual string cmd_script(int value)
     {
         return value == 1 ? "Script enabled" : "Script disabled";
+    }
+
+    virtual string gimbal_enable(int value)
+    {
+        return value == 1 ? "gimbal enabled" : "gimbal disabled";
+    }
+    virtual string gimbal_move(float angles[2])
+    {
+        char temp[] = {'r', 'p'};
+        string send_string = "";
+        for (int i = 0; i < 2; i++)
+        {
+            send_string += "Activating " + to_string(temp[i]) + " for " + to_string(angles[i]) + '\n';
+        }
+        return send_string;
     }
 };
 

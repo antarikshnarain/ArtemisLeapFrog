@@ -7,13 +7,14 @@
 #include "actuators/msg/actuator_cold_gas_pressure.hpp"
 #include "sensors/msg/sensor_imu.hpp"
 #include <wiringPi.h>
+#include <PID.hpp>
 
 using namespace std::chrono_literals;
 
-#define PIN_ROLL_P 18
-#define PIN_ROLL_N 23
-#define PIN_PITCH_P 24
-#define PIN_PITCH_N 17
+#define PIN_ROLL_P 27
+#define PIN_ROLL_N 22
+#define PIN_PITCH_P 16
+#define PIN_PITCH_N 19
 #define PIN_YAW_P 27
 #define PIN_YAW_N 22
 
@@ -31,6 +32,10 @@ private:
     int pressure_available[4] = {5000}; // 5000ms for each tank
 
     std::mutex _mutex;
+
+    PID pid_roll = PID(0.1, 1000, 0, 1.5, 1.0, 0);
+    PID pid_pitch = PID(0.1, 1000, 0, 1.5, 1.0, 0);
+
 protected:
     bool updateCapacity(int pin, int duration)
     {
@@ -89,7 +94,7 @@ public:
         });
 
         this->imu_subscriber_ = this->create_subscription<sensors::msg::SensorImu>("/sensors/imu_data", 10, [this](const sensors::msg::SensorImu::SharedPtr msg) -> void {
-		
+            
         // Logic to actuator valves
         // Read sensor data
         // Process data for actuation
@@ -103,6 +108,32 @@ public:
          *      pass to PID controller
          *      get fire duration as output in ms
         */
+        int durations[2] = {(int) pid_roll.calculate(0.0, msg->roll), (int) pid_pitch.calculate(0.0, msg->pitch)};
+        std::thread threads[2];
+        for (int i = 0; i < 6; i++)
+        {
+            int pin = durations[i] > 0 ? 2*i : 2*i + 1;
+            threads[i] = std::thread([this](int pin, int duration) {
+                if(this->updateCapacity(pin, duration))
+                {
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Firing thruster %d for %dms",pin, duration);
+                    digitalWrite(pin, 1);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+                    digitalWrite(pin, 0);
+                }
+                else
+                {
+                    RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "Low on capacity, not firing thruster %d for %dms", pin, duration);
+                }
+                
+            },
+                                        get_pin[pin], durations[i]);
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            threads[i].join();
+        }
+
         // current_rpy = 
         // if(!this->enable_engine)
 		// {
