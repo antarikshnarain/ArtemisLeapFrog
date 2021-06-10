@@ -71,7 +71,7 @@ public:
 			}
 			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating engine thrust.");
 			//RS232 rs232_response = this->execute(RS232{1, "TRR", 1, to_string(int(new_value))});
-			RS232 rs232_response = this->execute(RS232{1, "TRR", 1, to_string(new_value)});
+			RS232 rs232_response = this->execute(RS232{1, "WPE", 1, to_string(new_value)});
 			if(rs232_response.CMDCODE != "OK")
 			{
 				response->status = rs232_response.CMDCODE;
@@ -98,7 +98,7 @@ public:
 				new_value = 100;
 			}
 			RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Updating engine thrust.");
-			RS232 rs232_response = this->execute(RS232{1, "TRR", 1, to_string(new_value)});
+			RS232 rs232_response = this->execute(RS232{1, "WPE", 1, to_string(new_value)});
 			if(rs232_response.CMDCODE != "OK")
 			{
 				response->status = rs232_response.CMDCODE;
