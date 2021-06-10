@@ -12,6 +12,10 @@ vector<string> CommandParser::split(string data, char delim)
     return tokens;
 }
 
+string CommandParser::nameParser(string name) {
+    return this->label_run(name);
+}
+
 string CommandParser::engineParser(string cmd, string values)
 {
     float value = atof(values.c_str());
@@ -21,7 +25,6 @@ string CommandParser::engineParser(string cmd, string values)
         // service
         return this->engine_ctrl(value);
     }
-
     else if (cmd == "power")
     { // service
         return this->engine_power(value);
@@ -52,6 +55,11 @@ string CommandParser::engineParser(string cmd, string values)
             // Publisher
             return this->engine_telem_3();
         }
+        else if (value == 4)
+        {
+            // Publisher
+            return this->engine_telem_4();
+        }
         else
         {
             return INVALID_COMMAND;
@@ -61,6 +69,11 @@ string CommandParser::engineParser(string cmd, string values)
     {
         // Action service
         return this->engine_thrust(value);
+    }
+    else if (cmd == "thrust2")
+    {
+        // Action service
+        return this->engine_thrust2(value);
     }
     else
         return INVALID_COMMAND;
@@ -149,6 +162,30 @@ string CommandParser::cmdParser(string cmd, string values)
     else
         return INVALID_COMMAND;
 }
+string CommandParser::gimbalParser(string cmd, string values)
+{
+    if (cmd == "enable")
+    {
+        // software flag update
+        int value = atoi(values.c_str());
+        return this->gimbal_enable(value);
+    }
+    else if (cmd == "move")
+    {
+        // service
+        float angles[2] = {0.0};
+        vector<string> tokens = this->split(values, ',');
+        for(int i=0;i<(int)tokens.size();i++)
+        {
+            //vector<string> thrust = this->split(tokens[i], '=');
+            angles[i] = atof(tokens[i].c_str());
+        }
+        // // If successful activate the thrusters
+        return this->gimbal_move(angles);
+    }
+    else
+        return INVALID_COMMAND;
+}
 
 string CommandParser::Parser(string cmd)
 {
@@ -157,7 +194,9 @@ string CommandParser::Parser(string cmd)
     {
         return INVALID_COMMAND;
     }
-    if (tokens[0] == "engine")
+    if (tokens[0] == "name")
+        return this->nameParser(tokens[1]);
+    else if (tokens[0] == "engine")
         return this->engineParser(tokens[1], tokens[2]);
     else if (tokens[0] == "acs")
         return this->acsParser(tokens[1], tokens[2]);
@@ -165,6 +204,8 @@ string CommandParser::Parser(string cmd)
         return this->sensorsParser(tokens[1], tokens[2]);
     else if (tokens[0] == "cmd")
         return this->cmdParser(tokens[1], tokens[2]);
+    else if (tokens[0] == "gimbal")
+        return this->gimbalParser(tokens[1], tokens[2]);
     else
         return this->INVALID_COMMAND;
 }

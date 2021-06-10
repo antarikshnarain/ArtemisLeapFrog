@@ -21,6 +21,7 @@ extern "C" {
 #include <vector>
 #include <future>
 #include <chrono>
+#include <string>
 
 #ifndef _I2C_h_
 #define _I2C_h_
@@ -34,18 +35,33 @@ private:
 public:
     ~I2C();
     // \brief initializes I2C communication.
+    // \param i2c port
     // \param device address
-    I2C(int);
+    I2C(int,int);
 
     // \brief Write byte data
     // \param register address
     // \param value
-    void i2cWrite(int8_t, int8_t);
+    void i2cWrite(int8_t, uint8_t);
+
+    // \brief Write word data
+    // \param register address
+    // \param word value
+    void i2cWriteWord(int8_t, uint16_t);
+
+    // \brief Send byte
+    // \param register address
+    void i2cSend(int8_t);
 
     // \brief Read register value
     // \param register address
     // \return register value
     int8_t i2cRead(int8_t);
+
+    // \brief Read word value
+    // \param register address
+    // \return word register value
+    uint16_t i2cReadWord(int8_t);
 };
 
 #endif

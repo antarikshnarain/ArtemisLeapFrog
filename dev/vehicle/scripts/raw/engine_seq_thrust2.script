@@ -1,0 +1,30 @@
+#X 80:95:1
+engine thrust2 #X
+10
+engine thrust2 95
+10
+#Y 95:80:-1
+engine thrust2 #Y
+10
+engine thrust2 80
+10
+#X 80:95:1
+engine thrust2 #X
+10
+engine thrust2 95
+10
+#Y 95:80:-1
+engine thrust2 #Y
+10
+engine thrust2 80
+10
+#X 80:95:1
+engine thrust2 #X
+10
+engine thrust2 95
+10
+#Y 95:80:-1
+engine thrust2 #Y
+10
+engine thrust2 80
+10

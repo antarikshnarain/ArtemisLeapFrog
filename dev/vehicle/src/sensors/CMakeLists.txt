@@ -36,6 +36,7 @@ find_package(rclcpp REQUIRED)
 set(msg_files
   "msg/SensorImu.msg"
   "msg/SensorLaser.msg"
+  "msg/SensorLinearActuator.msg"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -95,6 +96,34 @@ install(TARGETS laser
   DESTINATION lib/${PROJECT_NAME}
 )
 rosidl_target_interfaces(laser
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+# install the launch directory
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+## Executable Linear Acuator
+add_executable(linearActuator 
+  src/linearactuator2.cpp
+  #src/ADS1015.cpp
+)
+ament_target_dependencies(linearActuator
+  "rclcpp"
+)
+target_include_directories(linearActuator PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+#target_link_libraries(linearActuator "${si2c}" "${mi2c}" "${pthreads}")
+target_link_libraries(linearActuator "${mserial}" "${pthreads}")
+
+install(TARGETS linearActuator
+  DESTINATION lib/${PROJECT_NAME}
+)
+rosidl_target_interfaces(linearActuator
   ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # install the launch directory
