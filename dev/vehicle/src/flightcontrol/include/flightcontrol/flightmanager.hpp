@@ -92,6 +92,8 @@ public:
 
     int CopyLogs();
 
+    virtual string label_run(string name);
+
     virtual string engine_ctrl(int value);
     virtual string engine_power(int value);
     virtual string engine_enable(int value);

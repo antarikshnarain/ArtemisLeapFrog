@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 import serial
 
-ports = [("/dev/ttyACM0",57600)]
+#ports = [("/dev/ttyACM0",57600)]
+ports = [("/dev/cu.usbmodem143201",57600)]
 
 for port,baud in ports:
     print("Cleaning: ", port, " at ", baud)

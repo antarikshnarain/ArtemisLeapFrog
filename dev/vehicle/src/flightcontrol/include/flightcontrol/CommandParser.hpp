@@ -21,6 +21,11 @@ private:
     vector<string> split(string data, char delim);
 
 protected:
+    // \brief Command Parser for Name
+    // \param Name to label run
+    // \return status
+    string nameParser(string name);
+
     // \brief Command Parser for Engine
     // \param command to execute
     // \param additional params
@@ -57,6 +62,10 @@ public:
     // \return status
     string Parser(string cmd);
 
+    virtual string label_run(string name)
+    {
+        return "Labelling run to " + name;
+    }
     virtual string engine_ctrl(int value)
     {
         return value == 1 ? "Control enabled" : "Control disabled";

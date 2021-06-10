@@ -274,6 +274,13 @@ void FlightManager::ShutdownSequence()
 
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Shutdown Sequence: Complete");
 }
+
+string FlightManager::label_run(string name)
+{
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Labelling run: %d", name);
+	return "OK";
+}
+
 string FlightManager::engine_ctrl(int value)
 {
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Engine control updated %d", value);

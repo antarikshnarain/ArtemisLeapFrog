@@ -82,7 +82,7 @@ private:
 public:
     GimbalManager() : Node("Gimbal")
     {
-        for(int i=0;i<2;i++)
+        for (int i = 0;i < 2; i++)
         {
             curr_pos[i] = this->gimbalProp[i].origin;
             pinMode(gimbalProp[i].pin_f, OUTPUT);
@@ -95,7 +95,7 @@ public:
             this->gimbalProp[0].analog_read = msg->position[0];
             this->gimbalProp[1].analog_read = msg->position[1];
             //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-LinearActuator:%d,%d", this->gimbalProp[0].analog_read, this->gimbalProp[1].analog_read);
-            for(int i=0;i<2;i++)
+            for (int i = 0; i < 2; i++)
             {
                 int diff = curr_pos[i] - this->gimbalProp[i].analog_read;
                 if (abs(diff) < this->ERROR) {
@@ -180,7 +180,7 @@ public:
      * @prop Gimbal property to calibrate: roll or pitch
      */
     void calibrate(GimbalProp &prop) {
-        int duration = 3000;           // TODO: Find the actual time the linear actuator takes to fully extend
+        int duration = 3000;
         halt(prop);
         RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Calibrating gimbal...");
 
