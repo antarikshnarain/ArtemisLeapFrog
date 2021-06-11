@@ -53,7 +53,7 @@ private:
     // Sensors
 	rclcpp::Subscription<sensors::msg::SensorImu>::SharedPtr imu_subscriber_;
 	rclcpp::Subscription<sensors::msg::SensorLaser>::SharedPtr laser_subscriber_;
-    rclcpp::Subscription<sensors::msg::SensorLinearActuator>::SharedPtr linear_actuator_subscriber_;
+    rclcpp::Subscription<sensors::msg::SensorLinearActuator>::SharedPtr actuator_subscriber_;
     // Gimbal
     rclcpp::Client<actuators::srv::ActuatorMoveGimbal>::SharedPtr gimbal_client_;
 
@@ -71,7 +71,7 @@ private:
     string sub_system_status;
     string sub_imu;
     string sub_laser;
-    string sub_linear_actuator;
+    string sub_actuator;
 
     //promise<void> exit_script_thread_promise;
     promise<void> *exit_script_thread_promise = NULL;

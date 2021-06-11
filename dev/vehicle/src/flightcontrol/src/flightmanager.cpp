@@ -253,7 +253,7 @@ void FlightManager::InitializeSequence()
 																					   }
 																					   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Laser:%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum);
 																				   });
-	this->linear_actuator_subscriber_ = this->create_subscription<sensors::msg::SensorLinearActuator>("/sensors/linear_actuator", 10, [this](const sensors::msg::SensorLinearActuator::SharedPtr msg) -> void
+	this->actuator_subscriber_ = this->create_subscription<sensors::msg::SensorLinearActuator>("/sensors/linear_position", 10, [this](const sensors::msg::SensorLinearActuator::SharedPtr msg) -> void
 																				   {
 																					   if (!this->enable_sensors)
 																					   {
@@ -262,7 +262,7 @@ void FlightManager::InitializeSequence()
 																					   char buffer[128];
 																					   if (sprintf(buffer, "%d,%d,%d", msg->position) > 0)
 																					   {
-																						   this->sub_linear_actuator = std::string(buffer);
+																						   this->sub_actuator = std::string(buffer);
 																					   }
 																					   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Linear Actuator:%d", msg->position);
 																				   });
@@ -532,7 +532,7 @@ string FlightManager::sensor_telem_3()
 		return "Please enable Sensors before proceeding...";
 	}
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Linear Actuator Position requested");
-	return this->sub_linear_actuator;
+	return this->sub_actuator;
 }
 
 string FlightManager::cmd_echo(int value)
