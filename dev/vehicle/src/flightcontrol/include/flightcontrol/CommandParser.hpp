@@ -24,7 +24,7 @@ protected:
     // \brief Command Parser for Name
     // \param Name to label run
     // \return status
-    string nameParser(string name);
+    string labelParser(string name);
 
     // \brief Command Parser for Engine
     // \param command to execute
@@ -64,7 +64,7 @@ public:
 
     virtual string label_run(string name)
     {
-        return "Labelling run to " + name;
+        return "Labeling name to " + name;
     }
     virtual string engine_ctrl(int value)
     {
@@ -137,6 +137,10 @@ public:
     virtual string sensor_telem_2()
     {
         return "Battery Telemetry";
+    }
+    virtual string sensor_telem_3()
+    {
+        return "Telemetry of Linear Actuator Position";
     }
 
     virtual string cmd_echo(int value)

@@ -26,6 +26,7 @@
 // Sensors
 #include "sensors/msg/sensor_imu.hpp"
 #include "sensors/msg/sensor_laser.hpp"
+#include "sensors/msg/sensor_linear_actuator.hpp"
 
 #include "flightcontrol/CommandParser.hpp"
 
@@ -52,6 +53,7 @@ private:
     // Sensors
 	rclcpp::Subscription<sensors::msg::SensorImu>::SharedPtr imu_subscriber_;
 	rclcpp::Subscription<sensors::msg::SensorLaser>::SharedPtr laser_subscriber_;
+    rclcpp::Subscription<sensors::msg::SensorLinearActuator>::SharedPtr linear_actuator_subscriber_;
     // Gimbal
     rclcpp::Client<actuators::srv::ActuatorMoveGimbal>::SharedPtr gimbal_client_;
 
@@ -69,6 +71,7 @@ private:
     string sub_system_status;
     string sub_imu;
     string sub_laser;
+    string sub_linear_actuator;
 
     //promise<void> exit_script_thread_promise;
     promise<void> *exit_script_thread_promise = NULL;
@@ -112,6 +115,7 @@ public:
     virtual string sensor_telem_0();
     virtual string sensor_telem_1();
     virtual string sensor_telem_2();
+    virtual string sensor_telem_3();
 
     virtual string cmd_echo(int value);
     virtual string cmd_script(int value);

@@ -94,13 +94,13 @@ public:
         this->actuator_subscriber_ = this->create_subscription<sensors::msg::SensorLinearActuator>("/sensors/linear_position", 10, [this](const sensors::msg::SensorLinearActuator::SharedPtr msg) -> void {
             this->gimbalProp[0].analog_read = msg->position[0];
             this->gimbalProp[1].analog_read = msg->position[1];
-            //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-LinearActuator:%d,%d", this->gimbalProp[0].analog_read, this->gimbalProp[1].analog_read);
+            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-LinearActuator:%d,%d", this->gimbalProp[0].analog_read, this->gimbalProp[1].analog_read);
             for (int i = 0; i < 2; i++)
             {
                 int diff = curr_pos[i] - this->gimbalProp[i].analog_read;
                 if (abs(diff) < this->ERROR) {
                     halt(this->gimbalProp[i]);
-                    //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Halt Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
+                    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Halt Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
                 } else if (diff > 0) {
                     moveForward(this->gimbalProp[i]);
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Forward Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
@@ -109,7 +109,7 @@ public:
                     moveBackward(this->gimbalProp[i]);
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Backward Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
                 }
-                //RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
+                RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
             }
         });
 
@@ -252,7 +252,7 @@ public:
      */
     int mapFunc(int x) {
         //return x;
-        return (x - this->in_min) * (this->out_max - out_min) / (in_max - in_min) + out_min;
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
     
 

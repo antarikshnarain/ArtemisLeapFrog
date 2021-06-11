@@ -12,7 +12,7 @@ vector<string> CommandParser::split(string data, char delim)
     return tokens;
 }
 
-string CommandParser::nameParser(string name) {
+string CommandParser::labelParser(string name) {
     return this->label_run(name);
 }
 
@@ -138,6 +138,11 @@ string CommandParser::sensorsParser(string cmd, string values)
             // subscriber
             return this->sensor_telem_2();
         }
+        else if (value == 3) 
+        {
+            // subscriber
+            return this->sensor_telem_3();
+        }
         else
         {
             return INVALID_COMMAND;
@@ -194,8 +199,8 @@ string CommandParser::Parser(string cmd)
     {
         return INVALID_COMMAND;
     }
-    if (tokens[0] == "name")
-        return this->nameParser(tokens[1]);
+    if (tokens[0] == "label" && tokens[1] == "name")
+        return this->labelParser(tokens[2]);
     else if (tokens[0] == "engine")
         return this->engineParser(tokens[1], tokens[2]);
     else if (tokens[0] == "acs")

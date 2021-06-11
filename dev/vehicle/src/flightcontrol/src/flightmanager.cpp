@@ -253,6 +253,19 @@ void FlightManager::InitializeSequence()
 																					   }
 																					   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Laser:%d,%d,%d", msg->distance, msg->sig_strength, msg->checksum);
 																				   });
+	this->linear_actuator_subscriber_ = this->create_subscription<sensors::msg::SensorLinearActuator>("/sensors/linear_actuator", 10, [this](const sensors::msg::SensorLinearActuator::SharedPtr msg) -> void
+																				   {
+																					   if (!this->enable_sensors)
+																					   {
+																						   return;
+																					   }
+																					   char buffer[128];
+																					   if (sprintf(buffer, "%d,%d,%d", msg->position) > 0)
+																					   {
+																						   this->sub_linear_actuator = std::string(buffer);
+																					   }
+																					   RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Sensors-Linear Actuator:%d", msg->position);
+																				   });
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Initialized Subscriptions.");
 }
 
@@ -277,7 +290,7 @@ void FlightManager::ShutdownSequence()
 
 string FlightManager::label_run(string name)
 {
-	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Labelling run: %d", name);
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Labeling name: %d", name);
 	return "OK";
 }
 
@@ -512,6 +525,15 @@ string FlightManager::sensor_telem_2()
 	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Battery Data requested");
 	return "NOT IMPLEMENTED.";
 }
+string FlightManager::sensor_telem_3()
+{
+	if (!this->enable_sensors)
+	{
+		return "Please enable Sensors before proceeding...";
+	}
+	RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Linear Actuator Position requested");
+	return this->sub_linear_actuator;
+}
 
 string FlightManager::cmd_echo(int value)
 {
@@ -548,7 +570,7 @@ string FlightManager::gimbal_move(float angles[2])
 	else
 	{
 		//Something went wrong
-		return "Something went wrong!, move_gimbal failed";
+		return "Something went wrong!, gimbal_move failed";
 	}
 }
 
