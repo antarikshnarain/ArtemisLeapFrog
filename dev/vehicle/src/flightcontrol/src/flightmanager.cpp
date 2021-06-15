@@ -260,7 +260,7 @@ void FlightManager::InitializeSequence()
 																						   return;
 																					   }
 																					   char buffer[128];
-																					   if (sprintf(buffer, "%d,%d,%d", msg->position) > 0)
+																					   if (sprintf(buffer, "%d,%d", msg->position[0], msg->position[1]) > 0)
 																					   {
 																						   this->sub_actuator = std::string(buffer);
 																					   }
@@ -488,7 +488,7 @@ string FlightManager::acs_fire(int durations[6])
 	else
 	{
 		//Something went wrong
-		return "Something went wrong!, engine_thrust";
+		return "Something went wrong!, acs_fire";
 	}
 }
 

@@ -109,7 +109,7 @@ public:
                     moveBackward(this->gimbalProp[i]);
                     RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Backward Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
                 }
-                RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Linear Actuator Position: %d, %d", this->actuator_subscriber_.position[0], this->actuator_subscriber_.position[1]);
+                RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Linear Actuator Position: %d, %d", msg->position[0], msg->position[1]);
                 RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Moving Position - From: %d, To: %d", curr_pos[i], this->gimbalProp[i].analog_read);
             }
         });

@@ -5,20 +5,20 @@ acs enable 1
 gimbal enable 1
 10
 gimbal move 520,550
-10
-gimbal move 200,550
+1000
+gimbal move 350,550
 3000
 gimbal move 520,550
 1000
-gimbal move 800,550
+gimbal move 700,550
 3000
 gimbal move 520,550
 1000
-gimbal mmove 520,100
+gimbal move 520,350
 3000
 gimbal move 520,550
 1000
-gimbal move 520,800
+gimbal move 520,700
 3000
 gimbal move 520,550
 1000
